@@ -1,0 +1,2 @@
+zfsmanager_conf=Path to ZFS Manager configuration file,0
+sort_mode=Sort users by,1,1-Name,0-ID

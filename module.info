@@ -1,0 +1,3 @@
+desc=ZFS Manager
+os_support=*-linux
+category=hardware

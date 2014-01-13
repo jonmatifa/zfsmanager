@@ -1,0 +1,5 @@
+index_title=ZFS Manager
+index_root=The root directory is $1.
+index_return=pool list
+
+status_title=Zpool Status
