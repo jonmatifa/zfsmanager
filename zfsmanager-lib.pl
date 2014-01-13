@@ -92,16 +92,53 @@ return %hash;
 #zpool_status($pool)
 sub zpool_status
 {
-#zpool status
 local ($pool)=@_;
+local @table=();
+local %hash=();
+local $count=0;
+local $junk=();
 local $status=`zpool status $pool`;
+open local $fh, "<", \$status;
+while (local $line =<$fh>)
+{
+    chomp ($line);
+	if ($count == 0) 
+	{
+		local($junk, $hash{ 'pool' }) = split(": ", $line);
+	}
+	if ($count == 1) 
+	{
+		local($junk, $hash{ 'state' }) = split(": ", $line);
+	}
+	if ($count == 2) 
+	{
+		local($junk, $hash{ 'scan' }) = split(": ", $line);
+	}
+	if ($count == 3 || $count == 4 || $count == 5) 
+	{
+		local $junk = <$fh>;
+	}
+	$count++;
+    local($name, $state, $read, $write, $cksum) = split(" ", $line);
+    $hash{ 'config' } = [ $name, $state, $read, $write, $cksum ];
+}
+
 return $status;
+}
+
+#zfs_get($pool, $property)
+sub zfs_get
+{
+local ($zfs, $property) = @_;
+local $get=`zfs get $zfs $property`;
+return `zfs get $property $zfs`;
 }
 
 sub zpool_list
 {
 #TODO massage data into something better
-return `zpool list`;
+local $list=`zpool list`;
+return $list;
 }
 
 
