@@ -1,6 +1,7 @@
 index_title=ZFS Manager
 index_root=The root directory is $1.
 index_return=pool list
+snapshot_return=snapshot list
 
 status_title=Zpool Status
 vdev_title=Manage Virtual Device

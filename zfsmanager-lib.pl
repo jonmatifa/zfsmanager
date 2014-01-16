@@ -192,7 +192,7 @@ return $list;
 #cmd_online($pool, $vdev)
 sub cmd_online
 {
-my ($pool, $vdev)  = @_;
+my ($pool, $vdev) = @_;
 my $cmd = "zpool online $pool $vdev";
 my @result = ($cmd, `$cmd`);
 return @result;
@@ -201,18 +201,51 @@ return @result;
 #cmd_offline($pool, $vdev)
 sub cmd_offline
 {
-my ($pool, $vdev)  = @_;
+my ($pool, $vdev) = @_;
 my $cmd = "zpool offline $pool $vdev";
 my @result = ($cmd, `$cmd`);
-return $result;
+return @result;
 }
 
 #cmd_remove($pool, $vdev)
 sub cmd_remove
 {
-my ($pool, $vdev)  = @_;
+my ($pool, $vdev) = @_;
 my $cmd="zpool remove $pool $vdev";
 @result = ($cmd, `$cmd`);
+return @result;
+}
+
+#cmd_snapshot($snap)
+sub cmd_snapshot
+{
+my ($snap)  = @_;
+my $cmd="zfs snapshot $snap";
+@result = ($cmd, `$cmd`);
+return @result;
+}
+
+#cmd_destroy_zfs($zfs, $confirm)
+sub cmd_destroy_zfs
+{
+my ($zfs, $confirm) = @_;
+my $cmd="zfs destroy $zfs";
+if ($confirm =~ /yes/) 
+	{ 
+		@result = ($cmd, `$cmd`);
+	} else 
+	{ 
+		@result = ($cmd, "" ); 
+	}
+return @result;
+}
+
+#cmd_destroy_zpool($zpool, $confirm)
+sub cmd_destroy_zpool
+{
+my ($zpool, $confirm) = @_;
+my $cmd="zpool destroy $zpool";
+if ($confirm =~ /1/) { @result = ($cmd, `$cmd`)} else { @result = ($cmd, "" ) };
 return @result;
 }
 

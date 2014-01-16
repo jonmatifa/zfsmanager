@@ -48,6 +48,41 @@ if ($in{'remove'})
 	{
 	print "error: ", $result[1], "<br />";
 	}
-	print Dumper @result;
 ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+}
+
+if ($in{'snap'})
+{
+	print "Attempting to create snapshot $in{'snap'} with command... <br />";
+	my @result = cmd_snapshot($in{'zfs'}."@".$in{'snap'});
+	print $result[0], "<br />";
+	if ($result[1] == //)
+	{
+		print "Success! <br />";
+	} else
+	{
+	print "error: ", $result[1], "<br />";
+	}
+ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+}
+
+if ($in{'destroy'})
+{
+	print "Attempting to destroy $in{'destroy'} with command... <br />";
+	my @result = cmd_destroy_zfs($in{'destroy'}, $in{'confirm'});
+	print $result[0], "<br />";
+	if (!$in{'confirm'})
+	{
+		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
+		print "<a href='cmd.cgi?destroy=", $in{'destroy'}, "&confirm=yes'>Yes</a> <a href='index.cgi'>No</a>";
+	} else {
+		if (($result[1] == //))
+		{
+			print "Success! <br />";
+		} else
+		{
+		print "error: ", $result[1], "<br />";
+		}
+	}
+ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
 }
