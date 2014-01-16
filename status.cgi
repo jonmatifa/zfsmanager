@@ -13,14 +13,23 @@ if ($in{'pool'})
 #print "<br >";
 %status = zpool_status($in{'pool'});
 #print Dumper(\%status);
-print "<br />";
-print "Pool: ", $status{pool}{pool}, "<br />";
-print "State: ", $status{pool}{state}, "<br />";
-print "Scan: ", $status{pool}{scan}, "<br />";
-print "Read: ", $status{pool}{read}, "<br />";
-print "Write: ", $status{pool}{write}, "<br />";
-print "Cksum: ", $status{pool}{cksum}, "<br />";
-print "Config: <br />";
+%zpool = list_zpools($in{'pool'});
+print "Pool:";
+print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Cap", "Dedup", "Health"]);
+foreach $key (sort(keys %zpool))
+{
+    print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
+}
+print ui_columns_end();
+%zfs = list_zfs("-r ".$in{'pool'});
+print "Filesystems:";
+print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
+foreach $key (sort(keys %zfs)) 
+{
+    print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+}
+print ui_columns_end();
+print "Config:";
 print ui_columns_start([ "Name", "State", "Read", "Write", "Cksum" ]);
 foreach $key (sort(keys %status)) 
 {
@@ -34,6 +43,12 @@ foreach $key (sort(keys %status))
 	#print ui_columns_row(["<a href=''>$status{$key}{name}</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}, $status{$key}{parent}]);
 }
 print ui_columns_end();
+print "<table border=0px width=100%><tr>";
+print "<td width=40%>Scan: ", $status{pool}{scan}, " </td>";
+print "<td width=20%>Read: ", $status{pool}{read}, " </td>";
+print "<td width=20%>Write: ", $status{pool}{write}, " </td>";
+print "<td width=20%>Cksum: ", $status{pool}{cksum}, " </td>";
+print "</tr></table>";
 print "Errors: ", $status{pool}{errors}, "<br />";
 }
 

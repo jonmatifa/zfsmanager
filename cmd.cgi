@@ -74,7 +74,7 @@ if ($in{'destroy'})
 	if (!$in{'confirm'})
 	{
 		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
-		print "<a href='cmd.cgi?destroy=", $in{'destroy'}, "&confirm=yes'>Yes</a> <a href='index.cgi'>No</a>";
+		print "<a href='cmd.cgi?destroy=", $in{'destroy'}, "&confirm=yes'>Yes</a> <a href='index.cgi?mode=snapshot'>No</a>";
 	} else {
 		if (($result[1] == //))
 		{

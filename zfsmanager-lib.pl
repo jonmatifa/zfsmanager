@@ -19,11 +19,12 @@ return @rv;
 
 sub list_zpools
 {
+my ($pool) = @_;
 #zpool list
 #my @table=();
 my %hash=();
 #expecting NAME SIZE ALLOC FREE CAP DEDUP HEALTH ALTROOT
-$list=`zpool list -H`;
+$list=`zpool list -H $pool`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
@@ -60,6 +61,7 @@ return %hash;
 
 sub list_snapshots
 {
+#my ($zfs) = @_;
 #zfs list -t snapshot
 #my @table=();
 my %hash=();
@@ -251,20 +253,5 @@ return @result;
 
 sub test_function
 {
-#zpool list
-my @table=();
-my %hash=();
-#expecting NAME SIZE ALLOC FREE CAP DEDUP HEALTH ALTROOT
-$list=`zpool list`;
 
-open my $fh, "<", \$list;
-my @table = split("", $firstline=<$fh>);
-while (my $line =<$fh>)
-{
-    chomp ($line);
-    my($name, $size, $alloc, $free, $cap, $dedup, $health, $altroot) = split(" ", $line);
-    #$hash{$name} = [ $size, $alloc, $free, $cap, $dedup, $health, $altroot ];
-	$hash{$name} = { size => $size, alloc => $alloc, free => $free, cap => $cap, dedup => $dedup, health => $health, altroot => $altroot };
-}
-return %hash;
 }

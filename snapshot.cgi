@@ -34,7 +34,7 @@ if ($in{'snap'})
 	print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
 	foreach $key (sort(keys %snapshot)) 
 	{
-		if ($key =~ /$in{'zfs'}/ ) { print ui_columns_row(["<a href='snapshot.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
+		if ($key =~ $in{'zfs'}."@" ) { print ui_columns_row(["<a href='snapshot.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
 	}
 	print ui_columns_end();
 	print "<form action='cmd.cgi' method='get'>";
