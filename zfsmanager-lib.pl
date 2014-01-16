@@ -1,6 +1,7 @@
 BEGIN { push(@INC, ".."); };
 use WebminCore;
 init_config();
+foreign_require("mount", "mount-lib.pl");
 
 sub get_zfsmanager_config
 {
@@ -137,7 +138,7 @@ while (my $line =<$fh>)
 	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors'))
 	{
 		$status{pool}{$key} = $value;
-	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /status/) || ($line =~ /action/))
+	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /status:/) || ($line =~ /action:/) || ($line =~ /see:/))
 	{
 		#do nothing
 	} else
@@ -159,7 +160,7 @@ while (my $line =<$fh>)
 			
 		#check if vdev is a log or cache vdev
 
-		} elsif (($name =~ /mirror/) || ($name =~ /raidz/))
+		} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
 		{
 			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
 			$parent = $name;

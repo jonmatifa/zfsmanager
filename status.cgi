@@ -9,10 +9,10 @@ $conf = get_zfsmanager_config();
 #show pool status
 if ($in{'pool'})
 {
-
-#print "<br >";
 %status = zpool_status($in{'pool'});
 #print Dumper(\%status);
+
+#Show pool information
 %zpool = list_zpools($in{'pool'});
 print "Pool:";
 print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Cap", "Dedup", "Health"]);
@@ -21,6 +21,8 @@ foreach $key (sort(keys %zpool))
     print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
 }
 print ui_columns_end();
+
+#Show associated file systems
 %zfs = list_zfs("-r ".$in{'pool'});
 print "Filesystems:";
 print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
@@ -29,6 +31,9 @@ foreach $key (sort(keys %zfs))
     print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 }
 print ui_columns_end();
+
+#Show device configuration
+#TODO: show devices by vdev hierarchy 
 print "Config:";
 print ui_columns_start([ "Name", "State", "Read", "Write", "Cksum" ]);
 foreach $key (sort(keys %status)) 
