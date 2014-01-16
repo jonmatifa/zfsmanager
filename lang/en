@@ -3,3 +3,6 @@ index_root=The root directory is $1.
 index_return=pool list
 
 status_title=Zpool Status
+vdev_title=Manage Virtual Device
+cmd_title=Results from command
+snapshot_title=Snapshot
