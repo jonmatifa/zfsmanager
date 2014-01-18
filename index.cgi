@@ -38,15 +38,9 @@ print &ui_tabs_end_tab("mode", "zfs");
 
 #start snapshots tab
 print &ui_tabs_start_tab("mode", "snapshot");
-%snapshot = list_snapshots();
-print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
-foreach $key (sort(keys %snapshot)) 
-{
-    print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
-}
-print ui_columns_end();
+ui_list_snapshots();
 print "<a href='snapshot.cgi?new=1'>Create snapshot</a>";
-print &ui_tabs_end_tab("mode", "zfs");
+print &ui_tabs_end_tab("mode", "snapshot");
 
 #end tabs
 print &ui_tabs_end(1);

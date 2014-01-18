@@ -191,8 +191,7 @@ while (my $line =<$fh>)
 {
     chomp ($line);
     my($name, $property, $value, $source) = split(/\t/, $line);
-    #$hash{$name} = [ $used, $avail, $refer, $mount ];
-	$hash{$name}{$property} = { value => $value, refer => $source };
+	$hash{$name}{$property} = { value => $value, source => $source };
 }
 return %hash;
 }
@@ -212,8 +211,7 @@ while (my $line =<$fh>)
 {
     chomp ($line);
 	my($name, $property, $value, $source) = split(/\s+/, $line);
-    #$hash{$name} = [ $used, $avail, $refer, $mount ];
-	$hash{$name}{$property} = { value => $value, refer => $source };
+	$hash{$name}{$property} = { value => $value, source => $source };
 }
 return %hash;
 }
@@ -225,7 +223,9 @@ my ($type)=@_;
 my %list = ( 'boolean' => [ "atime", "canmount", "devices", "exec", "readonly", "setuid", "xattr" ],
 			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
 			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
-my %list2 = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'xattr' => 'boolean' );
+my %list2 = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
+			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9', 'copies' => '1, 2, 3', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 
+			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special');
 #if ($type != undef)
 #{
 #	return @list{$type};
@@ -315,6 +315,87 @@ my ($zpool, $confirm) = @_;
 my $cmd="zpool destroy $zpool";
 if ($confirm =~ /1/) { @result = ($cmd, `$cmd`)} else { @result = ($cmd, "" ) };
 return @result;
+}
+
+sub ui_zpool_status
+{
+my ($pool) = @_;
+my %zpool = list_zpools($pool);
+print "Pool:";
+print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Cap", "Dedup", "Health"]);
+foreach $key (sort(keys %zpool))
+{
+    print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
+}
+print ui_columns_end();
+}
+
+sub ui_zpool_properties
+{
+my ($pool) = @_;
+my %hash = zpool_get($pool, "all");
+my %properties = properties_list();
+print ui_table_start("Properties", "width=100%", "10");
+foreach $key (sort(keys $hash{$pool}))
+{
+	if ($properties{$key} =~ 'boolean')
+	{
+		if ($hash{$in{'pool'}}{$key}{value} =~ "on") {
+			print ui_table_row($key, $hash{$pool}{$key}{value});
+		} else {
+			print ui_table_row($key, $hash{$pool}{$key}{value});
+		}
+	} else {
+	print ui_table_row($key, $hash{$pool}{$key}{value});
+	}
+}
+print ui_table_end();
+}
+
+sub ui_zfs_list
+{
+my ($zfs)=@_;
+%zfs = list_zfs($zfs);
+print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
+foreach $key (sort(keys %zfs)) 
+{
+	print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+}
+print ui_columns_end();
+}
+
+sub ui_zfs_properties
+{
+my ($zfs)=@_;
+my %hash = zfs_get($zfs, "all");
+my %properties = properties_list();
+print ui_table_start("Properties", "width=100%", "10");
+foreach $key (sort(keys $hash{$zfs}))
+{		
+	if ($properties{$key})
+	{		
+		print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value});
+	} else {
+	print ui_table_row($key, $hash{$zfs}{$key}{value});
+	}
+}
+print ui_table_end();
+}
+
+sub ui_list_snapshots
+{
+my ($zfs) = @_;
+%snapshot = list_snapshots();
+print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
+foreach $key (sort(keys %snapshot)) 
+{
+	if ($zfs =~ undef) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
+	else {
+		if ($key =~ ($zfs."@")) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
+	}
+} 
+print ui_columns_end();
+
 }
 
 sub ui_create_snapshot

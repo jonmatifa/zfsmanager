@@ -18,22 +18,14 @@ if ($in{'snap'})
 		print ui_columns_row(["<a href='snapshot.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	}
 	print ui_columns_end();
-	%hash = zfs_get($in{'snap'}, "all");
-	print ui_table_start("Properties", "width=100%", "10");
-	foreach $key (sort(keys $hash{$in{'snap'}}))
-	{
-		print ui_table_row($key, $hash{$in{'snap'}}{$key}{value});
-		$count++;
-	}
-	#print ui_columns_table();
-	#print ui_columns_end();
-	print ui_table_end();
+	ui_zfs_properties($in{'snap'});
 
-	print "<a href='cmd.cgi?destroy=", $in{'snap'}, "'>Destroy snapshot</a> |";
+	#print "<a href='cmd.cgi?destroy=", $in{'snap'}, "'>Destroy snapshot</a> |";
+	print ui_popup_link('Destroy snapshot', "cmd.cgi?destroy=".$in{'snap'}). " |";
 	my $zfs = $in{'snap'};
 	$zfs =~ s/\@.*//;
 	print " <a href='snapshot.cgi?zfs=", $zfs, "'>Create new snapshot based on ", $zfs, "</a> |";
-	print " Clone snapshot | Rollback to snapshot";
+	print " Clone snapshot | Rollback to snapshot | Send snapshot";
 #prompt for which filesystem snapshot should be based on
 } elsif ($in{'new'}) {
 	ui_print_header(undef, $text{'snapshot_new'}, "", undef, 1, 1);
