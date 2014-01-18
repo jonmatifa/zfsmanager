@@ -404,7 +404,7 @@ sub ui_create_snapshot
 my ($zfs) = @_;
 print ui_form_start('cmd.cgi', 'get');
 print "Create new snapshot based on filesystem: ", $zfs, "<br />";
-my $date = strftime "ZFS_Manager_%Y-%m-%d-%H%M", localtime;
+my $date = strftime "zfs_manager_%Y-%m-%d-%H%M", localtime;
 print $zfs, "@ ", ui_textbox('snap', $date);
 print ui_hidden('zfs', $zfs);
 #print ui_form_end(["<input type='submit' value='submit'>"]);
