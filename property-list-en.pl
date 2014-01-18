@@ -90,6 +90,16 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   set this property at file system creation time  by  using  the  "-o
 	   copies=" option.',
 	   
+	   'dedup' => 'Configures deduplication for a dataset. The default value is off.
+	 The default deduplication checksum is sha256 (this may change in the
+	 future).  When dedup is enabled, the checksum defined here overrides
+	 the checksum property. Setting the value to verify has the same
+	 effect as the setting sha256,verify.
+
+	 If set to verify, ZFS will do a byte-to-byte comparsion in case of
+	 two blocks having the same signature to make sure the block contents
+	 are identical.',
+	   
 	   'devices' => 'Controls  whether  device  nodes can be opened on this file system.
 	   The default value is "on".',
 	   
