@@ -44,13 +44,15 @@ print "Children: ";
 	print "VDEV Status: ", $status{$in{'dev'}}{state}, "<br />";
 	if ($status{$in{'dev'}}{state} =~ "OFFLINE")
 	{
-		print "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>bring device online</a><br />";
+		print ui_popup_link('bring device online', "cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}"), "<br />";
+		#print "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>bring device online</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
 	if ($status{$in{'dev'}}{state} =~ "ONLINE")
 	{
-		print "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>bring device offline</a><br />";
+		print ui_popup_link('bring device offline', "cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}"), "<br />";
+		#print "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>bring device offline</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
