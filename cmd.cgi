@@ -3,7 +3,8 @@
 require './zfsmanager-lib.pl';
 ReadParse();
 use Data::Dumper;
-ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
+#ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
+popup_header($text{'cmd_title'});
 $conf = get_zfsmanager_config();
 
 if ($in{'online'})
@@ -14,11 +15,13 @@ if ($in{'online'})
 	if ($result[1] == //)
 	{
 		print "Success! <br />";
+		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 	} else
 	{
 	print "error: ", $result[1], "<br />";
 	}
-ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+#ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+popup_footer();
 }
 
 if ($in{'offline'})
@@ -29,11 +32,13 @@ if ($in{'offline'})
 	if ($result[1] == //)
 	{
 		print "Success! <br />";
+		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 	} else
 	{
 	print "error: ", $result[1], "<br />";
 	}
-ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+#ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+popup_footer();
 }
 
 if ($in{'remove'})
@@ -44,11 +49,13 @@ if ($in{'remove'})
 	if ($result[1] == //)
 	{
 		print "Success! <br />";
+		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 	} else
 	{
 	print "error: ", $result[1], "<br />";
 	}
-ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+#ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+popup_footer();
 }
 
 if ($in{'snap'})
@@ -59,11 +66,13 @@ if ($in{'snap'})
 	if ($result[1] == //)
 	{
 		print "Success! <br />";
+		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 	} else
 	{
 	print "error: ", $result[1], "<br />";
 	}
-ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+#ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+popup_footer();
 }
 
 if ($in{'destroy'})
@@ -74,15 +83,41 @@ if ($in{'destroy'})
 	if (!$in{'confirm'})
 	{
 		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
-		print "<a href='cmd.cgi?destroy=", $in{'destroy'}, "&confirm=yes'>Yes</a> <a href='index.cgi?mode=snapshot'>No</a>";
+		print "<a href='cmd.cgi?destroy=", $in{'destroy'}, "&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
 	} else {
 		if (($result[1] == //))
 		{
 			print "Success! <br />";
+			print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 		} else
 		{
 		print "error: ", $result[1], "<br />";
 		}
 	}
-ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+#ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+popup_footer();
+}
+
+# cmd.cgi?zfs=&property=&set=&confirm=
+if ($in{'set'})
+{
+	print "Attempting to set zfs property $in{'property'} to $in{'set'} in $in{'zfs'} with command... <br />";
+	my @result = cmd_zfs_set($in{'zfs'}, $in{'property'}, $in{'set'}, $in{'confirm'});
+	print $result[0], "<br />";
+	if (!$in{'confirm'})
+	{
+		print "<h3>Would you lke to continue?</h3>";
+		print "<a href='cmd.cgi?zfs=$in{'zfs'}&property=$in{'property'}&set=$in{'set'}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
+	} else {
+		if (($result[1] == //))
+		{
+			print "Success! <br />";
+			print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		} else
+		{
+		print "error: ", $result[1], "<br />";
+		}
+	}
+#ui_print_footer("index.cgi?mode=zfs", $text{'zfs_return'});
+popup_footer();
 }

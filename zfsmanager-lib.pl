@@ -62,12 +62,12 @@ return %hash;
 
 sub list_snapshots
 {
-#my ($zfs) = @_;
+my ($snap) = @_;
 #zfs list -t snapshot
 #my @table=();
 my %hash=();
 #expecting NAME USED AVAIL REFER MOUNTPOINT
-$list=`zfs list -t snapshot -H`;
+$list=`zfs list -t snapshot $snap -H`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
@@ -181,8 +181,37 @@ return %status;
 sub zfs_get
 {
 my ($zfs, $property) = @_;
-my $get=`zfs get $zfs $property`;
-return `zfs get $property $zfs`;
+if (~$property) {my $property="all";}
+my %hash=();
+my $get=`zfs get $property $zfs -H`;
+#return `zfs get $property $zfs -H`;
+open my $fh, "<", \$get;
+#expecting NAME PROPERTY VALUE SOURCE
+while (my $line =<$fh>)
+{
+    chomp ($line);
+    my($name, $property, $value, $source) = split(/\t/, $line);
+    #$hash{$name} = [ $used, $avail, $refer, $mount ];
+	$hash{$name}{$property} = { value => $value, refer => $source };
+}
+return %hash;
+}
+
+sub properties_list
+#return hash of properties that can be set manually and their data type
+{
+my ($type)=@_;
+my %list = ( 'boolean' => [ "atime", "canmount", "devices", "exec", "readonly", "setuid", "xattr" ],
+			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
+			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
+my %list2 = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'xattr' => 'boolean' );
+#if ($type != undef)
+#{
+#	return @list{$type};
+#} else 
+#{
+return %list2;
+#}
 }
 
 sub zpool_list
@@ -228,6 +257,21 @@ my $cmd="zfs snapshot $snap";
 return @result;
 }
 
+#cmd_zfs_set($zfs, $property $value, $confirm)
+sub cmd_zfs_set
+{
+my ($zfs, $property, $value, $confirm) = @_;
+my $cmd="zfs set $property=$value $zfs";
+if ($confirm =~ /yes/) 
+	{ 
+		@result = ($cmd, `$cmd`);
+	} else 
+	{ 
+		@result = ($cmd, "" ); 
+	}
+return @result;
+}
+
 #cmd_destroy_zfs($zfs, $confirm)
 sub cmd_destroy_zfs
 {
@@ -250,6 +294,24 @@ my ($zpool, $confirm) = @_;
 my $cmd="zpool destroy $zpool";
 if ($confirm =~ /1/) { @result = ($cmd, `$cmd`)} else { @result = ($cmd, "" ) };
 return @result;
+}
+
+sub ui_create_snapshot
+{
+my ($zfs) = @_;
+print ui_form_start('cmd.cgi', 'get');
+print "Create new snapshot based on filesystem: ", $zfs, "<br />";
+print $zfs, "@ ", ui_textbox('snap');
+print ui_hidden('zfs', $zfs);
+#print ui_form_end(["<input type='submit' value='submit'>"]);
+print popup_window_button( 'cmd.cgi', '400', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] );
+#print ui_form_end([ [popup_window_button('cmd.cgi', '400', '400', '1', [[ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs']]), "submit" ]]);
+}
+
+sub ui_popup_link
+{
+my ($name, $url)=@_;
+return "<a onClick=\"\window.open('$url', 'cmd', 'toolbar=no,menubar=no,scrollbars=yes,width=600,height=400,resizable=yes'); return false\"\ href='$url'>$name</a>";
 }
 
 sub test_function

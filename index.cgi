@@ -3,7 +3,7 @@
 require './zfsmanager-lib.pl';
 &ReadParse();
 use Data::Dumper;
-ui_print_header(undef, $text{'index_title'}, "", undef, 1, 1, 0, &help_search_link("zfs, zpool", "man", "doc", "google"), undef, undef, "version 0.0.1" );
+ui_print_header(undef, $text{'index_title'}, "", undef, 1, 1, 0, &help_search_link("zfs, zpool", "man", "doc", "google"), undef, undef, $text{'index_version'} );
 
 $conf = get_zfsmanager_config();
 
@@ -42,7 +42,7 @@ print &ui_tabs_start_tab("mode", "snapshot");
 print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
 foreach $key (sort(keys %snapshot)) 
 {
-    print ui_columns_row(["<a href='snapshot.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+    print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 }
 print ui_columns_end();
 print "<a href='snapshot.cgi?new=1'>Create snapshot</a>";

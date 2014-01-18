@@ -1,9 +1,14 @@
 index_title=ZFS Manager
 index_root=The root directory is $1.
+index_version=version testing pre-alpha 0.0.1
 index_return=pool list
 snapshot_return=snapshot list
+zfs_return=file system list
 
 status_title=Zpool Status
 vdev_title=Manage Virtual Device
 cmd_title=Results from command
-snapshot_title=Snapshot
+
+snapshot_title=Snapshot 
+snapshot_create=Create Snapshot
+snapshot_new=Select filesystem for snapshot
