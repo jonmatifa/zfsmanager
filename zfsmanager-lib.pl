@@ -1,5 +1,6 @@
 BEGIN { push(@INC, ".."); };
 use WebminCore;
+use POSIX qw(strftime);
 init_config();
 foreign_require("mount", "mount-lib.pl");
 
@@ -403,7 +404,8 @@ sub ui_create_snapshot
 my ($zfs) = @_;
 print ui_form_start('cmd.cgi', 'get');
 print "Create new snapshot based on filesystem: ", $zfs, "<br />";
-print $zfs, "@ ", ui_textbox('snap');
+my $date = strftime "ZFS_Manager_%Y-%m-%d-%H%M", localtime;
+print $zfs, "@ ", ui_textbox('snap', $date);
 print ui_hidden('zfs', $zfs);
 #print ui_form_end(["<input type='submit' value='submit'>"]);
 print popup_window_button( 'cmd.cgi', '400', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] );
