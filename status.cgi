@@ -84,7 +84,7 @@ if ($in{'zfs'})
 	my %hash = zfs_get($in{'zfs'}, "all");
 	my %properties = properties_list();
 	#my %boolean = map { $_ => 1 } @properties;
-	print Dumper(\%properties);
+	#print Dumper(\%properties);
 	#print $properties{boolean}[0];
 	print ui_table_start("Properties", "width=100%", "10");
 	foreach $key (sort(keys $hash{$in{'zfs'}}))
