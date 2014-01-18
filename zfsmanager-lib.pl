@@ -197,6 +197,27 @@ while (my $line =<$fh>)
 return %hash;
 }
 
+#zpool_get($pool, $property)
+sub zpool_get
+{
+my ($pool, $property) = @_;
+if (~$property) {my $property="all";}
+my %hash=();
+my $get=`zpool get $property $pool`;
+
+open my $fh, "<", \$get;
+#expecting NAME PROPERTY VALUE SOURCE
+my $junk = <$fh>;
+while (my $line =<$fh>)
+{
+    chomp ($line);
+	my($name, $property, $value, $source) = split(/\s+/, $line);
+    #$hash{$name} = [ $used, $avail, $refer, $mount ];
+	$hash{$name}{$property} = { value => $value, refer => $source };
+}
+return %hash;
+}
+
 sub properties_list
 #return hash of properties that can be set manually and their data type
 {

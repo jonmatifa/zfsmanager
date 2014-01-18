@@ -22,6 +22,28 @@ foreach $key (sort(keys %zpool))
 }
 print ui_columns_end();
 
+#show properties for pool
+my %hash = zpool_get($in{'pool'}, "all");
+my %properties = properties_list();
+#my %boolean = map { $_ => 1 } @properties;
+#print Dumper(\%hash);
+#print $properties{boolean}[0];
+print ui_table_start("Properties", "width=100%", "10");
+foreach $key (sort(keys $hash{$in{'pool'}}))
+{
+	if ($properties{$key} =~ 'boolean')
+	{
+		if ($hash{$in{'pool'}}{$key}{value} =~ "on") {
+			print ui_table_row($key, $hash{$in{'pool'}}{$key}{value});
+		} else {
+			print ui_table_row($key, $hash{$in{'pool'}}{$key}{value});
+		}
+	} else {
+	print ui_table_row($key, $hash{$in{'pool'}}{$key}{value});
+	}
+}
+print ui_table_end();
+
 #Show associated file systems
 %zfs = list_zfs("-r ".$in{'pool'});
 print "Filesystems:";
