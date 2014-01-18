@@ -106,6 +106,9 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   'exec' => 'Controls whether processes can be executed from  within  this  file
 	   system. The default value is "on".',
 	   
+	   'mounted' => 'For file systems, indicates whether the file system is currently
+	 mounted. This property can be either yes or no.',
+	   
 	   'nbmand' => 'Controls  whether  the  file system should be mounted with "nbmand"
 	   (Non Blocking mandatory locks). This  is  used  for	CIFS  clients.
 	   Changes  to	this property only take effect when the file system is
@@ -178,6 +181,33 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   
 	   'setuid' => 'Controls whether the set-UID bit is respected for the file  system.
 	   The default value is "on".',
+	   
+	   'sync' => 'Controls the behavior of synchronous requests (e.g.  fsync(2),
+	 O_DSYNC). This property accepts the following values:
+
+	     standard  This is the POSIX specified behavior of ensuring all
+		       synchronous requests are written to stable storage and
+		       all devices are flushed to ensure data is not cached by
+		       device controllers (this is the default).
+
+	     always    All file system transactions are written and flushed
+		       before their system calls return. This has a large per-
+		       formance penalty.
+
+	     disabled  Disables synchronous requests. File system transactions
+		       are only committed to stable storage periodically. This
+		       option will give the highest performance.  However, it
+		       is very dangerous as ZFS would be ignoring the synchro-
+		       nous transaction demands of applications such as data-
+		       bases or NFS.  Administrators should only use this
+		       option when the risks are understood.',
+	   
+	   'utf8only' => 'Indicates whether the file system should reject file names that
+	   include characters that are not present in the UTF-8 character code
+	   set. If this property is explicitly set to off, the normalization
+	   property must either not be explicitly set or be set to none.  The
+	   default value for the utf8only property is off.  This property can-
+	   not be changed after the file system is created.',
 	   
 	   'vscan' => 'Controls whether regular files should be scanned for viruses when a
 	   file  is  opened and closed. In addition to enabling this property,

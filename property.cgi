@@ -30,7 +30,13 @@ if ($in{'property'} =~ 'mountpoint') {
 	print ui_filebox('set', $get{$in{'zfs'}}{$in{'property'}}{value}, 0, undef, undef, 1);
 	print ui_submit('submit');
 } elsif ($in{'property'} =~ 'sharenfs') {
-
+	
+} elsif ($in{'property'} =~ 'mounted') {
+	if ($get{$in{'zfs'}}{$in{'property'}}{value} =~ 'yes') {
+		print "<a href='cmd.cgi?zfs=$in{'zfs'}&mount=unmount'>Unmount this file system</a>";
+	} else {
+		print "<a href='cmd.cgi?zfs=$in{'zfs'}&mount=mount'>Mount this file system</a>";
+	}
 } elsif ($in{'property'} =~ 'sharesmb') {
 
 } else {

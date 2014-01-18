@@ -34,6 +34,7 @@ foreach $key (sort(keys %zfs))
     print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 }
 print ui_columns_end();
+print "<a href='create.cgi?create=zfs'>Create file system</a>";
 print &ui_tabs_end_tab("mode", "zfs");
 
 #start snapshots tab

@@ -11,6 +11,7 @@ if ($in{'pool'})
 ui_print_header(undef, $text{'status_title'}, "", undef, 1, 1);
 
 #Show pool information
+print "Pool:";
 ui_zpool_status($in{'pool'});
 
 #show properties for pool
@@ -25,6 +26,7 @@ foreach $key (sort(keys %zfs))
     print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 }
 print ui_columns_end();
+print "<a href='create.cgi?create=zfs&pool=$in{'pool'}'>Create new file system</a><br />";
 
 #Show device configuration
 #TODO: show devices by vdev hierarchy
@@ -71,7 +73,7 @@ if ($in{'zfs'})
 
 	#show properties for filesystem
 	ui_zfs_properties($in{'zfs'});
-
+	print ui_popup_link("Destroy this file system", "cmd.cgi?destroy=$in{'zfs'}"), "<br />";
 	#show list of snapshots based on filesystem
 	print "Snapshots on this filesystem: <br />";
 	ui_list_snapshots($in{'zfs'});
