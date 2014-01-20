@@ -1,0 +1,5 @@
+upool_destroy=1
+uzfs_destroy=1
+usnap_destroy=1
+upool_properties=1
+uzfs_properties=1

@@ -1,2 +1,5 @@
-zfsmanager_conf=Path to ZFS Manager configuration file,0
-sort_mode=Sort users by,1,1-Name,0-ID
+pool_destroy=Desctructive pool features,1,1-Enabled,0-Disabled
+zfs_destroy=Desctructive file system features,1,1-Enabled,0-Disabled
+snap_destroy=Desctructive snapshot features,1,1-Enabled,0-Disabled
+pool_properties=Pool property administration,1,1-Enabled,0-Disabled
+zfs_properties=File system property administration,1,1-Enabled,0-Disabled

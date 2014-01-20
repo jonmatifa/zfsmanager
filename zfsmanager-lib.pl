@@ -3,6 +3,7 @@ use WebminCore;
 use POSIX qw(strftime);
 init_config();
 foreign_require("mount", "mount-lib.pl");
+my %access = &get_module_acl();
 
 sub get_zfsmanager_config
 {

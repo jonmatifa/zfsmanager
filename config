@@ -1,2 +1,5 @@
-zfsmanager_conf=/etc/webmin/zfsmanager/config
-sort_mode=0
+pool_destroy=1
+zfs_destroy=1
+snap_destroy=1
+pool_properties=1
+zfs_properties=1
