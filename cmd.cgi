@@ -152,7 +152,7 @@ popup_footer();
 if (($in{'create'} =~ 'zfs') && ($in{'pool'}))
 {
 	print "Attempting to create filesystem $in{'pool'}/$in{'zfs'} with command... <br />";
-	my @result = cmd_create_zfs($in{'zfs'}."/".$in{'create'});
+	my @result = cmd_create_zfs($in{'pool'}."/".$in{'zfs'});
 	print $result[0], "<br />";
 	if ($result[1] == //)
 	{
