@@ -9,6 +9,7 @@ status_title=Zpool Status
 
 vdev_title=Manage Virtual Device
 property_title=Manage Property
+select_title=Select a device for new vdev
 
 cmd_title=Results from command
 

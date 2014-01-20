@@ -279,12 +279,21 @@ my $cmd="zfs snapshot $snap";
 return @result;
 }
 
-#cmd_snapshot($snap)
 sub cmd_create_zfs
 {
 my ($zfs)  = @_;
 my $cmd="zfs create $zfs";
-@result = ($cmd, `$cmd`);
+my @result = ($cmd, `$cmd`);
+return @result;
+}
+
+sub cmd_create_zpool
+{
+my ($pool, $dev, $options, $mount, $force) = @_;
+if ($options) { $options = '-o '.$options; }
+if ($mount) { $mount = '-m '.$mount; }
+my $cmd="zpool create $force $options $mount $pool $dev";
+my @result = ($cmd, `$cmd`);
 return @result;
 }
 

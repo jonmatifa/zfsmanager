@@ -149,10 +149,26 @@ if ($in{'mount'})
 popup_footer();
 }
 
-if (($in{'create'}) && ($in{'pool'}))
+if (($in{'create'} =~ 'zfs') && ($in{'pool'}))
 {
-	print "Attempting to create filesystem $in{'pool'}/$in{'create'} with command... <br />";
-	my @result = cmd_create_zfs($in{'pool'}."/".$in{'create'});
+	print "Attempting to create filesystem $in{'pool'}/$in{'zfs'} with command... <br />";
+	my @result = cmd_create_zfs($in{'zfs'}."/".$in{'create'});
+	print $result[0], "<br />";
+	if ($result[1] == //)
+	{
+		print "Success! <br />";
+		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+	} else
+	{
+	print "error: ", $result[1], "<br />";
+	}
+#ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+}
+
+if (($in{'create'} =~ 'zpool') && ($in{'pool'}))
+{
+	print "Attempting to create pool $in{'pool'} with command... <br />";
+	my @result = cmd_create_zpool($in{'pool'}, $in{'dev'}, $in{'options'}, $in{'mountpoint'}, $in{'force'});
 	print $result[0], "<br />";
 	if ($result[1] == //)
 	{

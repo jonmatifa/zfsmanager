@@ -23,6 +23,7 @@ foreach $key (sort(keys %zpool))
     print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
 }
 print ui_columns_end();
+print "<a href='create.cgi?create=zpool'>Create new pool</a>";
 print &ui_tabs_end_tab("mode", "pools");
 
 #start zfs tab
