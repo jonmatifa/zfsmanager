@@ -56,7 +56,7 @@ if ($in{'snap'})
 		if ($key =~ ($in{'zfs'}."@") ) { print ui_columns_row(["<a href='snapshot.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
 	}
 	print ui_columns_end();
-	ui_create_snapshot($in{'zfs'});
+	print ui_create_snapshot($in{'zfs'});
 } else {
 	%snapshot = list_snapshots();
 	print ui_columns_start([ "Snapshot", "Used", "Refer" ]);

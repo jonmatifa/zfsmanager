@@ -5,19 +5,47 @@ init_config();
 foreign_require("mount", "mount-lib.pl");
 my %access = &get_module_acl();
 
+sub properties_list
+#return hash of properties that can be set manually and their data type
+{
+#my ($type)=@_;
+#my %list = ( 'boolean' => [ "atime", "canmount", "devices", "exec", "readonly", "setuid", "xattr" ],
+#			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
+#			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
+my %list2 = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
+			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'sync' => 'standard, always, disabled',   
+			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special');
+#if ($type != undef)
+#{
+#	return @list{$type};
+#} else 
+#{
+return %list2;
+#}
+}
+
+sub create_opts #options and defaults when creating new pool or filesystem
+{
+my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off');
+return %list;
+}
+
 sub get_zfsmanager_config
 {
+#my ($setting)=@_;
 my $lref = &read_file_lines($config{'zfsmanager_conf'});
-my @rv;
+my %rv;
 my $lnum = 0;
 foreach my $line (@$lref) {
-    my ($n, $v) = split(/\s+/, $line, 2);
+    my ($n, $v) = split(/=/, $line, 2);
     if ($n) {
-      push(@rv, { 'name' => $n, 'value' => $v, 'line' => $lnum });
+	  #$rv{$n} = { 'value' => $v, 'line' => $lnum };
+	  $rv{$n} = $v;
+      #push(@rv, { 'name' => $n, 'value' => $v, 'line' => $lnum });
       }
     $lnum++;
     }
-return @rv;
+return %rv;
 }
 
 sub list_zpools
@@ -218,25 +246,6 @@ while (my $line =<$fh>)
 return %hash;
 }
 
-sub properties_list
-#return hash of properties that can be set manually and their data type
-{
-my ($type)=@_;
-#my %list = ( 'boolean' => [ "atime", "canmount", "devices", "exec", "readonly", "setuid", "xattr" ],
-#			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
-#			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
-my %list2 = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
-			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'sync' => 'standard, always, disabled',   
-			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special');
-#if ($type != undef)
-#{
-#	return @list{$type};
-#} else 
-#{
-return %list2;
-#}
-}
-
 sub zpool_list
 {
 #TODO massage data into something better
@@ -282,8 +291,14 @@ return @result;
 
 sub cmd_create_zfs
 {
-my ($zfs)  = @_;
-my $cmd="zfs create $zfs";
+my ($zfs, $options)  = @_;
+my $opts = ();
+my %createopts = create_opts();
+foreach $key (sort(keys %options))
+{
+	$opts = (($createopts{$key}) && ($options{$key} =~ $createopts{$key})) ? $opts : $opts.' -o '.$key.'='.$options{$key};
+}
+my $cmd="zfs create $opts $zfs";
 my @result = ($cmd, `$cmd`);
 return @result;
 }
@@ -291,9 +306,15 @@ return @result;
 sub cmd_create_zpool
 {
 my ($pool, $dev, $options, $mount, $force) = @_;
-if ($options) { $options = '-o '.$options; }
-if ($mount) { $mount = '-m '.$mount; }
-my $cmd="zpool create $force $options $mount $pool $dev";
+my $opts = ();
+my %createopts = create_opts();
+foreach $key (sort(keys %options))
+{
+	$opts = ($options{$key} =~ $createopts{$key}) ? $opts : $opts.' -O '.$key.'='.$options{$key};
+}
+#if ($opts) { $opts = '-O '.$opts; }
+$mount = ($mount) ? '-m '.$mount : ();
+my $cmd="zpool create $force $opts $mount $pool $dev";
 my @result = ($cmd, `$cmd`);
 return @result;
 }
@@ -330,11 +351,12 @@ return @result;
 #cmd_destroy_zfs($zfs, $confirm)
 sub cmd_destroy_zfs
 {
-my ($zfs, $confirm) = @_;
-my $cmd="zfs destroy $zfs";
+my ($zfs, $force, $confirm) = @_;
+my $cmd="zfs destroy $force $zfs";
 if ($confirm =~ /yes/) 
 	{ 
-		@result = ($cmd, `$cmd`);
+		$out = `$cmd`;
+		@result = ( $cmd, $out );
 	} else 
 	{ 
 		@result = ($cmd, "" ); 
@@ -345,9 +367,9 @@ return @result;
 #cmd_destroy_zpool($zpool, $confirm)
 sub cmd_destroy_zpool
 {
-my ($zpool, $confirm) = @_;
-my $cmd="zpool destroy $zpool";
-if ($confirm =~ /1/) { @result = ($cmd, `$cmd`)} else { @result = ($cmd, "" ) };
+my ($zpool, $force, $confirm) = @_;
+my $cmd="zpool destroy $force $zpool";
+if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd`))} else { @result = ($cmd, "" ) };
 return @result;
 }
 
@@ -388,12 +410,13 @@ print ui_table_end();
 
 sub ui_zfs_list
 {
-my ($zfs)=@_;
+my ($zfs, $action)=@_;
 %zfs = list_zfs($zfs);
+if ($action eq undef) { $action = "status.cgi?zfs="; }
 print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
 foreach $key (sort(keys %zfs)) 
 {
-	print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+	print ui_columns_row(["<a href='$action$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 }
 print ui_columns_end();
 }
@@ -418,31 +441,44 @@ print ui_table_end();
 
 sub ui_list_snapshots
 {
-my ($zfs) = @_;
-%snapshot = list_snapshots();
+my ($zfs, $admin) = @_;
+%snapshot = list_snapshots($zfs);
+%conf = get_zfsmanager_config();
+if ($admin =~ /1/) { print ui_form_start('cmd.cgi?multisnap=1', 'get', 'cmd'); }
+#if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
 print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
 foreach $key (sort(keys %snapshot)) 
 {
-	if ($zfs =~ undef) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
-	else {
-		if ($key =~ ($zfs."@")) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
+	#print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+	if ($admin =~ /1/) {
+		print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+	} else {
+		print ui_columns_row([ "<a href='snapshot.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	}
-} 
+	#if ($zfs =~ undef) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
+	#else {
+	#	if ($key =~ ($zfs."@")) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
+	#}
+}
 print ui_columns_end();
+if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
+if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | Destroy selected snapshots"; }
+if ($admin =~ /1/) { print ui_form_end(); }
 
 }
 
 sub ui_create_snapshot
 {
 my ($zfs) = @_;
-print ui_form_start('cmd.cgi', 'get');
-print "Create new snapshot based on filesystem: ", $zfs, "<br />";
+$rv = ui_form_start('cmd.cgi', 'get')."\n";
+$rv .= "Create new snapshot based on filesystem: ".$zfs."<br />\n";
 my $date = strftime "zfs_manager_%Y-%m-%d-%H%M", localtime;
-print $zfs, "@ ", ui_textbox('snap', $date, 28);
-print ui_hidden('zfs', $zfs);
+$rv .= $zfs."@ ".ui_textbox('snap', $date, 28)."\n";
+$rv .= ui_hidden('zfs', $zfs)."\n";
 #print ui_form_end(["<input type='submit' value='submit'>"]);
-print popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] );
+$rv .= popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] )."\n";
 #print ui_form_end([ [popup_window_button('cmd.cgi', '400', '400', '1', [[ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs']]), "submit" ]]);
+return $rv;
 }
 
 sub ui_popup_link

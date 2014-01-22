@@ -6,7 +6,9 @@ require './zfsmanager-lib.pl';
 ReadParse();
 use Data::Dumper;
 
-ui_print_header(undef, $text{'vdev_title'}, "", undef, 1, 1);
+#ui_print_header(undef, $text{'vdev_title'}, "", undef, 1, 1);
+popup_header($text{'cmd_title'});
+
 $conf = get_zfsmanager_config();
 
 my %status = zpool_status($in{'pool'});
@@ -44,15 +46,15 @@ print "Children: ";
 	print "VDEV Status: ", $status{$in{'dev'}}{state}, "<br />";
 	if ($status{$in{'dev'}}{state} =~ "OFFLINE")
 	{
-		print ui_popup_link('bring device online', "cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}"), "<br />";
-		#print "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>bring device online</a><br />";
+		#print ui_popup_link('bring device online', "cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}"), "<br />";
+		print "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>bring device online</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
 	if ($status{$in{'dev'}}{state} =~ "ONLINE")
 	{
-		print ui_popup_link('bring device offline', "cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}"), "<br />";
-		#print "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>bring device offline</a><br />";
+		#print ui_popup_link('bring device offline', "cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}"), "<br />";
+		print "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>bring device offline</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
@@ -61,4 +63,7 @@ print "Children: ";
 #print mount::get_mount();
 #print "<a href='create.cgi'>create</a>";
 
-ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+popup_footer();
+
+#ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
