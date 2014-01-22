@@ -1,5 +1,7 @@
-pool_destroy=Desctructive pool features,1,1-Enabled,0-Disabled
-zfs_destroy=Desctructive file system features,1,1-Enabled,0-Disabled
-snap_destroy=Desctructive snapshot features,1,1-Enabled,0-Disabled
-pool_properties=Pool property administration,1,1-Enabled,0-Disabled
-zfs_properties=File system property administration,1,1-Enabled,0-Disabled
+zfsmanager_conf=Path to ZFS Manager configuration file,0
+pool_destroy=Desctructive pool tasks (zpool destroy),1,1-Enabled,0-Disabled
+zfs_destroy=Desctructive file system tasks (zfs destroy),1,1-Enabled,0-Disabled
+snap_destroy=Desctructive snapshot tasks (destroy snapshot),1,1-Enabled,0-Disabled
+pool_properties=Pool administration tasks (create | set properties | configure vdevs),1,1-Enabled,0-Disabled
+zfs_properties=File system administration tasks (create | set properties | mount),1,1-Enabled,0-Disabled
+snap_properties=Snapshot administration tasks (create | clone | send),1,1-Enabled,0-Disabled

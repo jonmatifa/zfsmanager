@@ -5,7 +5,7 @@ require './zfsmanager-lib.pl';
 use Data::Dumper;
 ui_print_header(undef, $text{'index_title'}, "", undef, 1, 1, 0, &help_search_link("zfs, zpool", "man", "doc", "google"), undef, undef, $text{'index_version'} );
 
-$conf = get_zfsmanager_config();
+my %conf = get_zfsmanager_config();
 
 #start tabs
 @tabs = ();
@@ -23,7 +23,9 @@ foreach $key (sort(keys %zpool))
     print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
 }
 print ui_columns_end();
-print ui_popup_link('Create new pool', 'create.cgi?create=zpool');
+#print Dumper (\%conf);
+#print $config{'zfsmanager_conf'};
+if ($conf{'pool_properties'} =~ /1/) { print ui_popup_link('Create new pool', 'create.cgi?create=zpool'); }
 #print "<a href='create.cgi?create=zpool'>Create new pool</a>";
 print &ui_tabs_end_tab("mode", "pools");
 
@@ -36,14 +38,16 @@ foreach $key (sort(keys %zfs))
     print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 }
 print ui_columns_end();
-print ui_popup_link('Create file system', 'create.cgi?create=zfs');
+#print $conf{'zfs_properties'};
+if ($conf{'zfs_properties'} =~ /1/) { print ui_popup_link('Create file system', 'create.cgi?create=zfs'); }
 #print "<a href='create.cgi?create=zfs'>Create file system</a>";
 print &ui_tabs_end_tab("mode", "zfs");
 
 #start snapshots tab
 print &ui_tabs_start_tab("mode", "snapshot");
 ui_list_snapshots(undef, 1);
-print "<a href='snapshot.cgi?new=1'>Create snapshot</a>";
+#print $conf{snap_properties};
+if ($conf{'snap_properties'} =~ 1) { print "<a href='snapshot.cgi?new=1'>Create snapshot</a>"; }
 print &ui_tabs_end_tab("mode", "snapshot");
 
 #end tabs

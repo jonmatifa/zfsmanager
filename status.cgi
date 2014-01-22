@@ -49,7 +49,7 @@ foreach $key (keys %status)
 print ui_columns_end();
 print ui_table_start("Status", "width=100%", "10");
 #print "<table border=0px width=100%><tr>";
-print ui_table_row("scan:", $status{pool}{scan});
+print ui_table_row("Scan:", $status{pool}{scan});
 print ui_table_row("Read:", $status{pool}{read});
 print ui_table_row("Write:", $status{pool}{write});
 print ui_table_row("Checkum:", $status{pool}{cksum});
@@ -64,11 +64,8 @@ print ui_table_end();
 
 print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
 #print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'}));
-print ui_table_row("New file system: ", ui_popup_link('Create file system', "create.cgi?create=zfs&parent=$in{'pool'}"));
-if ($conf{'pool_destroy'} =~ /1/)
-{
-	print ui_table_row("Destroy: ", ui_popup_link("Destroy this pool", "cmd.cgi?destroypool=$in{'pool'}"));
-}
+if ($conf{'zfs_properties'} =~ /1/) { print ui_table_row("New file system: ", ui_popup_link('Create file system', "create.cgi?create=zfs&parent=$in{'pool'}")); }
+if ($conf{'pool_destroy'} =~ /1/) { print ui_table_row("Destroy: ", ui_popup_link("Destroy this pool", "cmd.cgi?destroypool=$in{'pool'}")); }
 print ui_table_end();
 ui_print_footer('', $text{'index_return'});
 }
@@ -97,8 +94,8 @@ if ($in{'zfs'})
 	#print "Snapshots on this filesystem: <br />";
 	ui_list_snapshots('-rd1 '.$in{'zfs'}, 1);
 	print ui_table_start("Tasks", "width=100%", "10");
-	print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'}));
-	print ui_table_row("New file system: ", ui_popup_link('Create child file system', "create.cgi?create=zfs&parent=$in{'zfs'}"));
+	if ($conf{'snap_properties'} =~ /1/) { print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'})); }
+	if ($conf{'zfs_properties'} =~ /1/) { print ui_table_row("New file system: ", ui_popup_link('Create child file system', "create.cgi?create=zfs&parent=$in{'zfs'}")); }
 	if ($conf{'zfs_destroy'} =~ /1/) { print ui_table_row("Destroy: ", ui_popup_link("Destroy this file system", "cmd.cgi?destroy=$in{'zfs'}")); }
 	print ui_table_end();
 	ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});

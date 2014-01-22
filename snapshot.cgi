@@ -4,7 +4,7 @@ require './zfsmanager-lib.pl';
 ReadParse();
 use Data::Dumper;
 
-$conf = get_zfsmanager_config();
+%conf = get_zfsmanager_config();
 
 #show status of current snapshot
 if ($in{'snap'})
@@ -21,11 +21,11 @@ if ($in{'snap'})
 	ui_zfs_properties($in{'snap'});
 
 	#print "<a href='cmd.cgi?destroy=", $in{'snap'}, "'>Destroy snapshot</a> |";
-	print ui_popup_link('Destroy snapshot', "cmd.cgi?destroy=".$in{'snap'}). " |";
 	my $zfs = $in{'snap'};
 	$zfs =~ s/\@.*//;
-	print " <a href='snapshot.cgi?zfs=", $zfs, "'>Create new snapshot based on ", $zfs, "</a> |";
-	print " Clone snapshot | Rollback to snapshot | Send snapshot";
+	if ($conf{'snap_properties'} =~ /1/) { print " <a href='snapshot.cgi?zfs=", $zfs, "'>Create new snapshot based on ", $zfs, "</a> |"; }
+	if ($conf{'snap_properties'} =~ /1/) { print " Clone snapshot | Rollback to snapshot | Send snapshot "; }
+	if ($conf{'snap_destroy'} =~ /1/) { print "| ", ui_popup_link('Destroy snapshot', "cmd.cgi?destroy=".$in{'snap'}); }
 #prompt for which filesystem snapshot should be based on
 } elsif ($in{'new'}) {
 	ui_print_header(undef, $text{'snapshot_new'}, "", undef, 1, 1);

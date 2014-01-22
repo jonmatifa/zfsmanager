@@ -165,8 +165,9 @@ while (my $line =<$fh>)
 	my($key, $value) = split(/:/, $line);
 	$key =~ s/^\s*(.*?)\s*$/$1/;
 	$value =~ s/^\s*(.*?)\s*$/$1/;
-	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors'))
+	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors') || ($key =~ 'scrub'))
 	{
+		if ($key =~ 'scrub') { $key = 'scan'; }
 		$status{pool}{$key} = $value;
 	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /status:/) || ($line =~ /action:/) || ($line =~ /see:/))
 	{
@@ -296,7 +297,7 @@ my $opts = ();
 my %createopts = create_opts();
 foreach $key (sort(keys %options))
 {
-	$opts = (($createopts{$key}) && ($options{$key} =~ $createopts{$key})) ? $opts : $opts.' -o '.$key.'='.$options{$key};
+	$opts = (($createopts{$key}) && ($options{$key} =~ 'default')) ? $opts : $opts.' -o '.$key.'='.$options{$key};
 }
 my $cmd="zfs create $opts $zfs";
 my @result = ($cmd, `$cmd`);
@@ -310,7 +311,7 @@ my $opts = ();
 my %createopts = create_opts();
 foreach $key (sort(keys %options))
 {
-	$opts = ($options{$key} =~ $createopts{$key}) ? $opts : $opts.' -O '.$key.'='.$options{$key};
+	$opts = ($options{$key} =~ 'default') ? $opts : $opts.' -O '.$key.'='.$options{$key};
 }
 #if ($opts) { $opts = '-O '.$opts; }
 $mount = ($mount) ? '-m '.$mount : ();
@@ -391,7 +392,7 @@ sub ui_zpool_properties
 my ($pool) = @_;
 my %hash = zpool_get($pool, "all");
 my %properties = properties_list();
-print ui_table_start("Properties", "width=100%", "10");
+print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys $hash{$pool}))
 {
 	if ($properties{$key} =~ 'boolean')
@@ -426,7 +427,7 @@ sub ui_zfs_properties
 my ($zfs)=@_;
 my %hash = zfs_get($zfs, "all");
 my %properties = properties_list();
-print ui_table_start("Properties", "width=100%", "10");
+print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys $hash{$zfs}))
 {		
 	if ($properties{$key})

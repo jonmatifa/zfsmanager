@@ -9,7 +9,7 @@ use Data::Dumper;
 #ui_print_header(undef, $text{'vdev_title'}, "", undef, 1, 1);
 popup_header($text{'cmd_title'});
 
-$conf = get_zfsmanager_config();
+%conf = get_zfsmanager_config();
 
 my %status = zpool_status($in{'pool'});
 
@@ -27,7 +27,8 @@ print "Pool State: ", $status{pool}{state}, "<br />";
 print "Virtual Device: ", $in{'dev'}, "<br />";
 if ($status{$in{'dev'}}{parent} =~ "pool") 
 {
-	print "Parent: <a href='status.cgi?pool=", $status{pool}{pool}, "'>pool</a><br />";
+	#print "Parent: <a href='status.cgi?pool=", $status{pool}{pool}, "'>pool</a><br />";
+	print "Parent: pool<br />";
 } else {
 	print "Parent: <a href='config-vdev.cgi?pool=", $in{'pool'}, "&dev=", $status{$in{'dev'}}{parent}, "'>", $status{$in{'dev'}}{parent}, "</a><br />";
 }
@@ -47,14 +48,14 @@ print "Children: ";
 	if ($status{$in{'dev'}}{state} =~ "OFFLINE")
 	{
 		#print ui_popup_link('bring device online', "cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}"), "<br />";
-		print "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>bring device online</a><br />";
+		if ($conf{'pool_properties'} =~ /1/) { print "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>bring device online</a><br />"; }
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
 	if ($status{$in{'dev'}}{state} =~ "ONLINE")
 	{
 		#print ui_popup_link('bring device offline', "cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}"), "<br />";
-		print "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>bring device offline</a><br />";
+		if ($conf{'pool_properties'} =~ /1/) { print "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>bring device offline</a><br />"; }
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}

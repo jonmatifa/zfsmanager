@@ -24,8 +24,8 @@ if ($in{'create'} =~ "zpool")
 	foreach $key (sort(keys %createopts))
 	{
 		my @select = [ split(", ", $proplist{$key}) ];
-		if ($proplist{$key} eq 'boolean') { @select = [ 'on', 'off' ]; }
-		print $key, ': ', ui_select($key, $createopts{$key}, @select, 1, 0, 1), '<br />';
+		if ($proplist{$key} eq 'boolean') { @select = [ 'default', 'on', 'off' ]; }
+		print $key, ': ', ui_select($key, 'default', @select, 1, 0, 1), '<br />';
 	}
 	#print ui_select('vdev0', 'pool', ['pool', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'log', 'cache'], undef, undef, undef, undef, '');
 	#print 'vdev configuration: ', ui_textbox('vdev', '');
@@ -79,8 +79,8 @@ if ($in{'create'} =~ "zpool")
 	foreach $key (sort(keys %createopts))
 	{
 		my @select = [ split(", ", $proplist{$key}) ];
-		if ($proplist{$key} eq 'boolean') { @select = [ 'on', 'off' ]; }
-		print ui_table_row($key.': ', ui_select($key, $createopts{$key}, @select, 1, 0, 1));
+		if ($proplist{$key} eq 'boolean') { @select = [ 'default', 'on', 'off' ]; }
+		print ui_table_row($key.': ', ui_select($key, 'default', @select, 1, 0, 1));
 	}
 	print ui_table_end();
 	print ui_submit('Create');

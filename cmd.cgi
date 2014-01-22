@@ -89,7 +89,7 @@ if ($in{'destroy'})
 		print "<b>This action will affect the following: </b><br />";
 		ui_zfs_list('-r '.$in{'destroy'});
 		ui_list_snapshots('-r '.$in{'destroy'});
-		print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />";
+		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'pool_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
 		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
 		#print ui_confirmation_form('cmd.cgi', 'Warning, this action will result in data loss...', [ 'destroy' => $in{'destroy'}, 'confirm' => 'yes' ], undef, undef, "Are you absolutely sure?");
 		print ui_checkbox('confirm', 'yes', 'I understand', undef );
@@ -99,7 +99,6 @@ if ($in{'destroy'})
 		#print "";
 		#print "<a href='cmd.cgi?destroy=", $in{'destroy'}, "&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
 		print ui_submit("Continue", undef, undef), " | <a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
-		print ui_form_end();
 	} else {
 		if (($result[1] eq undef))
 		{
@@ -112,6 +111,7 @@ if ($in{'destroy'})
 		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 		}
 	}
+print ui_form_end();
 #ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
 popup_footer();
 }
@@ -119,15 +119,26 @@ popup_footer();
 if ($in{'destroypool'})
 {
 	print "<h2>Destroy</h2>";
-	ui_zfs_list('-r '.$in{'destroypool'});
+	#ui_zfs_list('-r '.$in{'destroypool'});
 	#print ui_list_snapshots($in{'destroy'});
 	print "Attempting to destroy $in{'destroypool'} with command... <br />";
+	print ui_form_start('cmd.cgi', 'get', 'cmd');
+	print ui_hidden('destroypool', $in{'destroypool'});
 	my @result = cmd_destroy_zpool($in{'destroypool'}, undef, $in{'confirm'});
 	print $result[0], "<br />";
 	if (!$in{'confirm'})
 	{
+		print "<b>This action will affect the following: </b><br />";
+		ui_zfs_list('-r '.$in{'destroypool'});
+		ui_list_snapshots('-r '.$in{'destroypool'});
+		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'pool_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
 		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
-		print "<a href='cmd.cgi?destroypool=", $in{'destroypool'}, "&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
+		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print ui_hidden('checked', 'no');
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		print "<br /><br />";
+		#print "<a href='cmd.cgi?destroypool=", $in{'destroypool'}, "&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
+		print ui_submit("Continue", undef, undef), " | <a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 	} else {
 		if (($result[1] eq undef))
 		{
@@ -139,6 +150,7 @@ if ($in{'destroypool'})
 		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 		}
 	}
+print ui_form_end();
 #ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
 popup_footer();
 }
