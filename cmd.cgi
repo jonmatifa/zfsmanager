@@ -203,7 +203,7 @@ if (($in{'create'} =~ 'zfs') && ($in{'parent'}))
 		}
 	}
 	if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
-	print Dumper (\%options);
+	#print Dumper (\%options);
 	my @result = cmd_create_zfs($in{'parent'}."/".$in{'zfs'}, $options);
 	print $result[0], "<br />";
 	if ($result[1] == //)
