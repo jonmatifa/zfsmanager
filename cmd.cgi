@@ -5,9 +5,9 @@ ReadParse();
 use Data::Dumper;
 #ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
 popup_header($text{'cmd_title'});
-$conf = get_zfsmanager_config();
+%conf = get_zfsmanager_config();
 
-if ($in{'online'})
+if (($in{'online'}) && ($conf{'pool_properties'} =~ /1/))
 {
 	print "Attempting to bring $in{'online'} online with command... <br />";
 	my @result = cmd_online($in{'pool'}, $in{'online'});
@@ -24,7 +24,7 @@ if ($in{'online'})
 popup_footer();
 }
 
-if ($in{'offline'})
+if (($in{'offline'}) && ($conf{'pool_properties'} =~ /1/))
 {
 	print "Attempting to bring $in{'offline'} offline with command... <br />";
 	my @result = cmd_offline($in{'pool'}, $in{'offline'});
@@ -41,9 +41,9 @@ if ($in{'offline'})
 popup_footer();
 }
 
-if ($in{'remove'})
+if (($in{'remove'}) && ($conf{'pool_properties'} =~ /1/))
 {
-	print "Attempting to remove $in{'offline'} with command... <br />";
+	print "Attempting to remove $in{'remove'} with command... <br />";
 	my @result = cmd_remove($in{'pool'}, $in{'remove'});
 	print $result[0], "<br />";
 	if ($result[1] == //)
@@ -58,7 +58,7 @@ if ($in{'remove'})
 popup_footer();
 }
 
-if ($in{'snap'})
+if (($in{'snap'}) && ($conf{'snap_properties'} =~ /1/))
 {
 	print "Attempting to create snapshot $in{'snap'} with command... <br />";
 	my @result = cmd_snapshot($in{'zfs'}."@".$in{'snap'});
@@ -75,7 +75,7 @@ if ($in{'snap'})
 popup_footer();
 }
 
-if ($in{'destroy'})
+if (($in{'destroy'}) && ($conf{'zfs_destroy'} =~ /1/))
 {
 	print "<h2>Destroy</h2>";
 	print "Attempting to destroy $in{'destroy'} with command... <br />";
@@ -89,7 +89,7 @@ if ($in{'destroy'})
 		print "<b>This action will affect the following: </b><br />";
 		ui_zfs_list('-r '.$in{'destroy'});
 		ui_list_snapshots('-r '.$in{'destroy'});
-		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'pool_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
+		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
 		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
 		#print ui_confirmation_form('cmd.cgi', 'Warning, this action will result in data loss...', [ 'destroy' => $in{'destroy'}, 'confirm' => 'yes' ], undef, undef, "Are you absolutely sure?");
 		print ui_checkbox('confirm', 'yes', 'I understand', undef );
@@ -116,7 +116,42 @@ print ui_form_end();
 popup_footer();
 }
 
-if ($in{'destroypool'})
+if (($in{'destroysnap'}) && ($conf{'snap_destroy'} =~ /1/))
+{
+	print "<h2>Destroy</h2>";
+	print "Attempting to destroy $in{'destroysnap'} with command... <br />";
+	print ui_form_start('cmd.cgi', 'get', 'cmd');
+	print ui_hidden('destroysnap', $in{'destroysnap'});
+	my $result = cmd_destroy_zfs($in{'destroysnap'}, $in{'force'}, $in{'confirm'});
+	print $result[0], "<br />";
+	print "<br />";
+	if (!$in{'confirm'})
+	{
+		print "<b>This action will affect the following: </b><br />";
+		ui_list_snapshots('-r '.$in{'destroysnap'});
+		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
+		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
+		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print ui_hidden('checked', 'no');
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		print "<br /><br />";
+		print ui_submit("Continue", undef, undef), " | <a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	} else {
+		if (($result[1] eq undef))
+		{
+			print "Success! <br />";
+			print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		} else
+		{
+		print "error: ", $result[1], "<br />";
+		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		}
+	}
+print ui_form_end();
+popup_footer();
+}
+
+if (($in{'destroypool'}) && ($conf{'pool_destroy'} =~ /1/))
 {
 	print "<h2>Destroy</h2>";
 	#ui_zfs_list('-r '.$in{'destroypool'});
@@ -131,7 +166,7 @@ if ($in{'destroypool'})
 		print "<b>This action will affect the following: </b><br />";
 		ui_zfs_list('-r '.$in{'destroypool'});
 		ui_list_snapshots('-r '.$in{'destroypool'});
-		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'pool_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
+		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
 		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
 		print ui_checkbox('confirm', 'yes', 'I understand', undef );
 		print ui_hidden('checked', 'no');
@@ -156,7 +191,7 @@ popup_footer();
 }
 
 # cmd.cgi?zfs=&property=&set=&confirm=
-if ($in{'set'})
+if (($in{'set'}) && ($conf{'zfs_properties'} =~ /1/))
 {
 	print "Attempting to set zfs property $in{'property'} to $in{'set'} in $in{'zfs'} with command... <br />";
 	my @result = cmd_zfs_set($in{'zfs'}, $in{'property'}, $in{'set'}, $in{'confirm'});
@@ -179,7 +214,7 @@ if ($in{'set'})
 popup_footer();
 }
 
-if ($in{'mount'})
+if (($in{'mount'}) && ($conf{'zfs_properties'} =~ /1/))
 {
 	print "Attempting to set zfs property $in{'property'} to $in{'set'} in $in{'zfs'} with command... <br />";
 	my @result = cmd_zfs_mount($in{'zfs'}, $in{'mount'}, $in{'confirm'});
@@ -202,7 +237,7 @@ if ($in{'mount'})
 popup_footer();
 }
 
-if (($in{'create'} =~ 'zfs') && ($in{'parent'}))
+if (($in{'create'} =~ 'zfs') && ($in{'parent'}) && ($conf{'zfs_properties'} =~ /1/))
 {
 	print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";
 	my %createopts = create_opts();
@@ -229,7 +264,7 @@ if (($in{'create'} =~ 'zfs') && ($in{'parent'}))
 #ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
 }
 
-if (($in{'create'} =~ 'zpool') && ($in{'pool'}))
+if (($in{'create'} =~ 'zpool') && ($in{'pool'})  && ($conf{'pool_properties'} =~ /1/))
 {
 	if (length($in{'mountpoint'}) == 0) { $in{'mountpoint'} = ""; };
 	print "Attempting to create pool $in{'pool'} with command... <br />";
