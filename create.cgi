@@ -88,5 +88,42 @@ if ($in{'create'} =~ "zpool")
 	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 	#print popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'pool', 'pool', 'pool'], ['create', 'create', 'create'], ['zfs', 'zfs', 'zfs'] ] );
 	#ui_print_footer("index.cgi?mode=zfs", $text{'zfs_return'});
+} elsif ($in{'import'}) {
+	print ui_form_start("create.cgi", "post");
+	print ui_table_start("Import Zpool");
+	print ui_hidden('import', '1');
+	print "Import search directory (blank for default):", ui_filebox('dir', $in{'dir'}, 25, undef, undef, 1);
+	print ui_submit('Search');
+	print ui_form_end();
+	#print " | ";
+	#print ui_table_row();
+	%imports = zpool_imports($in{'dir'});
+	print Dumper (\%imports);
+	print "<br />";
+	my @array = split("\n", `zpool import -d $in{'dir'}`);
+	#print Dumper (@array);
+	#print ui_table_row('');
+	#print ui_table_start();
+	foreach $key (sort(keys %imports))
+	{
+		print ui_columns_start([ "Pool", "ID", "State" ]);
+		print ui_columns_row(["<a href='cmd.cgi?import=$key&dir=$in{'dir'}'>".$key."</a>", "<a href='cmd.cgi?import=$imports{$key}{'id'}&dir=$in{'dir'}'>".$imports{$key}{'id'}."</a>", $imports{$key}{'state'}]);
+		#print ui_table_row("<a href='cmd.cgi?import=$key&dir=$in{'dir'}'>".$key."</a>", $imports{$key}{'id'}." ".$imports{$key}{'state'}, 3);
+		#print ui_columns_end();
+		print ui_table_start();
+		#print ui_table_span("Devices: ");
+		if ($imports{$key}{vdevs}) { foreach $dev (sort(keys $imports{$key}{vdevs}))
+		{
+			#print ui_columns_start([ "Dev", "State" ]);
+			#print ui_columns_row([$dev, $imports{$key}{'vdevs'}{$dev}{'state'}]);
+			print ui_table_row($dev, "State: ".$imports{$key}{'vdevs'}{$dev}{'state'});
+		} }
+		print ui_table_end();
+		print ui_columns_end();
+	}
+	
+	print ui_table_end();
+	
+	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 }
 

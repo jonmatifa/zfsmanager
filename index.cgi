@@ -25,7 +25,11 @@ foreach $key (sort(keys %zpool))
 print ui_columns_end();
 #print Dumper (\%conf);
 #print $config{'zfsmanager_conf'};
-if ($conf{'pool_properties'} =~ /1/) { print ui_popup_link('Create new pool', 'create.cgi?create=zpool'); }
+if ($conf{'pool_properties'} =~ /1/) { 
+	print ui_popup_link('Create new pool', 'create.cgi?create=zpool'); 
+	print " | ";
+	print ui_popup_link('Import pool', 'create.cgi?import=1'); 
+}
 #print "<a href='create.cgi?create=zpool'>Create new pool</a>";
 print &ui_tabs_end_tab("mode", "pools");
 

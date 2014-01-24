@@ -293,3 +293,53 @@ if (($in{'create'} =~ 'zpool') && ($in{'pool'})  && ($conf{'pool_properties'} =~
 #ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
 popup_footer();
 }
+
+if (($in{'export'})  && ($conf{'pool_properties'} =~ /1/))
+{
+	
+	print "Attempting to export pool $in{'export'} with command... <br />";
+	#@opts = split(', ', $in{'options'});
+	my $result = cmd_zpool($in{'export'}, 'export', undef, undef, $in{'confirm'});
+	print $result[0], "<br />";
+	if (!$in{'confirm'})
+	{
+		print "<h3>Would you lke to continue?</h3>";
+		print "<a href='cmd.cgi?export=$in{'export'}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
+	} else {
+		if (($result[1] == //))
+		{
+			print "Success! <br />";
+			print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		} else
+		{
+		print "error: ", $result[1], "<br />";
+		}
+	}
+#ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+popup_footer();
+}
+
+if (($in{'import'})  && ($conf{'pool_properties'} =~ /1/))
+{
+	
+	print "Attempting to import pool $in{'import'} with command... <br />";
+	if ($in{'dir'}) { $dir = "-d ".$in{'dir'}; }
+	my $result = cmd_zpool($in{'import'}, 'import', $dir, undef, $in{'confirm'});
+	print $result[0], "<br />";
+	if (!$in{'confirm'})
+	{
+		print "<h3>Would you lke to continue?</h3>";
+		print "<a href='cmd.cgi?import=$in{'import'}&dir=$in{'dir'}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
+	} else {
+		if (($result[1] == //))
+		{
+			print "Success! <br />";
+			print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		} else
+		{
+		print "error: ", $result[1], "<br />";
+		}
+	}
+#ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
+popup_footer();
+}

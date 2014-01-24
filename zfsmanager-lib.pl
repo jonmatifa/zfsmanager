@@ -24,6 +24,14 @@ return %list2;
 #}
 }
 
+sub pool_properties_list
+{
+my %list = ('autoexpand' => 'boolean', 'autoreplace' => 'boolean', 'delegation' => 'boolean', 'listsnaps' => 'boolean', 
+			'failmode' => 'wait, continue, panic',
+			'altroot' => 'special', 'bootfs' => 'special', 'cachefile' => 'special');
+return %list;
+}
+
 sub create_opts #options and defaults when creating new pool or filesystem
 {
 my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off');
@@ -175,7 +183,7 @@ while (my $line =<$fh>)
 	} else
 	{
 		my($name, $state, $read, $write, $cksum) = split(" ", $line);
-		if ($name =~ $status{pool}{pool})
+		if (($name =~ $status{pool}{pool}) && (length($name) == length($status{pool}{pool})))
 		{
 			$status{pool}{name} = $name;
 			$status{pool}{read} = $read;
@@ -245,6 +253,67 @@ while (my $line =<$fh>)
 	$hash{$name}{$property} = { value => $value, source => $source };
 }
 return %hash;
+}
+
+sub zpool_imports
+{
+my ($dir) = @_;
+if ($dir) { $dir = '-d '.$dir; }
+my %status = ();
+#my $parent = 'pool';
+#my $cmd = `zpool import $dir`;
+my @array = split("\n", `zpool import $dir`);
+#open my $fh, "<", \$cmd;
+foreach $line (@array)
+{
+    	chomp ($line);
+	$line =~ s/^\s*(.*?)\s*$/$1/;
+	my($key, $value) = split(/:/, $line);
+	$key =~ s/^\s*(.*?)\s*$/$1/;
+	$value =~ s/^\s*(.*?)\s*$/$1/;
+	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors') || ($key =~ 'scrub') || ($key =~ 'status') || ($key =~ 'id'))
+	{
+		if ($key =~ 'pool') { $pool = $value; }
+		if ($key =~ 'scrub') { $key = 'scan'; }
+		$status{$pool}{$key} = $value;
+	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /action:/) || ($line =~ /see:/))
+	{
+		#do nothing
+	} else
+	{
+		my($name, $state, $status) = split(" ", $line);
+		if ($name == $status{$pool}{pool})
+		{
+			#$status{$pool}{name} = $name;
+			#$status{$pool}{state} = $read;
+			#$status{$pool}{write} = $write;
+			#$status{$pool}{cksum} = $cksum;
+			$status{$pool}{vdevs} = ();
+			$parent = 'pool';
+			
+		#check if vdev is a log or cache vdev
+		} elsif (($name =~ /log/) || ($name =~ /cache/))
+		{
+			$status{$pool}{vdevs}{$name} = {name => $name, state => $state, status => $status, parent => "pool"};
+			$parent = $name;
+			#$devs++;
+			
+		#check if vdev is a mirror, raidz or spare
+		} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
+		{
+			$status{$pool}{vdevs}{$name} = {name => $name, state => $state, status => $status, parent => $parent};
+			$parent = $name;
+			#$devs++;
+			
+		#for all other vdevs, should be actual devices at this point
+		} elsif ($name)
+		{
+			$status{$pool}{vdevs}{$name} = {name => $name, state => $state, status => $status, parent => $parent};
+			#$devs++;
+		}
+	}
+}
+return %status;
 }
 
 sub zpool_list
@@ -373,6 +442,23 @@ my $cmd="zpool destroy $force $zpool";
 if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd`))} else { @result = ($cmd, "" ) };
 return @result;
 }
+
+sub cmd_zpool
+{
+my ($pool, $action, $options, $dev, $confirm) = @_;
+my $cmd="zpool $action $options $pool $dev";
+if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd`))} else { @result = ($cmd, "" ) };
+return $result;
+}
+
+sub cmd_zfs
+{
+my ($zfs, $action, $options, $confirm) = @_;
+my $cmd="zfs $action $options $zfs";
+if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd`))} else { @result = ($cmd, "" ) };
+return $result;
+}
+
 
 sub ui_zpool_status
 {

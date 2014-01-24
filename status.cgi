@@ -64,7 +64,11 @@ print ui_table_end();
 
 print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
 #print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'}));
-if ($conf{'zfs_properties'} =~ /1/) { print ui_table_row("New file system: ", ui_popup_link('Create file system', "create.cgi?create=zfs&parent=$in{'pool'}")); }
+if ($conf{'zfs_properties'} =~ /1/) { 
+	print ui_table_row("New file system: ", ui_popup_link('Create file system', "create.cgi?create=zfs&parent=$in{'pool'}")); 
+	print ui_table_row('Export pool', ui_popup_link('Export pool', "cmd.cgi?export=$in{'pool'}"));
+}
+
 if ($conf{'pool_destroy'} =~ /1/) { print ui_table_row("Destroy: ", ui_popup_link("Destroy this pool", "cmd.cgi?destroypool=$in{'pool'}")); }
 print ui_table_end();
 ui_print_footer('', $text{'index_return'});
