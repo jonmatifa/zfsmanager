@@ -191,7 +191,7 @@ popup_footer();
 }
 
 # cmd.cgi?zfs=&property=&set=&confirm=
-if (($in{'set'}) && ($conf{'zfs_properties'} =~ /1/))
+if (($in{'set'}) && ($in{'zfs'}) && ($conf{'zfs_properties'} =~ /1/))
 {
 	print "Attempting to set zfs property $in{'property'} to $in{'set'} in $in{'zfs'} with command... <br />";
 	my @result = cmd_zfs_set($in{'zfs'}, $in{'property'}, $in{'set'}, $in{'confirm'});
@@ -200,6 +200,30 @@ if (($in{'set'}) && ($conf{'zfs_properties'} =~ /1/))
 	{
 		print "<h3>Would you lke to continue?</h3>";
 		print "<a href='cmd.cgi?zfs=$in{'zfs'}&property=$in{'property'}&set=$in{'set'}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
+	} else {
+		if (($result[1] == //))
+		{
+			print "Success! <br />";
+			print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		} else
+		{
+		print "error: ", $result[1], "<br />";
+		}
+	}
+#ui_print_footer("index.cgi?mode=zfs", $text{'zfs_return'});
+popup_footer();
+}
+
+# cmd.cgi?zfs=&property=&set=&confirm=
+if (($in{'set'}) && ($in{'pool'}) && ($conf{'pool_properties'} =~ /1/))
+{
+	print "Attempting to set pool property $in{'property'} to $in{'set'} in $in{'pool'} with command... <br />";
+	my @result = cmd_zpool($in{'pool'}, 'set', $in{'property'}.'='.$in{'set'}, undef, $in{'confirm'});
+	print $result[0], "<br />";
+	if (!$in{'confirm'})
+	{
+		print "<h3>Would you lke to continue?</h3>";
+		print "<a href='cmd.cgi?pool=$in{'pool'}&property=$in{'property'}&set=$in{'set'}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
 	} else {
 		if (($result[1] == //))
 		{

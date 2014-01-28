@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 require './zfsmanager-lib.pl';
+#foreign_require('fdisk', 'fdisk-lib.pl');
 ReadParse();
 use Data::Dumper;
 #ui_print_header(undef, "Create Zpool", "", undef, 1, 1);
@@ -30,6 +31,15 @@ if ($in{'create'} =~ "zpool")
 	#print ui_select('vdev0', 'pool', ['pool', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'log', 'cache'], undef, undef, undef, undef, '');
 	#print 'vdev configuration: ', ui_textbox('vdev', '');
 	#print ui_popup_link('Add vdev', 'select.cgi'), "<br />";
+	
+	%hash = list_disk_ids();
+	#print Dumper (\%hash);
+	print "By Disk-ID: ", ui_select("byid", undef, [keys($hash{byid})]);
+	print "<br />";
+	print "By UUID: ", ui_select("byuuid", undef, [keys($hash{byuuid})]);
+	print "<br />";
+	print 'Manual selection: ', ui_filebox('byfile', '', 25, undef, undef, 1);
+	print "<br />";
 	print ui_checkbox('force', '-f', 'Force', 0), "<br />";
 	print ui_submit('Create');
 	print " | ";
@@ -93,12 +103,13 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_start("Import Zpool");
 	print ui_hidden('import', '1');
 	print "Import search directory (blank for default):", ui_filebox('dir', $in{'dir'}, 25, undef, undef, 1);
+	print "<br />";
 	print ui_submit('Search');
 	print ui_form_end();
 	#print " | ";
 	#print ui_table_row();
 	%imports = zpool_imports($in{'dir'});
-	print Dumper (\%imports);
+	#print Dumper (\%imports);
 	print "<br />";
 	my @array = split("\n", `zpool import -d $in{'dir'}`);
 	#print Dumper (@array);

@@ -37,6 +37,15 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   than generating the necessary ACL entries to represent the new mode
 	   of the file or directory.',
 	   
+	   'available' => 'The	amount of space available to the dataset and all its children,
+	   assuming that there is no other activity in the pool. Because space
+	   is  shared within a pool, availability can be limited by any number
+	   of factors, including physical pool size, quotas, reservations,  or
+	   other datasets within the pool.
+
+	   This property can also be referred to by its shortened column name,
+	   "avail".',
+	   
 	   'checksum' => 'Controls  the  checksum  used to verify data integrity. The default
 	   value is "on", which automatically selects an appropriate algorithm
 	   (currently, fletcher2, but this may change in future releases). The
@@ -78,6 +87,10 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 
 	   This  property can also be referred to by its shortened column name
 	   "compress".',
+	   
+	   'compressratio' => 'The compression ratio achieved for this  dataset,  expressed  as  a
+	   multiplier.	Compression  can be turned on by running "zfs set com-
+	   pression=on dataset". The default value is "off".',
 	   
 		'copies' => 'Controls the number of copies of  data  stored  for	this  dataset.
 	   These  copies  are  in  addition  to any redundancy provided by the

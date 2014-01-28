@@ -8,6 +8,8 @@ use Data::Dumper;
 popup_header($text{'property_title'}." ".$in{'property'}." on ".$in{'zfs'});
 %conf = get_zfsmanager_config();
 %props =  property_desc();
+%pool_proplist = pool_properties_list();
+%proplist = properties_list();
 
 print "<h3>$text{'property_title'}: $in{'property'}</h3>";
 if ($props{$in{'property'}})
@@ -17,21 +19,30 @@ if ($props{$in{'property'}})
 	print "<br />";
 }
 
-%get = zfs_get($in{'zfs'}, $in{'property'});
-print "File system:  ".$in{'zfs'}."<br /> ";
-print "Property: ", $in{'property'}, " is currently set to: ", $get{$in{'zfs'}}{$in{'property'}}{value}, "<br />";
-print "Source: ", $get{$in{'zfs'}}{$in{'property'}}{source};
-print "<br />";
-print "<br />";
-if ($conf{'zfs_properties'} =~ /1/) {
+if ($in{'zfs'}) { 
+	%get = zfs_get($in{'zfs'}, $in{'property'}); 
+	print "File system:  ".$in{'zfs'}."<br /> ";
+	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'zfs'}}{$in{'property'}}{value}, "<br />";
+	print "Source: ", $get{$in{'zfs'}}{$in{'property'}}{source};
+	print "<br />";
+	print "<br />";
+} elsif ($in{'pool'}) { 
+	%get = zpool_get($in{'pool'}, $in{'property'}); 
+	print "Pool:  ".$in{'pool'}."<br /> ";
+	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'pool'}}{$in{'property'}}{value}, "<br />";
+	print "Source: ", $get{$in{'pool'}}{$in{'property'}}{source};
+	print "<br />";
+	print "<br />";
+}
+
+if (can_edit($in{'zfs'}, $in{'property'}) =~ 1) {
 print ui_form_start('cmd.cgi', 'get');
 print ui_hidden('property', $in{'property'});
 print ui_hidden('zfs', $in{'zfs'});
+print ui_hidden('pool', $in{'pool'});
 if ($in{'property'} =~ 'mountpoint') {
 	print ui_filebox('set', $get{$in{'zfs'}}{$in{'property'}}{value}, 0, undef, undef, 1);
 	print ui_submit('submit');
-} elsif ($in{'property'} =~ 'sharenfs') {
-	
 } elsif ($in{'property'} =~ 'mounted') {
 	if ($get{$in{'zfs'}}{$in{'property'}}{value} =~ 'yes') {
 		print "<a href='cmd.cgi?zfs=$in{'zfs'}&mount=unmount'>Unmount this file system</a>";
@@ -40,17 +51,23 @@ if ($in{'property'} =~ 'mountpoint') {
 	}
 } elsif ($in{'property'} =~ 'sharesmb') {
 
+} elsif ($in{'property'} =~ 'sharenfs') {
+
+} elsif ($in{'property'} =~ 'utf8only') {
+
 } else {
-my %proplist = properties_list();
-#print Dumper(\%proplist);
-#print "<br />";
-#print $proplist{$in{'property'}};
-my @select = [ split(", ", $proplist{$in{'property'}}) ];
-if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off' ]; }
-#print Dumper (@select);
-#my @select = [[['1', '2'], ['1', '2']]];
-print "Change to: ";
-print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1);
+
+if ($in{'zfs'}) { 
+	my @select = [ split(", ", $proplist{$in{'property'}}) ];
+	if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off' ]; }
+	print "Change to: ";
+	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
+}
+elsif ($in{'pool'}) { 
+	my @select = [ split(", ", $pool_proplist{$in{'property'}}) ];
+	if ($pool_proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off' ]; }
+	print ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
+}
 print ui_submit('submit');
 }}
 

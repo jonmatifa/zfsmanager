@@ -12,7 +12,7 @@ sub properties_list
 #my %list = ( 'boolean' => [ "atime", "canmount", "devices", "exec", "readonly", "setuid", "xattr" ],
 #			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
 #			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
-my %list2 = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
+my %list = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
 			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'sync' => 'standard, always, disabled',   
 			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special');
 #if ($type != undef)
@@ -20,7 +20,7 @@ my %list2 = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolea
 #	return @list{$type};
 #} else 
 #{
-return %list2;
+return %list;
 #}
 }
 
@@ -54,6 +54,18 @@ foreach my $line (@$lref) {
     $lnum++;
     }
 return %rv;
+}
+
+#determine if a property can be edited
+sub can_edit
+{
+my ($zfs, $property) = @_;
+%conf = get_zfsmanager_config();
+%zfs_props = properties_list();
+%pool_props = pool_properties_list();
+my %type = zfs_get($zfs, 'type');
+if ($type{$zfs}{type}{value} =~ 'snapshot') { return 0; } 
+elsif ((($zfs_props{$property}) && ($conf{'zfs_properties'} =~ /1/)) || (($pool_props{$property}) && ($conf{'pool_properties'} =~ /1/))) { return 1; }
 }
 
 sub list_zpools
@@ -323,6 +335,25 @@ my $list=`zpool list`;
 return $list;
 }
 
+sub list_disk_ids
+{
+#use Cwd 'abs_path';
+my $byid = '/dev/disk/by-id'; #for linux
+my $byuuid = '/dev/disk/by-uuid';
+opendir (DIR, $byid);
+%hash = ();
+while (my $file = readdir(DIR)) 
+{
+	if (!-d $byid."/".$file ) { $hash{'byid'}{$file} = readlink($byid."/".$file); }
+}
+opendir (DIR, $byuuid);
+while (my $file = readdir(DIR)) 
+{
+	if (!-d $byuuid."/".$file ) { $hash{'byuuid'}{$file} = readlink($byuuid."/".$file); }
+}
+return %hash;
+}
+
 #cmd_online($pool, $vdev)
 sub cmd_online
 {
@@ -448,7 +479,7 @@ sub cmd_zpool
 my ($pool, $action, $options, $dev, $confirm) = @_;
 my $cmd="zpool $action $options $pool $dev";
 if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd`))} else { @result = ($cmd, "" ) };
-return $result;
+return @result;
 }
 
 sub cmd_zfs
@@ -476,18 +507,16 @@ print ui_columns_end();
 sub ui_zpool_properties
 {
 my ($pool) = @_;
+require './property-list-en.pl';
 my %hash = zpool_get($pool, "all");
-my %properties = properties_list();
+my %props =  property_desc();
+my %properties = pool_properties_list();
 print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys $hash{$pool}))
 {
-	if ($properties{$key} =~ 'boolean')
+	if (($properties{$key}) || ($props{$key}))
 	{
-		if ($hash{$in{'pool'}}{$key}{value} =~ "on") {
-			print ui_table_row($key, $hash{$pool}{$key}{value});
-		} else {
-			print ui_table_row($key, $hash{$pool}{$key}{value});
-		}
+		print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash{$pool}{$key}{value});
 	} else {
 	print ui_table_row($key, $hash{$pool}{$key}{value});
 	}
@@ -511,12 +540,14 @@ print ui_columns_end();
 sub ui_zfs_properties
 {
 my ($zfs)=@_;
+require './property-list-en.pl';
 my %hash = zfs_get($zfs, "all");
+my %props =  property_desc();
 my %properties = properties_list();
 print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys $hash{$zfs}))
 {		
-	if ($properties{$key})
+	if (($properties{$key}) || ($props{$key}))
 	{		
 		print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value});
 	} else {
