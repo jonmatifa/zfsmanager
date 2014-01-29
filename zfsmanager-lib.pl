@@ -599,6 +599,29 @@ $rv .= popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'snap', 'snap', 's
 return $rv;
 }
 
+sub ui_cmd_zpool
+{
+my ($message, $pool, @params) = @_;
+$rv = "Attempting to $message $pool with command... <br />\n";
+my $result = cmd_zpool(@params);
+$rv .= $result[0]."<br />\n";
+if (!$in{'confirm'})
+{
+	$rv .= "<h3>Would you lke to continue?</h3>\n";
+	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
+} else {
+	if (($result[1] == //))
+	{
+		$rv .= "Success! <br />\n";
+		$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
+	} else
+	{
+	$rv .= "error: ".$result[1]."<br />\n";
+	}
+}
+return $rv;
+}
+
 sub ui_popup_link
 {
 my ($name, $url)=@_;

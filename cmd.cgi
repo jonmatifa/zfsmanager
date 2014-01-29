@@ -343,9 +343,8 @@ if (($in{'export'})  && ($conf{'pool_properties'} =~ /1/))
 popup_footer();
 }
 
-if (($in{'import'})  && ($conf{'pool_properties'} =~ /1/))
+if (($in{'import'}) && ($conf{'pool_properties'} =~ /1/))
 {
-	
 	print "Attempting to import pool $in{'import'} with command... <br />";
 	if ($in{'dir'}) { $dir = "-d ".$in{'dir'}; }
 	my $result = cmd_zpool($in{'import'}, 'import', $dir, undef, $in{'confirm'});
@@ -366,4 +365,14 @@ if (($in{'import'})  && ($conf{'pool_properties'} =~ /1/))
 	}
 #ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
 popup_footer();
+}
+
+if (($in{'scrub'}) && ($conf{'pool_properties'} =~ /1/))
+{
+	print ui_cmd_zpool("scrub pool", $in{'scrub'}, ($in{'scrub'}, 'scrub', undef, undef, $in{'confirm'}));
+}
+
+if (($in{'scrubstop'}) && ($conf{'pool_properties'} =~ /1/))
+{
+	print ui_cmd_zpool("stop scrub pool", $in{'scrub'}, ($in{'scrub'}, 'scrub', '-s', undef, $in{'confirm'}));
 }
