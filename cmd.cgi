@@ -374,5 +374,5 @@ if (($in{'scrub'}) && ($conf{'pool_properties'} =~ /1/))
 
 if (($in{'scrubstop'}) && ($conf{'pool_properties'} =~ /1/))
 {
-	print ui_cmd_zpool("stop scrub pool", $in{'scrub'}, ($in{'scrub'}, 'scrub', '-s', undef, $in{'confirm'}));
+	print ui_cmd_zpool("stop scrub pool", $in{'scrubstop'}, ($in{'scrubstop'}, 'scrub', '-s', undef, $in{'confirm'}));
 }
