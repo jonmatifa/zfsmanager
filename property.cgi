@@ -42,7 +42,7 @@ print ui_hidden('zfs', $in{'zfs'});
 print ui_hidden('pool', $in{'pool'});
 if ($in{'property'} =~ 'mountpoint') {
 	print ui_filebox('set', $get{$in{'zfs'}}{$in{'property'}}{value}, 0, undef, undef, 1);
-	print ui_submit('submit');
+	print ui_submit('submit'), "<br />";
 } elsif ($in{'property'} =~ 'mounted') {
 	if ($get{$in{'zfs'}}{$in{'property'}}{value} =~ 'yes') {
 		print "<a href='cmd.cgi?zfs=$in{'zfs'}&mount=unmount'>Unmount this file system</a>";
@@ -54,6 +54,8 @@ if ($in{'property'} =~ 'mountpoint') {
 } elsif ($in{'property'} =~ 'sharenfs') {
 
 } elsif ($in{'property'} =~ 'utf8only') {
+
+} elsif ($proplist{$in{'property'}} =~ 'special' || $pool_proplist{$in{'property'}} =~ 'special') {
 
 } else {
 
@@ -69,8 +71,8 @@ elsif ($in{'pool'}) {
 	print ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
 }
 print ui_submit('submit');
+print "<br />";
 }}
 
-print "<br />";
 print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 popup_footer();
