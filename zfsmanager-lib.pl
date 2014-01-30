@@ -438,7 +438,7 @@ return @result;
 sub cmd_zfs_set
 {
 my ($zfs, $property, $value, $confirm) = @_;
-my $cmd="zfs set $property=$value $zfs";
+my $cmd = ($value =~ 'inherit') ? "zfs inherit $property $zfs" : "zfs set $property=$value $zfs";
 if ($confirm =~ /yes/) 
 	{ 
 		@result = ($cmd, `$cmd`);

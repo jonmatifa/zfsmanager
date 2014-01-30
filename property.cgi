@@ -60,8 +60,8 @@ if ($in{'property'} =~ 'mountpoint') {
 } else {
 
 if ($in{'zfs'}) { 
-	my @select = [ split(", ", $proplist{$in{'property'}}) ];
-	if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off' ]; }
+	my @select = [ split(", ", $proplist{$in{'property'}}), 'inherit' ];
+	if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off', 'inherit' ]; }
 	print "Change to: ";
 	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
 }
