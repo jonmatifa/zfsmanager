@@ -549,7 +549,8 @@ foreach $key (sort(keys $hash{$zfs}))
 {		
 	if (($properties{$key}) || ($props{$key}))
 	{		
-		print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value});
+		if ($key =~ 'origin') { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>");
+		} else { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value}); }
 	} else {
 	print ui_table_row($key, $hash{$zfs}{$key}{value});
 	}
@@ -606,6 +607,29 @@ $rv = "Attempting to $message $pool with command... <br />\n";
 my $result = cmd_zpool(@params);
 $rv .= $result[0]."<br />\n";
 if (!$in{'confirm'})
+{
+	$rv .= "<h3>Would you lke to continue?</h3>\n";
+	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
+} else {
+	if (($result[1] == //))
+	{
+		$rv .= "Success! <br />\n";
+		$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
+	} else
+	{
+	$rv .= "error: ".$result[1]."<br />\n";
+	}
+}
+return $rv;
+}
+
+sub ui_cmd_zfs
+{
+my ($message, $zfs, @params) = @_;
+$rv = "Attempting to $message $zfs with command... <br />\n";
+my $result = cmd_zfs(@params);
+$rv .= $result[0]."<br />\n";
+if (!$params[3])
 {
 	$rv .= "<h3>Would you lke to continue?</h3>\n";
 	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";

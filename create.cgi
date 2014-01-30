@@ -136,5 +136,28 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_end();
 	
 	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+} elsif ($in{'clone'}) {
+	#ui_zfs_list("-r ".$in{'parent'}, "");
+	my ($parent) = split('/', $in{'clone'});
+	($parent) = split('@', $parent);
+	print ui_form_start("cmd.cgi", "get");
+	print ui_table_start('Clone Snapshot', 'width=100%', '6');
+	print ui_table_span('<b>Snapshot:</b> '.$in{'clone'});
+	print ui_table_span("<b>Name: </b>".$parent."/".ui_textbox('zfs'));
+	print ui_table_span('<b>Mount point</b> (blank for default)'.ui_filebox('mountpoint', '', 25, undef, undef, 1));
+	print ui_hidden('clone', $in{'clone'});
+	print ui_hidden('parent', $parent);
+	print ui_table_span("<br />");
+	print ui_table_span('File system options: ');
+	foreach $key (sort(keys %createopts))
+	{
+		my @select = [ split(", ", $proplist{$key}) ];
+		if ($proplist{$key} eq 'boolean') { @select = [ 'default', 'on', 'off' ]; }
+		print ui_table_row($key.': ', ui_select($key, 'default', @select, 1, 0, 1));
+	}
+	print ui_table_end();
+	print ui_submit('Create');
+	print " | ";
+	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 }
 

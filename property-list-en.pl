@@ -268,6 +268,9 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   umounted and remounted.  See  mount(1M)  for  more  information  on
 	   "nbmand" mounts.',
 	   
+	   'origin' => 'For cloned file systems or volumes, the snapshot from which the clone
+	 was created. See also the clones property.',
+	   
 	   'primarycache' => 'Controls  what  is cached in the primary cache (ARC). If this prop-
 	   erty is set to "all", then both user data and metadata  is  cached.
 	   If this property is set to "none", then neither user data nor meta-

@@ -367,12 +367,41 @@ if (($in{'import'}) && ($conf{'pool_properties'} =~ /1/))
 popup_footer();
 }
 
+#start a scrub
 if (($in{'scrub'}) && ($conf{'pool_properties'} =~ /1/))
 {
 	print ui_cmd_zpool("scrub pool", $in{'scrub'}, ($in{'scrub'}, 'scrub', undef, undef, $in{'confirm'}));
 }
 
+#stop a scrub
 if (($in{'scrubstop'}) && ($conf{'pool_properties'} =~ /1/))
 {
 	print ui_cmd_zpool("stop scrub pool", $in{'scrubstop'}, ($in{'scrubstop'}, 'scrub', '-s', undef, $in{'confirm'}));
+}
+
+#clone a snapshot
+if (($in{'clone'}) && ($conf{'zfs_properties'} =~ /1/))
+{
+#($zfs, $action, $options, $confirm)
+	my %createopts = create_opts();
+	#%options = ();
+	$opts = ();
+	foreach $key (sort (keys %createopts))
+	{
+		if ($in{$key})
+		{
+			#$options{$key} = $in{$key};
+			$opts = ($in{$key} =~ 'default') ? $opts : $opts.' -o '.$key.'='.$in{$key};
+		}
+	}
+	#if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
+	if ($in{'mountpoint'}) { $opts .= ' -o mountpoint='.$in{'mountpoint'}; }
+	print ui_cmd_zfs("clone ", $in{'clone'}, ($in{'clone'}.' '.$in{'parent'}.'/'.$in{'zfs'}, 'clone', $opts, $in{'confirm'}));
+}
+
+#promote filesystem
+if (($in{'promote'}) && ($conf{'zfs_properties'} =~ /1/))
+{
+#($zfs, $action, $options, $confirm)
+	print ui_cmd_zfs("promote ", $in{'promote'}, ($in{'promote'}, 'promote', undef, $in{'confirm'}));
 }
