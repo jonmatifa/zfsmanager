@@ -434,6 +434,20 @@ if ($confirm =~ /yes/)
 return @result;
 }
 
+sub cmd_zfs_send
+{
+my ($snap, $dest, $opts, $confirm) = @_;
+my $cmd="zfs send $opts $snap | $dest";
+if ($confirm =~ /yes/) 
+	{ 
+		@result = ($cmd, backquote_logged($cmd));
+	} else 
+	{ 
+		@result = ($cmd, "" ); 
+	}
+return @result;
+}
+
 #cmd_zfs_set($zfs, $property $value, $confirm)
 sub cmd_zfs_set
 {
@@ -630,6 +644,29 @@ $rv = "Attempting to $message $zfs with command... <br />\n";
 my $result = cmd_zfs(@params);
 $rv .= $result[0]."<br />\n";
 if (!$params[3])
+{
+	$rv .= "<h3>Would you lke to continue?</h3>\n";
+	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
+} else {
+	if (($result[1] == //))
+	{
+		$rv .= "Success! <br />\n";
+		$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
+	} else
+	{
+	$rv .= "error: ".$result[1]."<br />\n";
+	}
+}
+return $rv;
+}
+
+sub ui_cmd
+{
+my ($message, $subject, $result, $confirm) = @_;
+$rv = "Attempting to $message $subject with command... <br />\n";
+#my $result = cmd_zfs(@params);
+$rv .= $result[0]."<br />\n";
+if (!$confirm)
 {
 	$rv .= "<h3>Would you lke to continue?</h3>\n";
 	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";

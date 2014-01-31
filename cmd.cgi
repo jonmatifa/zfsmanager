@@ -405,3 +405,33 @@ if (($in{'promote'}) && ($conf{'zfs_properties'} =~ /1/))
 #($zfs, $action, $options, $confirm)
 	print ui_cmd_zfs("promote ", $in{'promote'}, ($in{'promote'}, 'promote', undef, $in{'confirm'}));
 }
+
+#send snapshot
+if (($in{'send'}) && ($conf{'zfs_properties'} =~ /1/))
+{
+#($zfs, $action, $options, $confirm)
+	if ($in{'force'} =~1)  { $ropts .= " -F "; }
+	my $opts = ();
+	if ($in{'type'} =~ "new") { 
+		$dest = "zfs recv $in{'parent'}/$in{'zfs'}";
+		if ($in{'replicate'} =~ '1') { $opts .= " -R " }
+	} elsif ($in{'type'} =~ "exist") { 
+		$dest = "zfs recv $ropts $in{'existzfs'}"; 
+		if ($in{'increment'} =~ '1') { $opts .= " -i " }
+	}
+	#my $opts = "-R";
+	if ((!$in{'confirm'}) && ($in{'type'} =~ "exist")) {
+		print "<b>This action will affect the following: </b><br />";
+		ui_zfs_list('-r '.$in{'existzfs'});
+		#ui_list_snapshots('-r '.$in{'existzfs'});
+		#if (($conf{'zfs_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
+		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
+		#print ui_confirmation_form('cmd.cgi', 'Warning, this action will result in data loss...', [ 'destroy' => $in{'destroy'}, 'confirm' => 'yes' ], undef, undef, "Are you absolutely sure?");
+		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print ui_hidden('checked', 'no');
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		print "<br /><br />";
+	}
+	my $result = cmd_zfs_send($in{'send'}, $dest, $opts, $in{'confirm'});
+	print ui_cmd("send ", $in{'send'}, $result, $in{'confirm'});
+}

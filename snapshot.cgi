@@ -32,11 +32,14 @@ if ($in{'snap'})
 		print ui_table_row('Snapshot:', "<a href='snapshot.cgi?zfs=$zfs'>Create new snapshot based on $zfs</a>");
 		print ui_table_row('Rename:', "Rename $in{'snap'}");
 	}
-	if ($conf{'zfs_properties'} =~ /1/) { print ui_table_row('Clone:', ui_popup_link("Clone $in{'snap'} to new file system", "create.cgi?clone=".$in{'snap'})); }
+	if ($conf{'zfs_properties'} =~ /1/) { 
+		print ui_table_row('Clone:', ui_popup_link("Clone $in{'snap'} to new file system", "create.cgi?clone=".$in{'snap'})); 
+		print ui_table_row('Send:', ui_popup_link("Send $in{'snap'}", "create.cgi?send=".$in{'snap'}));
+	}
 	if (($conf{'snap_properties'} =~ /1/) && ($conf{'zfs_properties'} =~ /1/)) { 
 		#print ui_table_row('Clone:', "Clone $in{'snap'} to new file system"); 
 		print ui_table_row('Rollback:', "Rollback $zfs to $in{'snap'}");
-		print ui_table_row('Send:', "Send $in{'snap'}");
+		#print ui_table_row('Send:', "Send $in{'snap'}");
 	}
 	if ($conf{'snap_destroy'} =~ /1/) { print ui_table_row('Destroy:', ui_popup_link('Destroy snapshot', "cmd.cgi?destroysnap=".$in{'snap'})); }
 	print ui_table_end();
