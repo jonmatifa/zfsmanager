@@ -435,3 +435,68 @@ if (($in{'send'}) && ($conf{'zfs_properties'} =~ /1/))
 	my $result = cmd_zfs_send($in{'send'}, $dest, $opts, $in{'confirm'});
 	print ui_cmd("send ", $in{'send'}, $result, $in{'confirm'});
 }
+
+if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
+	my %snapshot = list_snapshots();
+	#%conf = get_zfsmanager_config();
+	@select = split(/;/, $in{'select'});
+	print "<h2>Destroy</h2>";
+	print "Attempting to destroy multiple snapshots... <br />";
+	print ui_form_start('cmd.cgi', 'post', 'cmd');
+	print ui_hidden('multisnap', 1);
+	print ui_hidden('select', $in{'select'});
+	#print "<h1>multisnap</h1> <br />";
+	print $in{'select'};
+	my %results = ();
+	print "<br />";
+	print Dumper(@select);
+	#print "<br />";
+	#print Dumper(@array);
+	#print Dumper(\%snapshot);
+	print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
+	foreach $key (@select)
+	{
+		#print "Selected snapshot: ", $key, "<br />";
+		#my %snapshot = list_snapshots($key);
+		chomp($key);
+		print ui_columns_row([ $key, $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		#print ui_columns_row([Dumper(\$snapshot{$key})]);
+		$results{$key} = [ cmd_destroy_zfs($key, '', $in{'confirm'}) ]; 
+	}
+	print ui_columns_end();
+	
+
+	if (!$in{'confirm'})
+	{
+		print "<h2>Commands to be issued:</h2>";
+		foreach $key (keys %results)
+		{
+			print $results{$key}[0], "<br />";
+		}	
+		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
+		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print ui_hidden('checked', 'no');
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		print "<br /><br />";
+		print ui_submit("Continue", undef, undef), " | <a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	} else {
+		print "<h2>Results from commands:</h2>";
+		print Dumper(\%results);
+		foreach $key (keys %results)
+		{
+			if (($results{$key}[1] eq undef))
+			{
+				print $results{$key}[0], "<br />";
+				print "Success! <br />";
+				#print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+			} else
+			{
+				print $results{$key}[0], "<br />";
+				print "error: ", $results{$key}[1], "<br />";
+			}
+		}
+	print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+	}
+	print ui_form_end();
+
+}
