@@ -579,12 +579,12 @@ my ($zfs, $admin) = @_;
 %snapshot = list_snapshots($zfs);
 %conf = get_zfsmanager_config();
 if ($admin =~ /1/) { 
-	print ui_form_start('cmd.cgi', 'post', 'cmd'); 
+	print ui_form_start('cmd.cgi', 'get', 'cmd'); 
 	print ui_hidden('multisnap', 1);
 	}
 #if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
 print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
-foreach $key (keys %snapshot)
+foreach $key (sort(keys %snapshot))
 {
 	#print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	if ($admin =~ /1/) {
@@ -600,7 +600,7 @@ foreach $key (keys %snapshot)
 print ui_columns_end();
 if ($admin =~ /1/) { print select_all_link('select', '', "Select All"), " | ", select_invert_link('select', '', "Invert Selection") }
 #if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | Destroy selected snapshots"; }
-if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | ".ui_submit("Destroy selected snapshots"); }
+if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | Destroy selected snapshots".popup_window_button("cmd.cgi?multisnap=1", 600, 400, ('select', 'select', 'select')); }
 if ($admin =~ /1/) { print ui_form_end(); }
 
 }

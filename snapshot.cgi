@@ -34,7 +34,7 @@ if ($in{'snap'})
 	}
 	if ($conf{'zfs_properties'} =~ /1/) { 
 		print ui_table_row('Clone:', ui_popup_link("Clone $in{'snap'} to new file system", "create.cgi?clone=".$in{'snap'})); 
-		print ui_table_row('Send:', ui_popup_link("Send $in{'snap'}", "create.cgi?send=".$in{'snap'}));
+		#print ui_table_row('Send:', ui_popup_link("Send $in{'snap'}", "create.cgi?send=".$in{'snap'}));
 	}
 	if (($conf{'snap_properties'} =~ /1/) && ($conf{'zfs_properties'} =~ /1/)) { 
 		#print ui_table_row('Clone:', "Clone $in{'snap'} to new file system"); 
