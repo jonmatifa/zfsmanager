@@ -27,7 +27,7 @@ return %list;
 sub pool_properties_list
 {
 my %list = ('autoexpand' => 'boolean', 'autoreplace' => 'boolean', 'delegation' => 'boolean', 'listsnaps' => 'boolean', 
-			'failmode' => 'wait, continue, panic',
+			'failmode' => 'wait, continue, panic', 'feature@async_destroy' => 'enabled, disabled', 'feature@empty_bpobj' => 'enabled, disabled', 'feature@lz4_compress' => 'enabled, disabled', 
 			'altroot' => 'special', 'bootfs' => 'special', 'cachefile' => 'special');
 return %list;
 }

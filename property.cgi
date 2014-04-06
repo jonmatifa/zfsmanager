@@ -57,13 +57,23 @@ if ($in{'property'} =~ 'mountpoint') {
 
 } elsif ($proplist{$in{'property'}} =~ 'special' || $pool_proplist{$in{'property'}} =~ 'special') {
 
+} elsif ($in{'property'} =~ /feature@/ && $get{$in{'pool'}}{$in{'property'}}{value} !~ 'disabled') {
+
 } else {
 
-if ($in{'zfs'}) { 
+if ($in{'zfs'}) {
 	my @select = [ split(", ", $proplist{$in{'property'}}), 'inherit' ];
+	if ($in{'property'} =~ 'compression') {
+		print "property is compression <br />";
+		($pool) = split('/', $in{'zfs'});
+		%poolget = zpool_get($pool, 'feature@lz4_compress'); 
+		#if ($get{$pool} =~ 'enabled') { $proplist{'compression'} .= ', lz4' }
+		if ($poolget{$pool}{'feature@lz4_compress'}{value} =~ 'enabled' || $poolget{$pool}{'feature@lz4_compress'}{value} =~ 'active') { unshift(@select[0], "lz4");	}
+	}
 	if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off', 'inherit' ]; }
 	print "Change to: ";
 	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
+	#print Dumper(@select);
 }
 elsif ($in{'pool'}) { 
 	my @select = [ split(", ", $pool_proplist{$in{'property'}}) ];

@@ -28,6 +28,7 @@ if ($in{'create'} =~ "zpool")
 		if ($proplist{$key} eq 'boolean') { @select = [ 'default', 'on', 'off' ]; }
 		print $key, ': ', ui_select($key, 'default', @select, 1, 0, 1), '<br />';
 	}
+	print 'Pool version: ', ui_select('version', 'default', ['default', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '5000'], 1, 0, 1), '<br />';
 	#print ui_select('vdev0', 'pool', ['pool', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'log', 'cache'], undef, undef, undef, undef, '');
 	#print 'vdev configuration: ', ui_textbox('vdev', '');
 	#print ui_popup_link('Add vdev', 'select.cgi'), "<br />";

@@ -199,6 +199,49 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	 within the pool. The behavior of such an event is determined as fol-
 	 lows:',
 	 
+	 'feature@async_destroy' => 'GUID                   com.delphix:async_destroy
+           READ-ONLY COMPATIBLE   yes
+           DEPENDENCIES           none
+
+           Destroying  a file system requires traversing all of its data in order to return its used space to the pool. Without async_destroy
+           the file system is not fully removed until all space has been reclaimed. If the destroy operation is interrupted by  a  reboot  or
+           power outage the next attempt to open the pool will need to complete the destroy operation synchronously.
+
+           When  async_destroy is enabled the file system\'s data will be reclaimed by a background process, allowing the destroy operation to
+           complete without traversing the entire file system. The background process is able to resume interrupted destroys after  the  pool
+           has  been opened, eliminating the need to finish interrupted destroys as part of the open operation. The amount of space remaining
+           to be reclaimed by the background process is available through the freeing property.
+
+           This feature is only active while freeing is non-zero.',
+		   
+	 'feature@empty_bpobj' => 'GUID                   com.delphix:empty_bpobj
+           READ-ONLY COMPATIBLE   yes
+           DEPENDENCIES           none
+
+           This feature increases the performance of creating and using a large number of snapshots of a single  filesystem  or  volume,  and
+           also reduces the disk space required.
+
+           When  there are many snapshots, each snapshot uses many Block Pointer Objects (bpobj\'s) to track blocks associated with that snap
+           shot.  However, in common use cases, most of these bpobj\'s are empty.  This feature allows us to create each bpobj on-demand, thus
+           eliminating the empty bpobjs.
+
+           This feature is active while there are any filesystems, volumes, or snapshots which were created after enabling this feature.', 
+		   
+	 'feature@lz4_compress' => 'GUID                   org.illumos:lz4_compress
+           READ-ONLY COMPATIBLE   no
+           DEPENDENCIES           none
+
+           lz4 is a high-performance real-time compression algorithm that features significantly faster compression and decompression as well
+           as a higher compression ratio than the older lzjb compression.  Typically, lz4 compression is approximately  50%  faster  on  com‐
+           pressible  data and 200% faster on incompressible data than lzjb. It is also approximately 80% faster on decompression, while giv‐
+           ing approximately 10% better compression ratio.
+
+           When the lz4_compress feature is set to enabled, the administrator can turn on lz4 compression on any dataset on  the  pool  using
+           the  zfs(8)  command.  Please  note  that doing so will immediately activate the lz4_compress feature on the underlying pool (even
+           before any data is written). Since this feature is not read-only compatible, this operation will render the pool  unimportable  on
+           systems  without  support  for the lz4_compress feature. At the moment, this operation cannot be reversed. Booting off of lz4-com‐
+           pressed root pools is supported.', 
+	 
 	 'free' => 'Number of blocks within the pool that are not allocated.',
 	 
 	 'guid' => 'A unique identifier for the pool.',
