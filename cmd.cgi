@@ -439,10 +439,12 @@ if (($in{'send'}) && ($conf{'zfs_properties'} =~ /1/))
 if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 	my %snapshot = list_snapshots();
 	#%conf = get_zfsmanager_config();
+	$in{'select'} =~ s/^\s*(.*?)\s*$/$1/;
 	@select = split(/;/, $in{'select'});
 	print "<h2>Destroy</h2>";
 	print "Attempting to destroy multiple snapshots... <br />";
-	print ui_form_start('cmd.cgi', 'post', 'cmd');
+	#print ui_form_start('cmd.cgi', 'post', 'cmd');
+	print ui_form_start('cmd.cgi', 'post');
 	print ui_hidden('multisnap', 1);
 	print ui_hidden('select', $in{'select'});
 	#print "<h1>multisnap</h1> <br />";
@@ -478,7 +480,8 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 		print ui_hidden('checked', 'no');
 		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
 		print "<br /><br />";
-		print ui_submit("Continue", undef, undef), " | <a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+		#print ui_submit("Continue", undef, undef), " | <a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+		print ui_submit("Continue", undef, undef), " | <a href='index.cgi?mode=snapshot'>Cancel</a>";
 	} else {
 		print "<h2>Results from commands:</h2>";
 		print Dumper(\%results);
@@ -495,7 +498,8 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 				print "error: ", $results{$key}[1], "<br />";
 			}
 		}
-	print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+	print ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
 	}
 	print ui_form_end();
 

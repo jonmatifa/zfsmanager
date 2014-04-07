@@ -48,6 +48,15 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	 tem is up.  Setting altroot defaults to using cachefile=none, though
 	 this may be overridden using an explicit setting.',
 	 
+	 'ashift' => 'Pool sector size exponent, to the power of 2 (internally referred to as "ashift"). I/O operations will be aligned to the specified
+           size  boundaries.  Additionally,  the  minimum (disk) write size will be set to the specified size, so this represents a space vs.
+           performance trade-off. The typical case for setting this property is when performance is important and the  underlying  disks  use
+           4KiB sectors but report 512B sectors to the OS (for compatibility reasons); in that case, set ashift=12 (which is 1<<12 = 4096).
+
+           For  optimal  performance,  the pool sector size should be greater than or equal to the sector size of the underlying disks. Since
+           the property cannot be changed after pool creation, if in a given pool, you ever want to use drives that report 4KiB sectors,  you
+           must set ashift=12 at pool creation time.',
+	 
 	   'autoexpand' => 'Controls automatic pool expansion when the underlying LUN is grown.
 	 If set to "on", the pool will be resized according to the size of the
 	 expanded device. If the device is part of a mirror or raidz then all
@@ -132,6 +141,14 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 		insensitive matching behavior on a file system that supports mixed behavior is limited to  the
 		Solaris  CIFS  server  product.  For  more information about the mixed value behavior, see the
 		Solaris ZFS Administration Guide.',
+		
+		'comment' => 'A text string consisting of printable ASCII characters that will be stored such that it is available  even  if  the  pool  becomes
+           faulted.  An administrator can provide additional information about a pool using this property.',
+		   
+	'clones' => 'A clone is a writable volume or file system whose initial contents are the same as another dataset. As with snapshots, creating a clone is nearly instantaneous, and initially consumes no additional space.
+Clones can only be created from a snapshot. When a snapshot is cloned, it creates an implicit dependency between the parent and child. Even though the clone is created somewhere else in the dataset hierarchy, the original snapshot cannot be destroyed as long as a clone exists. The origin property exposes this dependency, and the destroy command lists any such dependencies, if they exist.
+
+The clone parent-child dependency relationship can be reversed by using the promote subcommand. This causes the "origin" file system to become a clone of the specified file system, which makes it possible to destroy the file system that the clone was created from.',
 	   
 		'compression' => 'Controls  the  compression  algorithm  used	for  this dataset. The
 	   "lzjb" compression algorithm is  optimized  for  performance  while
@@ -183,6 +200,8 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 		 disk space was actually consumed. See zfs(8) for a descrip-
 		 tion of the deduplication feature.',
 		 
+	'defer_destroy' => 'This property is on if the snapshot has been marked for deferred destroy by using the zfs destroy -d command. Otherwise, the property is off.',
+		 
 	'delegation' => 'Controls whether a non-privileged user is granted access based on the
 	 dataset permissions defined on the dataset. See zfs(8) for more
 	 information on ZFS delegated administration.',
@@ -192,6 +211,10 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   
 	   'exec' => 'Controls whether processes can be executed from  within  this  file
 	   system. The default value is "on".',
+	   
+	   'expandsize' => 'Amount of uninitialized space within the pool or device that can be used to increase the  total  capacity  of  the
+                           pool.   Uninitialized  space  consists of any space on an EFI labeled vdev which has not been brought online (i.e.
+                           zpool online -e).  This space occurs when a LUN is dynamically expanded.',
 	   
 	   'failmode' => 'Controls the system behavior in the event of catastrophic pool fail-
 	 ure. This condition is typically a result of a loss of connectivity
@@ -232,17 +255,19 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
            DEPENDENCIES           none
 
            lz4 is a high-performance real-time compression algorithm that features significantly faster compression and decompression as well
-           as a higher compression ratio than the older lzjb compression.  Typically, lz4 compression is approximately  50%  faster  on  com‐
-           pressible  data and 200% faster on incompressible data than lzjb. It is also approximately 80% faster on decompression, while giv‐
-           ing approximately 10% better compression ratio.
+           as a higher compression ratio than the older lzjb compression.  Typically, lz4 compression is approximately  50%  faster  on  compressible  
+		   data and 200% faster on incompressible data than lzjb. It is also approximately 80% faster on decompression, while giving 
+		   approximately 10% better compression ratio.
 
            When the lz4_compress feature is set to enabled, the administrator can turn on lz4 compression on any dataset on  the  pool  using
            the  zfs(8)  command.  Please  note  that doing so will immediately activate the lz4_compress feature on the underlying pool (even
            before any data is written). Since this feature is not read-only compatible, this operation will render the pool  unimportable  on
-           systems  without  support  for the lz4_compress feature. At the moment, this operation cannot be reversed. Booting off of lz4-com‐
-           pressed root pools is supported.', 
+           systems  without  support  for the lz4_compress feature. At the moment, this operation cannot be reversed. Booting off of lz4-compressed root pools is supported.', 
 	 
 	 'free' => 'Number of blocks within the pool that are not allocated.',
+	 
+	 'freeing' => 'After a file system or snapshot is destroyed, the space it was using is returned to the pool asynchronously. freeing is the 
+	 amount of space remaining to be reclaimed. Over time freeing will decrease while free increases.',
 	 
 	 'guid' => 'A unique identifier for the pool.',
 	 
@@ -367,6 +392,9 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	 This property can also be referred to by its shortened column name,
 	 refer.',
 	 
+	 'refcompressratio' => 'The compression ratio achieved	for the	referenced space of this
+	 dataset, expressed as a multiplier.  See also the compressratio property.',
+	 
 	 'refquota' => 'Limits the amount of space a dataset can consume. This property enforces a hard limit  on  the
            amount  of  space  used. This hard limit does not include space used by descendents, including
            file systems and snapshots.',
@@ -469,6 +497,8 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   root of the file system as discussed in  the  "Snapshots"  section.
 	   The default value is "hidden".',
 	   
+	   'snapdev' => 'Controls whether the snapshots devices of zvol\'s are hidden or visible. The default value is hidden.',
+	   
 	   'setuid' => 'Controls whether the set-UID bit is respected for the file  system.
 	   The default value is "on".',
 	   
@@ -533,6 +563,11 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	 
 		'usedbyrefreservation' => 'The amount of space used by a refreservation set on this dataset,
 	 which would be freed if the refreservation was removed.',
+	 
+	 'userrefs' => 'This property is set to the number of user holds on this snapshot. User holds are set by using the zfs hold command.
+groupused@group
+The amount of space consumed by the specified group in this dataset. Space is charged to the group of each file, as displayed by ls -l. See the userused@user property for more information.
+Unprivileged users can only access their own groups\' space usage. The root user, or a user who has been granted the groupused privilege with zfs allow, can access all groups\' usage.',
 	   
 	   'utf8only' => 'Indicates whether the file system should reject file names that
 	   include characters that are not present in the UTF-8 character code
@@ -552,10 +587,9 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   the virus scan service must also be enabled for virus  scanning  to
 	   occur. The default value is "off".',
 	   
-	   'xattr' => 'Controls whether regular files should be scanned for viruses when a
-	   file  is  opened and closed. In addition to enabling this property,
-	   the virus scan service must also be enabled for virus  scanning  to
-	   occur. The default value is "off".',
+	   'written' => 'The amount of referenced space	written	to this	dataset	since the previous snapshot.',
+	   
+	   'xattr' => 'Controls whether extended attributes are enabled for this file system. The default value is on.',
 	   
 	   'zoned' => 'Controls whether the dataset is managed from a non-global zone. See
 	   the	"Zones"  section  for  more  information. The default value is

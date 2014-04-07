@@ -13,7 +13,7 @@ sub properties_list
 #			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
 #			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
 my %list = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
-			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'sync' => 'standard, always, disabled',   
+			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled',   
 			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special');
 #if ($type != undef)
 #{
@@ -579,7 +579,8 @@ my ($zfs, $admin) = @_;
 %snapshot = list_snapshots($zfs);
 %conf = get_zfsmanager_config();
 if ($admin =~ /1/) { 
-	print ui_form_start('cmd.cgi', 'get', 'cmd'); 
+	#print ui_form_start('cmd.cgi', 'get', 'cmd'); 
+	print ui_form_start('cmd.cgi', 'get');
 	print ui_hidden('multisnap', 1);
 	}
 #if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
@@ -599,8 +600,8 @@ foreach $key (sort(keys %snapshot))
 }
 print ui_columns_end();
 if ($admin =~ /1/) { print select_all_link('select', '', "Select All"), " | ", select_invert_link('select', '', "Invert Selection") }
-#if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | Destroy selected snapshots"; }
-if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | Destroy selected snapshots".popup_window_button("cmd.cgi?multisnap=1", 600, 400, ('select', 'select', 'select')); }
+if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | ".ui_submit("Destroy selected snapshots"); }
+#if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | Destroy selected snapshots".popup_window_button("cmd.cgi?multisnap=1", 600, 400, ('select', 'select', 'select')); }
 if ($admin =~ /1/) { print ui_form_end(); }
 
 }
