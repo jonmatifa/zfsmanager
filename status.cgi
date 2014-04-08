@@ -47,13 +47,15 @@ foreach $key (keys %status)
 	#print ui_columns_row(["<a href=''>$status{$key}{name}</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}, $status{$key}{parent}]);
 }
 print ui_columns_end();
-print ui_table_start("Status", "width=100%", "10");
-print ui_table_row("Scan:", $status{pool}{scan});
-print ui_table_row("Read:", $status{pool}{read});
-print ui_table_row("Write:", $status{pool}{write});
-print ui_table_row("Checkum:", $status{pool}{cksum});
-print ui_table_row("Errors:", $status{pool}{errors});
-print ui_table_end();
+#print ui_table_start("Status", "width=100%", "10");
+print test_function($in{'pool'});
+#print ui_table_row("Scan:", $status{pool}{scan});
+#print ui_table_row("Read:", $status{pool}{read});
+#print ui_table_row("Write:", $status{pool}{write});
+#print ui_table_row("Checkum:", $status{pool}{cksum});
+#print ui_table_row("Errors:", $status{pool}{errors});
+#print ui_table_end();
+
 
 print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
 #print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'}));

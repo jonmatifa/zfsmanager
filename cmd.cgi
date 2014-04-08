@@ -439,8 +439,9 @@ if (($in{'send'}) && ($conf{'zfs_properties'} =~ /1/))
 if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 	my %snapshot = list_snapshots();
 	#%conf = get_zfsmanager_config();
-	$in{'select'} =~ s/^\s*(.*?)\s*$/$1/;
-	@select = split(/;/, $in{'select'});
+	#$in{'select'} =~ s/^\s*(.*?)\s*$/$1/;
+	$in{'select'} =~ s/([\w@-_]+)/$1/;
+	@select = split(/;/, scalar $in{'select'});
 	print "<h2>Destroy</h2>";
 	print "Attempting to destroy multiple snapshots... <br />";
 	#print ui_form_start('cmd.cgi', 'post', 'cmd');
