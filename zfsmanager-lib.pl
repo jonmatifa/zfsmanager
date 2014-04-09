@@ -14,7 +14,7 @@ sub properties_list
 #			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
 my %list = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
 			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, lz4, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9, zle', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled',   
-			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special');
+			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special', 'volsize' => 'special');
 #if ($type != undef)
 #{
 #	return @list{$type};
@@ -34,7 +34,7 @@ return %list;
 
 sub create_opts #options and defaults when creating new pool or filesystem
 {
-my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off');
+my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off', 'volblocksize' => '8K', 'sparse' => '0');
 return %list;
 }
 
@@ -395,6 +395,10 @@ sub cmd_create_zfs
 my ($zfs, $options)  = @_;
 my $opts = ();
 my %createopts = create_opts();
+if ($options{'sparse'}) { 
+	$opts = "-s "; 
+	delete $options{'sparse'};
+}
 foreach $key (sort(keys %options))
 {
 	$opts = (($createopts{$key}) && ($options{$key} =~ 'default')) ? $opts : $opts.' -o '.$key.'='.$options{$key};

@@ -264,6 +264,7 @@ popup_footer();
 if (($in{'create'} =~ 'zfs') && ($in{'parent'}) && ($conf{'zfs_properties'} =~ /1/))
 {
 	print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";
+	#print "#1<br />";
 	my %createopts = create_opts();
 	%options = ();
 	foreach $key (sort (keys %createopts))
@@ -274,16 +275,24 @@ if (($in{'create'} =~ 'zfs') && ($in{'parent'}) && ($conf{'zfs_properties'} =~ /
 		}
 	}
 	if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
+	if ($in{'zvol'} == '1') { 
+		$in{'zfs'} = "-V ".$in{'size'}." ".$in{'parent'}."/".$in{'zfs'}; 
+	} else {
+		$in{'zfs'} = $in{'parent'}."/".$in{'zfs'}; 
+	}
 	#print Dumper (\%options);
-	my @result = cmd_create_zfs($in{'parent'}."/".$in{'zfs'}, $options);
+	#print $in{'volblocksize'};
+	my @result = cmd_create_zfs($in{'zfs'}, $options);
 	print $result[0], "<br />";
 	if ($result[1] == //)
 	{
 		print "Success! <br />";
-		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		#print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+		ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
 	} else
 	{
-	print "error: ", $result[1], "<br />";
+		print "error: ", $result[1], "<br />";
+		ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
 	}
 #ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
 }

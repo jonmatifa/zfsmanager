@@ -581,6 +581,37 @@ Unprivileged users can only access their own groups\' space usage. The root user
 	 "zpool upgrade" command, though this property can be used when a spe-
 	 cific version is needed for backwards compatibility.  Once feature
 	 flags is enabled on a pool this property will no longer have a value.',
+	 
+	 'volblocksize' => 'For volumes, specifies	the block size of the volume. The blocksize
+	 cannot	be changed once	the volume has been written, so	it should be
+	 set at	volume creation	time. The default blocksize for	volumes	is 8
+	 Kbytes. Any power of 2	from 512 bytes to 128 Kbytes is	valid.
+
+	 This property can also	be referred to by its shortened	column name,
+	 volblock.',
+	 
+	 'volsize' => 'For volumes, specifies	the logical size of the	volume.	By default,
+	 creating a volume establishes a reservation of	equal size. For	storage 
+	 pools with	a version number of 9 or higher, a refreservation is
+	 set instead. Any changes to volsize are reflected in an equivalent
+	 change	to the reservation (or refreservation).	 The volsize can only
+	 be set	to a multiple of volblocksize, and cannot be zero.
+
+	 The reservation is kept equal to the volume\'s logical size to prevent
+	 unexpected behavior for consumers. Without the	reservation, the volume 
+	 could run out of space, resulting in undefined behavior or	data
+	 corruption, depending on how the volume is used. These	effects	can
+	 also occur when the volume size is changed while it is	in use (particularly 
+	 when	shrinking the size). Extreme care should be used when
+	 adjusting the volume size.
+
+	 Though	not recommended, a "sparse volume" (also known as "thin	provisioning") 
+	 can be created by specifying	the -s option to the "zfs
+	 create	-V" command, or	by changing the	reservation after the volume
+	 has been created. A "sparse volume" is	a volume where the reservation
+	 is less then the volume size.	Consequently, writes to	a sparse volume 
+	 can fail with ENOSPC when the pool	is low on space. For a sparse
+	 volume, changes to volsize are	not reflected in the reservation.',
 	   
 	   'vscan' => 'Controls whether regular files should be scanned for viruses when a
 	   file  is  opened and closed. In addition to enabling this property,

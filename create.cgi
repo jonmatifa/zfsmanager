@@ -4,8 +4,8 @@ require './zfsmanager-lib.pl';
 #foreign_require('fdisk', 'fdisk-lib.pl');
 ReadParse();
 use Data::Dumper;
-#ui_print_header(undef, "Create Zpool", "", undef, 1, 1);
-popup_header('Create '.$in{'create'});
+ui_print_header(undef, "Create Zpool", "", undef, 1, 1);
+#popup_header('Create '.$in{'create'});
 my %createopts = create_opts();
 my %proplist = properties_list();
 
@@ -44,7 +44,8 @@ if ($in{'create'} =~ "zpool")
 	print ui_checkbox('force', '-f', 'Force', 0), "<br />";
 	print ui_submit('Create');
 	print " | ";
-	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	ui_print_footer('', $text{'index_return'});
+	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 	#print popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'pool', 'pool', 'pool'], ['create', 'create', 'create'], ['dev', 'dev', 'dev'], ['mountpoint', 'mountpoint', 'mountpoint'], ['force', 'force', 'force'] ] );
 	#mount::generate_location("vdev", "");
 	#print ui_table_row();
@@ -59,7 +60,8 @@ if ($in{'create'} =~ "zpool")
 	#ui_print_header(undef, "Create File System", "", undef, 1, 1);
 	print "Select parent for file system";
 	ui_zfs_list(undef, "create.cgi?create=zfs&parent=");
-	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
+	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 } elsif (($in{'create'} =~ "zfs")) {
 	#ui_print_header(undef, "Create File System", "", undef, 1, 1);
 	#print "Pool:";
@@ -69,6 +71,12 @@ if ($in{'create'} =~ "zpool")
 	print "Parent file system:";
 	ui_zfs_list("-r ".$in{'parent'}, "");
 	
+	@tabs = ();
+	push(@tabs, [ "zfs", "Create Filesystem", "create.cgi?mode=zfs" ]);
+	push(@tabs, [ "zvol", "Create ZVol", "create.cgi?mode=zvol" ]);
+	print &ui_tabs_start(\@tabs, "mode", $in{'mode'} || $tabs[0]->[0], 1);
+	
+	print &ui_tabs_start_tab("mode", "zfs");
 	#%zfs = list_zfs("-r ".$in{'parent'});
 	#print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
 	#foreach $key (sort(keys %zfs)) 
@@ -87,6 +95,9 @@ if ($in{'create'} =~ "zpool")
 	print ui_hidden('create', 'zfs');
 	print ui_table_span("<br />");
 	print ui_table_span('File system options: ');
+	delete $createopts{'sparse'};
+	delete $createopts{'volblocksize'};
+	#my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off');
 	foreach $key (sort(keys %createopts))
 	{
 		my @select = [ split(", ", $proplist{$key}) ];
@@ -95,10 +106,47 @@ if ($in{'create'} =~ "zpool")
 	}
 	print ui_table_end();
 	print ui_submit('Create');
-	print " | ";
-	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	print ui_form_end();
+	#print " | ";
+	
+	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 	#print popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'pool', 'pool', 'pool'], ['create', 'create', 'create'], ['zfs', 'zfs', 'zfs'] ] );
 	#ui_print_footer("index.cgi?mode=zfs", $text{'zfs_return'});
+	print &ui_tabs_end_tab("mode", "zfs");
+
+	print &ui_tabs_start_tab("mode", "zvol");
+	print ui_form_start("cmd.cgi", "post");
+	#print ui_hidden('property', $in{'property'});
+	print ui_table_start('New ZVol', 'width=100%', '6');
+	#print "<h3>New File System: </h3>";
+	print ui_table_span("<b>Name: </b>".$in{'parent'}."/".ui_textbox('zfs'));
+	#print ui_table_span('Mount point (blank for default)'.ui_filebox('mountpoint', '', 25, undef, undef, 1));
+	print ui_table_span("<b>Size: </b>".ui_textbox('size'));
+	print ui_table_span('Blocksize: '.ui_select('volblocksize', 'default', ['default', '512', '1K', '2K', '4K', '8K', '16K', '32K', '64K', '128K'], 1, 0, 1), '<br />');
+	delete $createopts{'volblocksize'};
+	print ui_table_span('Sparse volume: '.ui_checkbox('sparse', '1'));
+	delete $createopts{'sparse'};
+	print ui_hidden('parent', $in{'parent'});
+	print ui_hidden('create', 'zfs');
+	print ui_hidden('zvol', '1');
+	print ui_table_span("<br />");
+	print ui_table_span('File system options: ');
+	foreach $key (sort(keys %createopts))
+	{
+		my @select = [ split(", ", $proplist{$key}) ];
+		if ($proplist{$key} eq 'boolean') { @select = [ 'default', 'on', 'off' ]; }
+		print ui_table_row($key.': ', ui_select($key, 'default', @select, 1, 0, 1));
+	}
+	print ui_table_end();
+	print ui_submit('Create');
+	print ui_form_end();
+	#print " | ";
+	print &ui_tabs_end_tab("mode", "zvol");
+
+	#end tabs
+	print &ui_tabs_end(1);
+	ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
+	
 } elsif ($in{'import'}) {
 	print ui_form_start("create.cgi", "post");
 	print ui_table_start("Import Zpool");
@@ -135,8 +183,8 @@ if ($in{'create'} =~ "zpool")
 	}
 	
 	print ui_table_end();
-	
-	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	ui_print_footer('', $text{'index_return'});
+	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 } elsif ($in{'clone'}) {
 	#ui_zfs_list("-r ".$in{'parent'}, "");
 	my ($parent) = split('/', $in{'clone'});
@@ -159,7 +207,8 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_end();
 	print ui_submit('Create');
 	print " | ";
-	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 } elsif ($in{'send'}) {
 	print ui_form_start("cmd.cgi", "get");
 	print ui_table_start('Send Snapshot', 'width=100%', '6');
@@ -182,6 +231,7 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_end();
 	print ui_submit('Send');
 	print " | ";
-	print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 }
 
