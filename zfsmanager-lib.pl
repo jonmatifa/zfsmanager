@@ -531,7 +531,7 @@ my %hash = zpool_get($pool, "all");
 my %props =  property_desc();
 my %properties = pool_properties_list();
 print ui_table_start("Properties", "width=100%", undef);
-foreach $key (sort(keys $hash{$pool}))
+foreach $key (sort(keys %{$hash=>{$pool}}))
 {
 	if (($properties{$key}) || ($props{$key}))
 	{
@@ -564,7 +564,7 @@ my %hash = zfs_get($zfs, "all");
 my %props =  property_desc();
 my %properties = properties_list();
 print ui_table_start("Properties", "width=100%", undef);
-foreach $key (sort(keys $hash{$zfs}))
+foreach $key (sort(keys %{$hash->{$zfs}}))
 {		
 	if (($properties{$key}) || ($props{$key}))
 	{		
