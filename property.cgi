@@ -20,18 +20,19 @@ if ($props{$in{'property'}})
 }
 
 if ($in{'zfs'}) { 
-	%get = zfs_get($in{'zfs'}, $in{'property'}); 
+	#my %get = zfs_get($in{'zfs'}, $in{'property'}); 
 	print "File system:  ".$in{'zfs'}."<br /> ";
-	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'zfs'}}{$in{'property'}}{value}, "<br />";
+	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'zfs'}}->{$in{'property'}}{value}, "<br />";
 	print "Source: ", $get{$in{'zfs'}}{$in{'property'}}{source};
 	print "<br />";
 	print "<br />";
 } elsif ($in{'pool'}) { 
-	%get = zpool_get($in{'pool'}, $in{'property'}); 
+	my %get = zpool_get($in{'pool'}, 'all'); 
 	print "Pool:  ".$in{'pool'}."<br /> ";
 	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'pool'}}{$in{'property'}}{value}, "<br />";
 	print "Source: ", $get{$in{'pool'}}{$in{'property'}}{source};
 	print "<br />";
+	print Dumper(%get);
 	print "<br />";
 }
 

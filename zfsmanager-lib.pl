@@ -242,7 +242,9 @@ while (my $line =<$fh>)
 {
     chomp ($line);
     my($name, $property, $value, $source) = split(/\t/, $line);
-	$hash{$name}{$property} = { value => $value, source => $source };
+	$hash->{$name}{$property} = { value => $value, source => $source };
+	#$hash->{$name->{$property->{'value'}}} = $value;
+	#$hash->{$name->{$property->{'source'}}} = $source;
 }
 return %hash;
 }
@@ -262,7 +264,7 @@ while (my $line =<$fh>)
 {
     chomp ($line);
 	my($name, $property, $value, $source) = split(/\s+/, $line);
-	$hash{$name}{$property} = { value => $value, source => $source };
+	$hash->{$name}{$property} = { value => $value, source => $source };
 }
 return %hash;
 }
@@ -531,13 +533,13 @@ my %hash = zpool_get($pool, "all");
 my %props =  property_desc();
 my %properties = pool_properties_list();
 print ui_table_start("Properties", "width=100%", undef);
-foreach $key (sort(keys %{$hash=>{$pool}}))
+foreach $key (sort(keys %{$hash->{$pool}}))
 {
 	if (($properties{$key}) || ($props{$key}))
 	{
-		print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash{$pool}{$key}{value});
+		print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash->{$pool}->{$key}{value});
 	} else {
-	print ui_table_row($key, $hash{$pool}{$key}{value});
+	print ui_table_row($key, $hash->{$pool}{$key}{value});
 	}
 }
 print ui_table_end();
@@ -563,15 +565,20 @@ require './property-list-en.pl';
 my %hash = zfs_get($zfs, "all");
 my %props =  property_desc();
 my %properties = properties_list();
+#my %pool = %{$hash->{$zfs}};
+#print Dumper(%pool);
+#print "<br />";
+#print "<br />";
+#print Dumper(%{$hash});
 print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys %{$hash->{$zfs}}))
 {		
 	if (($properties{$key}) || ($props{$key}))
 	{		
-		if ($key =~ 'origin') { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>");
-		} else { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value}); }
+		if ($key =~ 'origin') { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash->{$zfs}{$key}{value}'>$hash->{$zfs}{$key}{value}</a>");
+		} else { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash->{$zfs}{$key}{value}); }
 	} else {
-	print ui_table_row($key, $hash{$zfs}{$key}{value});
+	print ui_table_row($key, $hash->{$zfs}{$key}{value});
 	}
 }
 print ui_table_end();
