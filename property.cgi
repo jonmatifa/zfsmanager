@@ -20,19 +20,19 @@ if ($props{$in{'property'}})
 }
 
 if ($in{'zfs'}) { 
-	#my %get = zfs_get($in{'zfs'}, $in{'property'}); 
+	%get = zfs_get($in{'zfs'}, $in{'property'}); 
 	print "File system:  ".$in{'zfs'}."<br /> ";
-	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'zfs'}}->{$in{'property'}}{value}, "<br />";
+	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'zfs'}}{$in{'property'}}{value}, "<br />";
 	print "Source: ", $get{$in{'zfs'}}{$in{'property'}}{source};
 	print "<br />";
 	print "<br />";
 } elsif ($in{'pool'}) { 
-	my %get = zpool_get($in{'pool'}, 'all'); 
+	%get = zpool_get($in{'pool'},  $in{'property'}); 
 	print "Pool:  ".$in{'pool'}."<br /> ";
 	print "Property: ", $in{'property'}, " is currently: ", $get{$in{'pool'}}{$in{'property'}}{value}, "<br />";
 	print "Source: ", $get{$in{'pool'}}{$in{'property'}}{source};
 	print "<br />";
-	print Dumper(%get);
+	#print Dumper(%get);
 	print "<br />";
 }
 
@@ -63,8 +63,14 @@ if ($in{'property'} =~ 'mountpoint') {
 
 } elsif ($proplist{$in{'property'}} =~ 'special' || $pool_proplist{$in{'property'}} =~ 'special') {
 
-} elsif ($in{'property'} =~ /feature@/ && $get{$in{'pool'}}{$in{'property'}}{value} !~ 'disabled') {
-
+} elsif ($in{'property'} =~ /feature@/) {
+	if ($get{$in{'pool'}}{$in{'property'}}{value} =~ 'disabled') {
+	my @select = ['enabled', 'disabled']; 
+	print "Change to: ", ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
+	print "<br />";
+	print ui_submit('submit');
+	print "<br />";
+}
 } else {
 
 if ($in{'zfs'}) {
@@ -88,7 +94,8 @@ elsif ($in{'pool'}) {
 }
 print ui_submit('submit');
 print "<br />";
-}}
+}
+}
 
 print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 popup_footer();

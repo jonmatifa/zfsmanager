@@ -26,9 +26,11 @@ print ui_columns_end();
 #print Dumper (\%conf);
 #print $config{'zfsmanager_conf'};
 if ($conf{'pool_properties'} =~ /1/) { 
-	print ui_popup_link('Create new pool', 'create.cgi?create=zpool'); 
+	print "<a href='create.cgi?create=zpool'>Create new pool<a/>";
+	#print ui_popup_link('Create new pool', 'create.cgi?create=zpool'); 
 	print " | ";
-	print ui_popup_link('Import pool', 'create.cgi?import=1'); 
+	print "<a href='create.cgi?import=1'>Import pool<a/>";
+	#print ui_popup_link('Import pool', 'create.cgi?import=1'); 
 }
 #print "<a href='create.cgi?create=zpool'>Create new pool</a>";
 print &ui_tabs_end_tab("mode", "pools");
@@ -43,15 +45,16 @@ foreach $key (sort(keys %zfs))
 }
 print ui_columns_end();
 #print $conf{'zfs_properties'};
-if ($conf{'zfs_properties'} =~ /1/) { print ui_popup_link('Create file system', 'create.cgi?create=zfs'); }
-#print "<a href='create.cgi?create=zfs'>Create file system</a>";
+#if ($conf{'zfs_properties'} =~ /1/) { print ui_popup_link('Create file system', 'create.cgi?create=zfs'); }
+if ($conf{'zfs_properties'} =~ /1/) { print "<a href='create.cgi?create=zfs'>Create file system</a>"; }
 print &ui_tabs_end_tab("mode", "zfs");
 
 #start snapshots tab
 print &ui_tabs_start_tab("mode", "snapshot");
 ui_list_snapshots(undef, 1);
 #print $conf{snap_properties};
-if ($conf{'snap_properties'} =~ 1) { print "<a href='snapshot.cgi?new=1'>Create snapshot</a>"; }
+#if ($conf{'snap_properties'} =~ 1) { print "<a href='snapshot.cgi?new=1'>Create snapshot</a>"; }
+if ($conf{'snap_properties'} =~ 1) { print "<a href='create.cgi?create=snapshot'>Create snapshot</a>"; }
 print &ui_tabs_end_tab("mode", "snapshot");
 
 #end tabs

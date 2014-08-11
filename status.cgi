@@ -48,7 +48,7 @@ foreach $key (keys %status)
 }
 print ui_columns_end();
 #print ui_table_start("Status", "width=100%", "10");
-print test_function($in{'pool'});
+#print test_function($in{'pool'});
 #print ui_table_row("Scan:", $status{pool}{scan});
 #print ui_table_row("Read:", $status{pool}{read});
 #print ui_table_row("Write:", $status{pool}{write});
@@ -111,10 +111,41 @@ if ($in{'zfs'})
 }
 
 #show snapshot status
-#if ($in{'snapshot'})
-#{
-#ui_print_header(undef, "ZFS File System Status", "", undef, 1, 1);
-#print snapshot_status($in{'snapshot'});
-#ui_print_footer('', $text{'snapshot_return'});
-#}
+#show status of current snapshot
+if ($in{'snap'})
+{
+	ui_print_header(undef, $text{'snapshot_title'}, "", undef, 1, 1);
+	#print zfs_get($in{'snap'}, "all");
+	%snapshot = list_snapshots($in{'snap'});
+	print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
+	foreach $key (sort(keys %snapshot)) 
+	{
+		print ui_columns_row(["<a href='status.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+	}
+	print ui_columns_end();
+	ui_zfs_properties($in{'snap'});
+
+	#print "<a href='cmd.cgi?destroy=", $in{'snap'}, "'>Destroy snapshot</a> |";
+	my $zfs = $in{'snap'};
+	$zfs =~ s/\@.*//;
+	print ui_table_start('Tasks', 'width=100%', undef);
+	print ui_table_row('Differences', "Show differences in $in{'snap'}");
+	if ($conf{'snap_properties'} =~ /1/) { 
+		#print ui_table_row('Snapshot:', "<a href='snapshot.cgi?zfs=$zfs'>Create new snapshot based on $zfs</a>");
+		print ui_table_row("Snapshot: ", ui_create_snapshot($zfs));
+		print ui_table_row('Rename:', "Rename $in{'snap'}");
+	}
+	if ($conf{'zfs_properties'} =~ /1/) { 
+		print ui_table_row('Clone:', ui_popup_link("Clone $in{'snap'} to new file system", "create.cgi?clone=".$in{'snap'})); 
+		#print ui_table_row('Send:', ui_popup_link("Send $in{'snap'}", "create.cgi?send=".$in{'snap'}));
+	}
+	if (($conf{'snap_properties'} =~ /1/) && ($conf{'zfs_properties'} =~ /1/)) { 
+		#print ui_table_row('Clone:', "Clone $in{'snap'} to new file system"); 
+		print ui_table_row('Rollback:', "Rollback $zfs to $in{'snap'}");
+		#print ui_table_row('Send:', "Send $in{'snap'}");
+	}
+	if ($conf{'snap_destroy'} =~ /1/) { print ui_table_row('Destroy:', ui_popup_link('Destroy snapshot', "cmd.cgi?destroysnap=".$in{'snap'})); }
+	print ui_table_end();
+	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+}
 

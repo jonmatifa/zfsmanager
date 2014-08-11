@@ -449,8 +449,8 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 	my %snapshot = list_snapshots();
 	#%conf = get_zfsmanager_config();
 	#$in{'select'} =~ s/^\s*(.*?)\s*$/$1/;
-	$in{'select'} =~ s/([\w@-_]+)/$1/;
-	@select = split(/;/, scalar $in{'select'});
+	#$in{'select'} = s/([\w@-_]+)/$1/;
+	@select = split(/;/, $in{'select'});
 	print "<h2>Destroy</h2>";
 	print "Attempting to destroy multiple snapshots... <br />";
 	#print ui_form_start('cmd.cgi', 'post', 'cmd');
@@ -470,7 +470,8 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 	{
 		#print "Selected snapshot: ", $key, "<br />";
 		#my %snapshot = list_snapshots($key);
-		chomp($key);
+		#chomp($key);
+		#$key = /[[:graph:]]$key/;
 		print ui_columns_row([ $key, $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 		#print ui_columns_row([Dumper(\$snapshot{$key})]);
 		$results{$key} = [ cmd_destroy_zfs($key, '', $in{'confirm'}) ]; 

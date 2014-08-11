@@ -242,7 +242,7 @@ while (my $line =<$fh>)
 {
     chomp ($line);
     my($name, $property, $value, $source) = split(/\t/, $line);
-	$hash->{$name}{$property} = { value => $value, source => $source };
+	$hash{$name}{$property} = { value => $value, source => $source };
 	#$hash->{$name->{$property->{'value'}}} = $value;
 	#$hash->{$name->{$property->{'source'}}} = $source;
 }
@@ -264,7 +264,7 @@ while (my $line =<$fh>)
 {
     chomp ($line);
 	my($name, $property, $value, $source) = split(/\s+/, $line);
-	$hash->{$name}{$property} = { value => $value, source => $source };
+	$hash{$name}{$property} = { value => $value, source => $source };
 }
 return %hash;
 }
@@ -533,13 +533,13 @@ my %hash = zpool_get($pool, "all");
 my %props =  property_desc();
 my %properties = pool_properties_list();
 print ui_table_start("Properties", "width=100%", undef);
-foreach $key (sort(keys %{$hash->{$pool}}))
+foreach $key (sort(keys %{$hash{$pool}}))
 {
 	if (($properties{$key}) || ($props{$key}))
 	{
-		print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash->{$pool}->{$key}{value});
+		print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash{$pool}{$key}{value});
 	} else {
-	print ui_table_row($key, $hash->{$pool}{$key}{value});
+	print ui_table_row($key, $hash{$pool}{$key}{value});
 	}
 }
 print ui_table_end();
@@ -571,14 +571,14 @@ my %properties = properties_list();
 #print "<br />";
 #print Dumper(%{$hash});
 print ui_table_start("Properties", "width=100%", undef);
-foreach $key (sort(keys %{$hash->{$zfs}}))
+foreach $key (sort(keys %{$hash{$zfs}}))
 {		
 	if (($properties{$key}) || ($props{$key}))
 	{		
-		if ($key =~ 'origin') { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash->{$zfs}{$key}{value}'>$hash->{$zfs}{$key}{value}</a>");
-		} else { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash->{$zfs}{$key}{value}); }
+		if ($key =~ 'origin') { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash->{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>");
+		} else { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value}); }
 	} else {
-	print ui_table_row($key, $hash->{$zfs}{$key}{value});
+	print ui_table_row($key, $hash{$zfs}{$key}{value});
 	}
 }
 print ui_table_end();
@@ -600,9 +600,9 @@ foreach $key (sort(keys %snapshot))
 {
 	#print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	if ($admin =~ /1/) {
-		print ui_columns_row([ui_checkbox("select", $key.';', "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		print ui_columns_row([ui_checkbox("select", $key.';', "<a href='status.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	} else {
-		print ui_columns_row([ "<a href='snapshot.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		print ui_columns_row([ "<a href='statuscgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	}
 	#if ($zfs =~ undef) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
 	#else {
@@ -625,9 +625,7 @@ $rv .= "Create new snapshot based on filesystem: ".$zfs."<br />\n";
 my $date = strftime "zfs_manager_%Y-%m-%d-%H%M", localtime;
 $rv .= $zfs."@ ".ui_textbox('snap', $date, 28)."\n";
 $rv .= ui_hidden('zfs', $zfs)."\n";
-#print ui_form_end(["<input type='submit' value='submit'>"]);
 $rv .= popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] )."\n";
-#print ui_form_end([ [popup_window_button('cmd.cgi', '400', '400', '1', [[ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs']]), "submit" ]]);
 return $rv;
 }
 
@@ -708,14 +706,93 @@ return "<a onClick=\"\window.open('$url', 'cmd', 'toolbar=no,menubar=no,scrollba
 
 sub test_function
 {
-($pool)=@_;
-$cmd=`zpool status $pool`;
-@status = split('\n', $cmd);
-$cmd =~ s/\n/<br>\n/g;
+#($pool)=@_;
+#$cmd=`zpool status $pool`;
+#@status = split('\n', $cmd);
+#$cmd =~ s/\n/<br>\n/g;
 #$cmd =~ s/\t/&nbsp/g;
 #$cmd="";
 #foreach $line (@status) {
 #	$cmd .= $line."<br>\n";
 #}
-return $cmd;
+#return $cmd;
+
+my ($pool)=@_;
+my $parent = "pool";
+my %status = ();
+my $devs = 0;
+my $cmd=`zpool status $pool`;
+#pool - always shows
+my $pooloc = index($cmd, " pool:");
+my $stateloc = index($cmd, " state:");
+$status{pool}{pool} = "";
+#state - always shows
+my $statusloc = index($cmd, "status:");
+$status{pool}{state} = "";
+#status
+my $actionloc = index($cmd, "action:");
+$status{pool}{status} = "";
+#action
+my $seeloc = index($cmd, " see:");
+$status{pool}{action} = "";
+#see
+my $scanloc = index($cmd, " scan:");
+$status{pool}{see} = "";
+#scan - always shows
+my $configloc = index($cmd, "config:");
+$status{pool}{scan} = "";
+#config
+my $errorsloc = index($cmd, "errors:");
+
+#errors - always shows
+$status{pool}{errors} = "";
+open my $fh, "<", \$cmd;
+while (my $line =<$fh>)
+{
+    chomp ($line);
+	$line =~ s/^\s*(.*?)\s*$/$1/;
+	my($key, $value) = split(/:/, $line);
+	$key =~ s/^\s*(.*?)\s*$/$1/;
+	$value =~ s/^\s*(.*?)\s*$/$1/;
+	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors') || ($key =~ 'scrub'))
+	{
+		if ($key =~ 'scrub') { $key = 'scan'; }
+		$status{pool}{$key} = $value;
+	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /status:/) || ($line =~ /action:/) || ($line =~ /see:/))
+	{
+		#do nothing
+	} else
+	{
+		my($name, $state, $read, $write, $cksum) = split(" ", $line);
+		if (($name =~ $status{pool}{pool}) && (length($name) == length($status{pool}{pool})))
+		{
+			$status{pool}{name} = $name;
+			$status{pool}{read} = $read;
+			$status{pool}{write} = $write;
+			$status{pool}{cksum} = $cksum;
+			
+		#check if vdev is a log or cache vdev
+		} elsif (($name =~ /log/) || ($name =~ /cache/))
+		{
+			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => "pool"};
+			$parent = $name;
+			$devs++;
+			
+		#check if vdev is a log or cache vdev
+		} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
+		{
+			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
+			$parent = $name;
+			$devs++;
+
+		#for all other vdevs, should be actual devices at this point
+		} elsif ($name)
+		{
+			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
+			$devs++;
+		}
+	}
+}
+return %status;
+
 }
