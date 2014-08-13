@@ -11,7 +11,7 @@ vdev_title=Manage Virtual Device
 property_title=Manage Property
 select_title=Select a device for new vdev
 
-cmd_title=Results from command
+cmd_title=Issuing Command
 
 snapshot_title=Snapshot 
 snapshot_create=Create Snapshot

@@ -103,6 +103,7 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_span('<b>Mount point</b> (blank for default)'.ui_filebox('mountpoint', '', 25, undef, undef, 1));
 	print ui_hidden('parent', $in{'parent'});
 	print ui_hidden('create', 'zfs');
+	print ui_hidden('cmd', 'createzfs');
 	print ui_table_span("<br />");
 	#print ui_table_span('File system options: ');
 	delete $createopts{'sparse'};
@@ -134,6 +135,7 @@ if ($in{'create'} =~ "zpool")
 	delete $createopts{'sparse'};
 	print ui_hidden('parent', $in{'parent'});
 	print ui_hidden('create', 'zfs');
+	print ui_hidden('cmd', 'createzfs');
 	print ui_hidden('zvol', '1');
 	print ui_table_span("<br />");
 	#print ui_table_span('File system options: ');
@@ -153,30 +155,32 @@ if ($in{'create'} =~ "zpool")
 
 	#end tabs
 	print &ui_tabs_end(1);
-	ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
+	ui_print_footer("status.cgi?zfs=$in{'parent'}", $in{'parent'});
+	#ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
 	
 } elsif ($in{'import'}) {
 	ui_print_header(undef, "Import Pool", "", undef, 1, 1);
 	print ui_table_start("Import Zpool", 'width=100%');
 	print ui_form_start("create.cgi", "post");
 	print ui_hidden('import', '1');
-	print "Import search directory (blank for default):", ui_filebox('dir', $in{'dir'}, 25, undef, undef, 1);
-	print "<br />";
-	print ui_submit('Search');
+	print ui_table_span("Import search directory (blank for default):".ui_filebox('dir', $in{'dir'}, 25, undef, undef, 1));
+	print ui_table_span(ui_checkbox('destroyed', '-D', 'Search for destroyed pools', undef ), "<br />");
+	#print "<br />";
+	print ui_table_span(ui_submit('Search'));
 	print ui_form_end();
 	#print " | ";
 	#print ui_table_row();
-	%imports = zpool_imports($in{'dir'});
+	%imports = zpool_imports($in{'dir'}, $in{'destroyed'});
 	#print Dumper (\%imports);
 	print "<br />";
-	my @array = split("\n", `zpool import -d $in{'dir'}`);
+	#my @array = split("\n", `zpool import -d $in{'dir'}`);
 	#print Dumper (@array);
 	#print ui_table_row('');
 	#print ui_table_start();
 	foreach $key (sort(keys %imports))
 	{
 		print ui_columns_start([ "Pool", "ID", "State" ]);
-		print ui_columns_row(["<a href='cmd.cgi?import=$key&dir=$in{'dir'}'>".$key."</a>", "<a href='cmd.cgi?import=$imports{$key}{'id'}&dir=$in{'dir'}'>".$imports{$key}{'id'}."</a>", $imports{$key}{'state'}]);
+		print ui_columns_row(["<a href='cmd.cgi?cmd=import&import=$key&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$key."</a>", "<a href='cmd.cgi?import=$imports{$key}{'id'}&dir=$in{'dir'}'>".$imports{$key}{'id'}."</a>", $imports{$key}{'state'}]);
 		#print ui_table_row("<a href='cmd.cgi?import=$key&dir=$in{'dir'}'>".$key."</a>", $imports{$key}{'id'}." ".$imports{$key}{'state'}, 3);
 		#print ui_columns_end();
 		print ui_table_start();
@@ -217,7 +221,7 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_end();
 	print ui_submit('Create');
 	print " | ";
-	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	ui_print_footer("status.cgi?snap=".$in{'clone'}, $in{'clone'});
 	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 } elsif ($in{'send'}) {
 	ui_print_header(undef, "Send Snapshot", "", undef, 1, 1);
@@ -251,7 +255,7 @@ if ($in{'create'} =~ "zpool")
 	print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
 	foreach $key (sort(keys %zfs)) 
 	{
-		print ui_columns_row(["<a href='snapshot.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+		print ui_columns_row(["<a href='create.cgi?create=snapshot&zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 	}
 	print ui_columns_end();
 	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});

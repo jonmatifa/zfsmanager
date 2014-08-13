@@ -6,8 +6,8 @@ require './zfsmanager-lib.pl';
 ReadParse();
 use Data::Dumper;
 
-#ui_print_header(undef, $text{'vdev_title'}, "", undef, 1, 1);
-popup_header($text{'cmd_title'});
+ui_print_header(undef, $text{'vdev_title'}, "", undef, 1, 1);
+#popup_header($text{'cmd_title'});
 
 %conf = get_zfsmanager_config();
 
@@ -21,7 +21,7 @@ my %status = zpool_status($in{'pool'});
 #		#print "seeing device";
 #	}
 #}
-
+print ui_table_start($text{'vdev_title'}, "width=100%", "10", ['align=left'] );
 print "Pool: ", $status{pool}{pool}, "<br />";
 print "Pool State: ", $status{pool}{state}, "<br />";
 print "Virtual Device: ", $in{'dev'}, "<br />";
@@ -42,29 +42,33 @@ print "Children: ";
 			print "<a href='config-vdev.cgi?pool=", $in{'pool'}, "&dev=", $status{$key}{name}, "'>", $status{$key}{name}, "</a>  ";
 		}
 	}
-} else
-{
+} elsif ($conf{'pool_properties'} =~ /1/) {
 	print "VDEV Status: ", $status{$in{'dev'}}{state}, "<br />";
-	if ($status{$in{'dev'}}{state} =~ "OFFLINE")
-	{
+	print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
+	if ($status{$in{'dev'}}{state} =~ "OFFLINE")	{
 		#print ui_popup_link('bring device online', "cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}"), "<br />";
-		if ($conf{'pool_properties'} =~ /1/) { print "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>bring device online</a><br />"; }
+		print ui_table_row("Online: ", "<a href='cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}'>Bring device online</a><br />");
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
-	if ($status{$in{'dev'}}{state} =~ "ONLINE")
-	{
+	elsif ($status{$in{'dev'}}{state} =~ "ONLINE") {
 		#print ui_popup_link('bring device offline', "cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}"), "<br />";
-		if ($conf{'pool_properties'} =~ /1/) { print "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>bring device offline</a><br />"; }
+		print ui_table_row("Offline: ", "<a href='cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}'>Bring device offline</a><br />");
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
+	print ui_table_row("Replace: ", "<a href='#'>Replace device</a><br />");
+	print ui_table_row("Remove: ", "<a href='#'>Remove device</a><br />");
+	print ui_table_row("Detach: ", "<a href='#'>Detach device</a><br />");
+	print ui_table_row("Clear: ", "<a href='#'>Clear errors</a><br />");
+	print ui_table_end();
 }
 #print $gconfig{'os_type'};
 #print mount::get_mount();
 #print "<a href='create.cgi'>create</a>";
 
-print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
-popup_footer();
+#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+#popup_footer();
+print ui_table_end();
 
-#ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
+ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});

@@ -271,12 +271,12 @@ return %hash;
 
 sub zpool_imports
 {
-my ($dir) = @_;
+my ($dir, $destroyed) = @_;
 if ($dir) { $dir = '-d '.$dir; }
 my %status = ();
 #my $parent = 'pool';
 #my $cmd = `zpool import $dir`;
-my @array = split("\n", `zpool import $dir`);
+my @array = split("\n", `zpool import $dir $destroyed`);
 #open my $fh, "<", \$cmd;
 foreach $line (@array)
 {
@@ -361,7 +361,7 @@ sub cmd_online
 {
 my ($pool, $vdev) = @_;
 my $cmd = "zpool online $pool $vdev";
-my @result = ($cmd, `$cmd`);
+my @result = ($cmd, `$cmd 2>&1`);
 return @result;
 }
 
@@ -370,7 +370,7 @@ sub cmd_offline
 {
 my ($pool, $vdev) = @_;
 my $cmd = "zpool offline $pool $vdev";
-my @result = ($cmd, `$cmd`);
+my @result = ($cmd, `$cmd 2>&1`);
 return @result;
 }
 
@@ -379,16 +379,17 @@ sub cmd_remove
 {
 my ($pool, $vdev) = @_;
 my $cmd="zpool remove $pool $vdev";
-@result = ($cmd, `$cmd`);
+@result = ($cmd, `$cmd 2>&1`);
 return @result;
 }
 
 #cmd_snapshot($snap)
 sub cmd_snapshot
+#deprecated
 {
 my ($snap)  = @_;
 my $cmd="zfs snapshot $snap";
-@result = ($cmd, `$cmd`);
+@result = ($cmd, `$cmd 2>&1`);
 return @result;
 }
 
@@ -406,7 +407,7 @@ foreach $key (sort(keys %options))
 	$opts = (($createopts{$key}) && ($options{$key} =~ 'default')) ? $opts : $opts.' -o '.$key.'='.$options{$key};
 }
 my $cmd="zfs create $opts $zfs";
-my @result = ($cmd, `$cmd`);
+my @result = ($cmd, `$cmd 2>&1`);
 return @result;
 }
 
@@ -422,7 +423,7 @@ foreach $key (sort(keys %options))
 #if ($opts) { $opts = '-O '.$opts; }
 $mount = ($mount) ? '-m '.$mount : ();
 my $cmd="zpool create $force $opts $mount $pool $dev";
-my @result = ($cmd, `$cmd`);
+my @result = ($cmd, `$cmd 2>&1`);
 return @result;
 }
 
@@ -432,7 +433,7 @@ my ($zfs, $value, $confirm) = @_;
 my $cmd="zfs $value $zfs";
 if ($confirm =~ /yes/) 
 	{ 
-		@result = ($cmd, `$cmd`);
+		@result = ($cmd, `$cmd 2>&1`);
 	} else 
 	{ 
 		@result = ($cmd, "" ); 
@@ -446,7 +447,7 @@ my ($snap, $dest, $opts, $confirm) = @_;
 my $cmd="zfs send $opts $snap | $dest";
 if ($confirm =~ /yes/) 
 	{ 
-		@result = ($cmd, backquote_logged($cmd));
+		@result = ($cmd, `cmd 2>&1`);
 	} else 
 	{ 
 		@result = ($cmd, "" ); 
@@ -461,7 +462,7 @@ my ($zfs, $property, $value, $confirm) = @_;
 my $cmd = ($value =~ 'inherit') ? "zfs inherit $property $zfs" : "zfs set $property=$value $zfs";
 if ($confirm =~ /yes/) 
 	{ 
-		@result = ($cmd, `$cmd`);
+		@result = ($cmd, `$cmd 2>&1`);
 	} else 
 	{ 
 		@result = ($cmd, "" ); 
@@ -476,9 +477,9 @@ my ($zfs, $force, $confirm) = @_;
 my $cmd="zfs destroy $force $zfs";
 if ($confirm =~ /yes/) 
 	{ 
-		$out =  backquote_logged($cmd);
+		#$out =  backquote_logged($cmd);
 		chomp $out;
-		@result = ( $cmd, $out, 2 );
+		@result = ( $cmd, `$cmd 2>&1` );
 	} else 
 	{ 
 		@result = ($cmd, undef ); 
@@ -491,23 +492,25 @@ sub cmd_destroy_zpool
 {
 my ($zpool, $force, $confirm) = @_;
 my $cmd="zpool destroy $force $zpool";
-if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd`))} else { @result = ($cmd, "" ) };
+if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd 2>&1`))} else { @result = ($cmd, "" ) };
 return @result;
 }
 
 sub cmd_zpool
+#deprecated
 {
 my ($pool, $action, $options, $dev, $confirm) = @_;
 my $cmd="zpool $action $options $pool $dev";
-if ($confirm =~ /yes/) { @result = ($cmd, (backquote_logged($cmd)))} else { @result = ($cmd, "" ) };
+if ($confirm =~ /yes/) { @result = ($cmd, `$cmd 2>&1`)} else { @result = ($cmd, "" ) };
 return @result;
 }
 
 sub cmd_zfs
+#deprecated
 {
 my ($zfs, $action, $options, $confirm) = @_;
 my $cmd="zfs $action $options $zfs";
-if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd`))} else { @result = ($cmd, "" ) };
+if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd 2>&1`))} else { @result = ($cmd, "" ) };
 return $result;
 }
 
@@ -537,9 +540,11 @@ foreach $key (sort(keys %{$hash{$pool}}))
 {
 	if (($properties{$key}) || ($props{$key}))
 	{
-		print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash{$pool}{$key}{value});
+		print ui_table_row('<a href="property.cgi?pool='.$pool.'&property='.$key.'">'.$key.'</a>', $hash{$pool}{$key}{value});
+		#print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash{$pool}{$key}{value});
 	} else {
 	print ui_table_row($key, $hash{$pool}{$key}{value});
+	#print ui_table_row($key, $hash{$pool}{$key}{value});
 	}
 }
 print ui_table_end();
@@ -548,12 +553,12 @@ print ui_table_end();
 sub ui_zfs_list
 {
 my ($zfs, $action)=@_;
-%zfs = list_zfs($zfs);
+my %zfs = list_zfs($zfs);
 if ($action eq undef) { $action = "status.cgi?zfs="; }
 print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
 foreach $key (sort(keys %zfs)) 
 {
-	print ui_columns_row(["<a href='$action$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+	print ui_columns_row([ "<a href='$action$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 }
 print ui_columns_end();
 }
@@ -575,8 +580,10 @@ foreach $key (sort(keys %{$hash{$zfs}}))
 {		
 	if (($properties{$key}) || ($props{$key}))
 	{		
-		if ($key =~ 'origin') { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash->{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>");
-		} else { print ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value}); }
+		if ($key =~ 'origin') { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', "<a href='status.cgi?snap=$hash{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>");
+		#ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash->{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>"
+		} else { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', $hash{$zfs}{$key}{value}); }
+		#ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value});
 	} else {
 	print ui_table_row($key, $hash{$zfs}{$key}{value});
 	}
@@ -591,7 +598,7 @@ my ($zfs, $admin) = @_;
 %conf = get_zfsmanager_config();
 if ($admin =~ /1/) { 
 	#print ui_form_start('cmd.cgi', 'get', 'cmd'); 
-	print ui_form_start('cmd.cgi', 'get');
+	print ui_form_start('cmd.cgi', 'post');
 	print ui_hidden('multisnap', 1);
 	}
 #if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
@@ -620,16 +627,20 @@ if ($admin =~ /1/) { print ui_form_end(); }
 sub ui_create_snapshot
 {
 my ($zfs) = @_;
-$rv = ui_form_start('cmd.cgi', 'get')."\n";
+$rv = ui_form_start('cmd.cgi', 'post')."\n";
 $rv .= "Create new snapshot based on filesystem: ".$zfs."<br />\n";
 my $date = strftime "zfs_manager_%Y-%m-%d-%H%M", localtime;
 $rv .= $zfs."@ ".ui_textbox('snap', $date, 28)."\n";
 $rv .= ui_hidden('zfs', $zfs)."\n";
-$rv .= popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] )."\n";
+$rv .= ui_hidden('cmd', "snap")."\n";
+$rv .= ui_submit("Create");
+#$rv .= popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] )."\n";
+$rv .= ui_form_end();
 return $rv;
 }
 
 sub ui_cmd_zpool
+#deprecated
 {
 my ($message, $pool, @params) = @_;
 $rv = "Attempting to $message $pool with command... <br />\n";
@@ -653,22 +664,28 @@ return $rv;
 }
 
 sub ui_cmd_zfs
+#deprecated
 {
 my ($message, $zfs, @params) = @_;
-$rv = "Attempting to $message $zfs with command... <br />\n";
+$rv = "Attempting to $message with command... <br />\n";
 my $result = cmd_zfs(@params);
-$rv .= $result[0]."<br />\n";
-if (!$params[3])
-{
+$rv .= "<i>".$result[0]."</i><br />\n";
+if (!$params[3]) {
+	$rv .= ui_form_start('cmd.cgi', 'post');
+	foreach $key (keys %in) {
+			$rv .= ui_hidden($key, $in{$key});
+	}
 	$rv .= "<h3>Would you lke to continue?</h3>\n";
-	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
+	$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." | <a href='status.cgi?zfs=".$in{'zfs'}."'>no</a>";
+	$rv .= ui_form_end();
+	#$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a href='status.cgi?zfs=".$in{'zfs'}."'>No</a>";
 } else {
 	if (($result[1] == //))
 	{
 		$rv .= "Success! <br />\n";
-		$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
-	} else
-	{
+		#$rv .= "confirm=".$params[3]."</br>";
+		#$rv .= "<a href='status.cgi?zfs=".$in{'zfs'}."'>Close</a>";
+	} else	{
 	$rv .= "error: ".$result[1]."<br />\n";
 	}
 }
@@ -677,24 +694,32 @@ return $rv;
 
 sub ui_cmd
 {
-my ($message, $subject, $result, $confirm) = @_;
-$rv = "Attempting to $message $subject with command... <br />\n";
+my ($message, @result) = @_;
+$rv = "Attempting to $message with command... <br />\n";
 #my $result = cmd_zfs(@params);
-$rv .= $result[0]."<br />\n";
-if (!$confirm)
-{
+$rv .= "<i># ".$result[0]."</i><br /><br />\n";
+if (!$in{'confirm'}) {
+	$rv .= ui_form_start('cmd.cgi', 'post');
+	foreach $key (keys %in) {
+			$rv .= ui_hidden($key, $in{$key});
+	}
 	$rv .= "<h3>Would you lke to continue?</h3>\n";
-	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
+	$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")."<br />";
+	#$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." | <a href='status.cgi?zfs=".$in{'zfs'}."'>no</a>";
+	$rv .= ui_form_end();
+	#$rv .= "confirm=".$confirm."</br>";
+	#$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
 } else {
-	if (($result[1] == //))
+	if (!$result[1])
 	{
+		#$rv .= $result[1]."<br />\n";
 		$rv .= "Success! <br />\n";
-		$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
-	} else
-	{
-	$rv .= "error: ".$result[1]."<br />\n";
+		#$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
+	} else	{
+	$rv .= "<b>error: </b>".$result[1]."<br />\n";
 	}
 }
+
 return $rv;
 }
 
