@@ -301,31 +301,34 @@ if (($in{'export'})  && ($conf{'pool_properties'} =~ /1/))
 	if (!$in{'confirm'})
 	{
 		print "<h3>Would you lke to continue?</h3>";
-		print "<a href='cmd.cgi?export=$in{'export'}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
+		print "<a href='cmd.cgi?export=$in{'export'}&confirm=yes'>Yes</a>";
+		#print "<a href='cmd.cgi?export=$in{'export'}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>";
 	} else {
 		if (($result[1] == //))
 		{
 			print "Success! <br />";
-			print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
+			#print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
 		} else
 		{
 		print "error: ", $result[1], "<br />";
 		}
 	}
-#ui_print_footer("index.cgi?mode=snapshot", $text{'snapshot_return'});
-popup_footer();
+ui_print_footer("index.cgi?mode=pools", $text{'index_return'});
+#popup_footer();
 }
 
 #start a scrub
 if (($in{'scrub'}) && ($conf{'pool_properties'} =~ /1/))
 {
 	print ui_cmd_zpool("scrub pool", $in{'scrub'}, ($in{'scrub'}, 'scrub', undef, undef, $in{'confirm'}));
+	ui_print_footer("status.cgi?pool=".$in{'scrub'}, $in{'scrub'});
 }
 
 #stop a scrub
 if (($in{'scrubstop'}) && ($conf{'pool_properties'} =~ /1/))
 {
 	print ui_cmd_zpool("stop scrub pool", $in{'scrubstop'}, ($in{'scrubstop'}, 'scrub', '-s', undef, $in{'confirm'}));
+	ui_print_footer("status.cgi?pool=".$in{'scrubstop'}, $in{'srubstop'});
 }
 
 #clone a snapshot

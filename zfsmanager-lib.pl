@@ -134,7 +134,6 @@ return %hash;
 sub get_alerts
 {
 my $alerts = `zpool status -x`;
-my $alerts = `zpool status -x`;
 my %status = ();
 my $pool = ();
 if ($alerts =~ /all pools are healthy/)
@@ -162,9 +161,9 @@ if ($alerts =~ /all pools are healthy/)
 	my $out = "<b>";
 	foreach $key (sort(keys %status))
 	{
-		if (true) { $out = $out."pool \'".$key."\' is ".$status{$key}{state}." with ".$status{$key}{errors}."<br />";}
+		if (true) { $out .= "pool \'".$key."\' is ".$status{$key}{state}." with ".$status{$key}{errors}."<br />";}
 	}
-	$out = $out."</b>";
+	$out .= "</b>";
 	return $out;
 }
 }
@@ -358,6 +357,7 @@ return %hash;
 
 #cmd_online($pool, $vdev)
 sub cmd_online
+#deprecated
 {
 my ($pool, $vdev) = @_;
 my $cmd = "zpool online $pool $vdev";
@@ -367,6 +367,7 @@ return @result;
 
 #cmd_offline($pool, $vdev)
 sub cmd_offline
+#deprecated
 {
 my ($pool, $vdev) = @_;
 my $cmd = "zpool offline $pool $vdev";
@@ -376,6 +377,7 @@ return @result;
 
 #cmd_remove($pool, $vdev)
 sub cmd_remove
+#deprecated
 {
 my ($pool, $vdev) = @_;
 my $cmd="zpool remove $pool $vdev";
@@ -478,7 +480,7 @@ my $cmd="zfs destroy $force $zfs";
 if ($confirm =~ /yes/) 
 	{ 
 		#$out =  backquote_logged($cmd);
-		chomp $out;
+		#chomp $out;
 		@result = ( $cmd, `$cmd 2>&1` );
 	} else 
 	{ 
@@ -513,7 +515,6 @@ my $cmd="zfs $action $options $zfs";
 if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd 2>&1`))} else { @result = ($cmd, "" ) };
 return $result;
 }
-
 
 sub ui_zpool_status
 {
@@ -649,12 +650,13 @@ $rv .= $result[0]."<br />\n";
 if (!$in{'confirm'})
 {
 	$rv .= "<h3>Would you lke to continue?</h3>\n";
-	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
+	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a>\n";
+	#$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
 } else {
 	if (($result[1] == //))
 	{
 		$rv .= "Success! <br />\n";
-		$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
+		#$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
 	} else
 	{
 	$rv .= "error: ".$result[1]."<br />\n";
