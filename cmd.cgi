@@ -9,46 +9,63 @@ ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
 %conf = get_zfsmanager_config();
 
 print ui_table_start($text{'cmd_title'}, "width=100%", "10", ['align=left'] );
-
-switch ($in{'cmd'}) {
 	
-	case "setzfs" {
-		my @result = ($conf{'zfs_properties'} =~ /1/) ? cmd_zfs_set($in{'zfs'}, $in{'property'}, $in{'set'}, $in{'confirm'}) : undef;
-		print ui_cmd("set zfs property $in{'property'} to $in{'set'} in $in{'zfs'}", @result);
-	}
-	case "setpool" {
-		my $cmd="zpool set $in{'property'}=$in{'set'} $in{'pool'}";
-		my @result = (($conf{'pool_properties'} =~ /1/) && ($in{'confirm'} =~ /yes/)) ? ($cmd, `$cmd 2>&1`) : ($cmd, "" );
-		#my @result = ($conf{'pool_properties'} =~ /1/) ?cmd_zpool($in{'pool'}, 'set', $in{'property'}.'='.$in{'set'}, undef, $in{'confirm'}): undef;
-		print ui_cmd("set pool property $in{'property'} to $in{'set'} in $in{'pool'}", @result);
-	}
-	case "snap" {
-			#my @result = ($conf{'snap_properties'} =~ /1/) ? cmd_snapshot($in{'zfs'}."@".$in{'snap'}) : undef;
-			my $cmd = "zfs snapshot ".$in{'zfs'}."@".$in{'snap'};
-			my @result = ($conf{'snap_properties'} =~ /1/) ? ( $cmd, `$cmd 2>&1` ) : undef;
-			$in{'confirm'} = "yes";
-			print ui_cmd("create snapshot $in{'snap'}", @result);
-			print "", (!$result[1]) ? ui_list_snapshots($in{'zfs'}."@".$in{'snap'}) : undef;
-	}
-	case "createzfs" {
-		#print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";
-		my %createopts = create_opts();
-		my %options = ();
-		foreach $key (sort (keys %createopts)) {
-			$options{$key} = ($in{$key}) ? $in{$key} : undef;
-			#if ($in{$key}) { $options{$key} = $in{$key};}
-		}
-		if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
-		if ($in{'zvol'} == '1') { $in{'zfs'} = "-V ".$in{'size'}." ".$in{'parent'}."/".$in{'zfs'}; } 
-		else { $in{'zfs'} = $in{'parent'}."/".$in{'zfs'}; }
-		my @result = (($in{'parent'}) && ($conf{'zfs_properties'} =~ /1/)) ? cmd_create_zfs($in{'zfs'}, $options) : undef;
+if ($in{'cmd'} =~ "setzfs") {
+	$in{'confirm'} = "yes";
+	my @result = ($conf{'zfs_properties'} =~ /1/) ? cmd_zfs_set($in{'zfs'}, $in{'property'}, $in{'set'}, $in{'confirm'}) : undef;
+	print ui_cmd("set zfs property $in{'property'} to $in{'set'} in $in{'zfs'}", @result);
+}
+elsif ($in{'cmd'} =~ "setpool")  {
+	$in{'confirm'} = "yes";
+	my $cmd="zpool set $in{'property'}=$in{'set'} $in{'pool'}";
+	my @result = (($conf{'pool_properties'} =~ /1/) && ($in{'confirm'} =~ /yes/)) ? ($cmd, `$cmd 2>&1`) : ($cmd, "" );
+	#my @result = ($conf{'pool_properties'} =~ /1/) ?cmd_zpool($in{'pool'}, 'set', $in{'property'}.'='.$in{'set'}, undef, $in{'confirm'}): undef;
+	print ui_cmd("set pool property $in{'property'} to $in{'set'} in $in{'pool'}", @result);
+}
+elsif ($in{'cmd'} =~ "snap")  {
+		#my @result = ($conf{'snap_properties'} =~ /1/) ? cmd_snapshot($in{'zfs'}."@".$in{'snap'}) : undef;
+		my $cmd = "zfs snapshot ".$in{'zfs'}."@".$in{'snap'};
+		my @result = ($conf{'snap_properties'} =~ /1/) ? ( $cmd, `$cmd 2>&1` ) : undef;
 		$in{'confirm'} = "yes";
-		print ui_cmd("create filesystem $in{'parent'}/$in{'zfs'}", @result);
-		#print "", (!$result[1]) ? ui_zfs_list($in{'zfs'}) : undef;
-		#^^^this doesn't work for some reason
-		$in{'zfs'} = $in{'parent'};
+		print ui_cmd("create snapshot $in{'snap'}", @result);
+		print "", (!$result[1]) ? ui_list_snapshots($in{'zfs'}."@".$in{'snap'}) : undef;
+}
+elsif ($in{'cmd'} =~ "createzfs")  {
+	#print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";
+	my %createopts = create_opts();
+	my %options = ();
+	foreach $key (sort (keys %createopts)) {
+		$options{$key} = ($in{$key}) ? $in{$key} : undef;
+		#if ($in{$key}) { $options{$key} = $in{$key};}
 	}
-	case "import" {
+	if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
+	if ($in{'zvol'} == '1') { $in{'zfs'} = "-V ".$in{'size'}." ".$in{'parent'}."/".$in{'zfs'}; } 
+	else { $in{'zfs'} = $in{'parent'}."/".$in{'zfs'}; }
+	my @result = (($in{'parent'}) && ($conf{'zfs_properties'} =~ /1/)) ? cmd_create_zfs($in{'zfs'}, $options) : undef;
+	$in{'confirm'} = "yes";
+	print ui_cmd("create filesystem $in{'parent'}/$in{'zfs'}", @result);
+	#print "", (!$result[1]) ? ui_zfs_list($in{'zfs'}) : undef;
+	#^^^this doesn't work for some reason
+	$in{'zfs'} = $in{'parent'};
+}
+elsif ($in{'cmd'} =~ "clone")  {
+	my %createopts = create_opts();
+	$opts = ();
+	foreach $key (sort (keys %createopts))
+	{
+		if ($in{$key})
+		{
+			$opts = ($in{$key} =~ 'default') ? $opts : $opts.' -o '.$key.'='.$in{$key};
+		}
+	}
+	if ($in{'mountpoint'}) { $opts .= ' -o mountpoint='.$in{'mountpoint'}; }
+	$in{'confirm'} = "yes";
+	my $cmd = "zfs clone ".$in{'clone'}." ".$in{'parent'}.'/'.$in{'zfs'}." ".$opts;
+	my @result = ($conf{'zfs_properties'} =~ /1/) ? ( $cmd, `$cmd 2>&1` ) : undef;
+	print ui_cmd("clone ".$in{'clone'}, @result);
+	@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
+}
+elsif ($in{'cmd'} =~ "import")  {
 	#print "Attempting to import pool $in{'import'} with command... <br />";
 	my $dir = ();
 	if ($in{'dir'}) { $dir .= " -d".$in{'dir'}; }
@@ -56,10 +73,8 @@ switch ($in{'cmd'}) {
 	my $cmd = "zpool import".$dir." ".$in{'import'};
 	my @result = ($conf{'pool_properties'} =~ /1/ && ($in{'confirm'} =~ /yes/)) ? ($cmd, `$cmd 2>&1`) : ($cmd, "" );
 	print ui_cmd("import pool $in{'import'}", @result);
-	ui_print_footer("index.cgi?mode=pools", $text{'index_return'});
+	@footer = ("index.cgi?mode=pools", $text{'index_return'});
 	}
-	
-}
 
 
 
@@ -331,28 +346,6 @@ if (($in{'scrubstop'}) && ($conf{'pool_properties'} =~ /1/))
 	ui_print_footer("status.cgi?pool=".$in{'scrubstop'}, $in{'srubstop'});
 }
 
-#clone a snapshot
-if (($in{'clone'}) && ($conf{'zfs_properties'} =~ /1/))
-{
-#($zfs, $action, $options, $confirm)
-	my %createopts = create_opts();
-	#%options = ();
-	$opts = ();
-	foreach $key (sort (keys %createopts))
-	{
-		if ($in{$key})
-		{
-			#$options{$key} = $in{$key};
-			$opts = ($in{$key} =~ 'default') ? $opts : $opts.' -o '.$key.'='.$in{$key};
-		}
-	}
-	#if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
-	if ($in{'mountpoint'}) { $opts .= ' -o mountpoint='.$in{'mountpoint'}; }
-	$in{'confirm'} = "yes";
-	print ui_cmd_zfs("clone ", $in{'clone'}, ($in{'clone'}.' '.$in{'parent'}.'/'.$in{'zfs'}, 'clone', $opts, $in{'confirm'}));
-	ui_print_footer("status.cgi?snap=".$in{'clone'}, $in{'clone'});
-}
-
 #promote filesystem
 if (($in{'promote'}) && ($conf{'zfs_properties'} =~ /1/))
 {
@@ -466,7 +459,7 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 
 
 print ui_table_end();
-
+if (@footer) { ui_print_footer(@footer); }
 if ($in{'cmd'} && $in{'zfs'}) {
 		print "<br />";
 		ui_print_footer("status.cgi?zfs=".$in{'zfs'}, $in{'zfs'});

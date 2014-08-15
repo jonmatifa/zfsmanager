@@ -706,7 +706,7 @@ if (!$in{'confirm'}) {
 			$rv .= ui_hidden($key, $in{$key});
 	}
 	$rv .= "<h3>Would you lke to continue?</h3>\n";
-	$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")."<br />";
+	$rv .= ui_submit("yes", "confirm", 0)."<br />";
 	#$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." | <a href='status.cgi?zfs=".$in{'zfs'}."'>no</a>";
 	$rv .= ui_form_end();
 	#$rv .= "confirm=".$confirm."</br>";
