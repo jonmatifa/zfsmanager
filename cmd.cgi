@@ -3,7 +3,8 @@
 require './zfsmanager-lib.pl';
 ReadParse();
 use Data::Dumper;
-use Switch;
+#use Devel::Hexdump;
+#use Switch;
 ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
 #popup_header($text{'cmd_title'});
 %conf = get_zfsmanager_config();
@@ -413,7 +414,15 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 	#%conf = get_zfsmanager_config();
 	#$in{'select'} =~ s/^\s*(.*?)\s*$/$1/;
 	#$in{'select'} = s/([\w@-_]+)/$1/;
+	#$in{'select'} =~ s/.*[^[:print:]]+//;
 	@select = split(/;/, $in{'select'});
+	#@select = param('select');
+	#print "hexdump: ";
+	#print Dumper(\$_GET);
+	#print Dumper(\$in);
+	#print "<br />";
+	#print Dumper(\$in{'select'});
+	#@select = split(/\R/m, $in{'select'});
 	print "<h2>Destroy</h2>";
 	print "Attempting to destroy multiple snapshots... <br />";
 	#print ui_form_start('cmd.cgi', 'post', 'cmd');
@@ -421,16 +430,17 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 	print ui_hidden('multisnap', 1);
 	print ui_hidden('select', $in{'select'});
 	#print "<h1>multisnap</h1> <br />";
-	print $in{'select'};
+	#print $in{'select'};
 	my %results = ();
-	print "<br />";
-	print Dumper(@select);
+	#print "<br />";
+	#print Dumper(@select);
 	#print "<br />";
 	#print Dumper(@array);
 	#print Dumper(\%snapshot);
 	print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
 	foreach $key (@select)
 	{
+		$key =~ s/.*[^[:print:]]+//;
 		#print "Selected snapshot: ", $key, "<br />";
 		#my %snapshot = list_snapshots($key);
 		#chomp($key);
@@ -458,7 +468,7 @@ if (($in{'multisnap'} =~ 1) && ($conf{'snap_destroy'}) =~ /1/) {
 		print ui_submit("Continue", undef, undef), " | <a href='index.cgi?mode=snapshot'>Cancel</a>";
 	} else {
 		print "<h2>Results from commands:</h2>";
-		print Dumper(\%results);
+		#print Dumper(\%results);
 		foreach $key (keys %results)
 		{
 			if (($results{$key}[1] eq undef))

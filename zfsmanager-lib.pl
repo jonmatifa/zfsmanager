@@ -609,11 +609,13 @@ if ($admin =~ /1/) {
 	}
 #if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
 print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
+my $num = 0;
 foreach $key (sort(keys %snapshot))
 {
 	#print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	if ($admin =~ /1/) {
-		print ui_columns_row([ui_checkbox("select", $key.';', "<a href='status.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		$num ++;
 	} else {
 		print ui_columns_row([ "<a href='statuscgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	}
