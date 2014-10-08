@@ -415,16 +415,21 @@ return @result;
 
 sub cmd_create_zpool
 {
-my ($pool, $dev, $options, $mount, $force) = @_;
+my ($pool, $dev, $options, $poolopts, $force) = @_;
 my $opts = ();
-my %createopts = create_opts();
-foreach $key (sort(keys %options))
+#my %createopts = create_opts();
+#if ( $options{'version'} ) { $opts .= "-o version=".$options{'version'}; }
+foreach $key (sort(keys %{$poolopts}))
 {
-	$opts = ($options{$key} =~ 'default') ? $opts : $opts.' -O '.$key.'='.$options{$key};
+	$opts = (${$poolopts}{$key} =~ 'default') ? $opts : $opts.' -o '.$key.'='.${$poolopts}{$key};
+}
+foreach $key (sort(keys %{$options}))
+{
+	$opts = (${$options}{$key} =~ 'default') ? $opts : $opts.' -O '.$key.'='.${$options}{$key};
 }
 #if ($opts) { $opts = '-O '.$opts; }
-$mount = ($mount) ? '-m '.$mount : ();
-my $cmd="zpool create $force $opts $mount $pool $dev";
+#$mount = ($mount) ? '-m '.$mount : ();
+my $cmd="zpool create $force $opts $pool $dev";
 my @result = ($cmd, `$cmd 2>&1`);
 return @result;
 }
@@ -718,7 +723,12 @@ if (!$in{'confirm'}) {
 		$rv .= "Success! <br />\n";
 		#$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
 	} else	{
+	#$result[1] =~ s/\R/ /g;
 	$rv .= "<b>error: </b>".$result[1]."<br />\n";
+	foreach $key (@result[2..@result]) {
+		$rv .= $key."<br />\n";
+	}
+	#print Dumper(@result);
 	}
 }
 

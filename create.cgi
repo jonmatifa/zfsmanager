@@ -14,11 +14,11 @@ if ($in{'create'} =~ "zpool")
 	ui_print_header(undef, "Create Pool", "", undef, 1, 1);
 	print ui_table_start("Create Zpool", 'width=100%');
 	print ui_form_start("cmd.cgi", "post");
-	print ui_hidden('create', 'zpool');
+	print ui_hidden('cmd', 'createzpool');
 	print ui_table_row(undef, '<b>Pool name:</b> '.ui_textbox('pool', ''));
 	print ui_table_row(undef, '<b>Mount point</b> (blank for default)'.ui_filebox('mountpoint', '', 25, undef, undef, 1));
 	#print ui_select('vdev', ['sdb1', 'sdc1'], ['sdb1', 'sdc1'], undef, 1);
-	print ui_table_row(undef, '<b>vdev configuration:</b> '.ui_textbox('dev', ''));
+	#print ui_table_row(undef, '<b>vdev configuration:</b> '.ui_textbox('dev', ''));
 	#print ui_table_row(undef, '<b>Activate all features:</b> '.ui_checkbox('allfeat', '1'));
 	print ui_table_row(undef, '<b>Pool version:</b> '.ui_select('version', 'default', ['default', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', 'features-enabled', 'features-disabled'], 1, 0, 1));
 	print ui_table_row(undef, '<b>Force</b> '.ui_checkbox('force', '-f'));
@@ -44,16 +44,27 @@ if ($in{'create'} =~ "zpool")
 	#print 'vdev configuration: ', ui_textbox('vdev', '');
 	#print ui_popup_link('Add vdev', 'select.cgi'), "<br />";
 	
+	#print "vdev type: ", ui_radio('vdev', 'stripe', [ ['stripe', 'stripe'], ['mirror', 'mirror'], ['raidz1', 'raidz1'],  ['raidz2', 'raidz2'], ['raidz3', 'raidz3'] ] );
+	print "vdev type: ", ui_select('vdev', 'stripe', ['stripe', 'mirror', 'raidz1', 'raidz2', 'raidz3'], 1, 0, 1);
+	print "<br />";
 	%hash = list_disk_ids();
+	#delete $hash{'byuuid'};
+	#@byid = ();
+	#foreach $key (sort(keys %{ $hash{byid}})) {
+	#	push (@byid, $key);
+	#}
 	#print Dumper (\%hash);
-	print "By Disk-ID: ", ui_select("byid", undef, [keys %{ $hash{byid} }]);
-	print "<br />";
-	print "By UUID: ", ui_select("byuuid", undef, [keys %{ $hash{byuuid} }]);
-	print "<br />";
-	print 'Manual selection: ', ui_filebox('byfile', '', 25, undef, undef, 1);
-	print "<br />";
+	#print "By Disk-ID: ", ui_select("byid", undef, [keys %{ $hash{byid} }]);
+	#print "<br />";
+	#print ui_select("devs", undef, [keys %{ $hash{byid} }], undef, 1);
+	print ui_multi_select("devs", undef, [(sort(keys %{ $hash{byid}}))], 8, undef, undef , 'available', 'selected', 425);
+	#print "By UUID: ", ui_select("byuuid", undef, [keys %{ $hash{byuuid} }]);
+	#print "<br />";
+	#print 'Manual selection: ', ui_filebox('byfile', '', 25, undef, undef, 1);
+	#print "<br />";
 	print ui_table_end();
 	print ui_submit('Create');
+	#print Dumper (\%hash);
 	#print " | ";
 	ui_print_footer('', $text{'index_return'});
 	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";

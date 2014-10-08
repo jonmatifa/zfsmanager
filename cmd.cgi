@@ -75,7 +75,32 @@ elsif ($in{'cmd'} =~ "import")  {
 	print ui_cmd("import pool $in{'import'}", @result);
 	@footer = ("index.cgi?mode=pools", $text{'index_return'});
 	}
-
+elsif ($in{'cmd'} =~ "createzpool")  {
+	#print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";
+	my %createopts = create_opts();
+	my %options = ();
+	$in{'volblocksize'} = "default";
+	$in{'sparse'} = "default";
+	foreach $key (sort (keys %createopts)) {
+		$options{$key} = ($in{$key}) ? $in{$key} : undef;
+		#if ($in{$key}) { $options{$key} = $in{$key};}
+	}
+	if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
+	#if ($in{'version'}) { $options{'version'} = $in{'version'}; }
+	#if ($in{'zvol'} == '1') { $in{'zfs'} = "-V ".$in{'size'}." ".$in{'parent'}."/".$in{'zfs'}; } 
+	#else { $in{'zfs'} = $in{'parent'}."/".$in{'zfs'}; }
+	if ($in{'vdev'} =~ 'stripe') { delete $in{'vdev'}; } else{ $in{'vdev'} .= " "; }
+	$in{'devs'} =~ s/\R/ /g;
+	%poolopts = ( 'version' => $in{'version'} );
+	my @result = (($conf{'pool_properties'} =~ /1/)) ? cmd_create_zpool($in{'pool'}, $in{'vdev'}.$in{'devs'}, \%options, \%poolopts, $in{'force'}) : undef;
+	$in{'confirm'} = "yes";
+	print ui_cmd("create pool $in{'pool'}", @result);
+	#print Dumper(\%in);
+	#print Dumper(\%options);
+	#print "", (!$result[1]) ? ui_zfs_list($in{'zfs'}) : undef;
+	#^^^this doesn't work for some reason
+	#$in{'pool'} = $in{'parent'};
+}
 
 
 
