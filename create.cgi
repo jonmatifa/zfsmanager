@@ -117,8 +117,8 @@ if ($in{'create'} =~ "zpool")
 	print ui_hidden('cmd', 'createzfs');
 	print ui_table_row(undef, "<br />");
 	#print ui_table_row(undef, 'File system options: ');
-	delete $createopts{'sparse'};
-	delete $createopts{'volblocksize'};
+	#delete $createopts{'sparse'};
+	#delete $createopts{'volblocksize'};
 	#my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off');
 	print ui_table_end();
 	print ui_table_start("File system options", "width=100%", undef);
@@ -141,9 +141,9 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_row(undef, "<b>Name: </b>".$in{'parent'}."/".ui_textbox('zfs'));
 	print ui_table_row(undef, "<b>Size: </b>".ui_textbox('size'));
 	print ui_table_row(undef, '<b>Blocksize:</b> '.ui_select('volblocksize', 'default', ['default', '512', '1K', '2K', '4K', '8K', '16K', '32K', '64K', '128K'], 1, 0, 1));
-	delete $createopts{'volblocksize'};
+	#delete $createopts{'volblocksize'};
 	print ui_table_row(undef, '<b>Sparse volume:</b> '.ui_checkbox('sparse', '1'));
-	delete $createopts{'sparse'};
+	#delete $createopts{'sparse'};
 	print ui_hidden('parent', $in{'parent'});
 	print ui_hidden('create', 'zfs');
 	print ui_hidden('cmd', 'createzfs');

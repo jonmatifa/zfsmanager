@@ -12,8 +12,8 @@ sub properties_list
 #my %list = ( 'boolean' => [ "atime", "canmount", "devices", "exec", "readonly", "setuid", "xattr" ],
 #			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
 #			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
-my %list = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'xattr' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
-			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, lz4, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9, zle', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled',   
+my %list = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
+			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, lz4, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9, zle', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled', 'xattr' => 'on, off, sa', 'com.sun:auto-snapshot' => 'true, false',
 			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special', 'volsize' => 'special');
 #if ($type != undef)
 #{
@@ -34,7 +34,7 @@ return %list;
 
 sub create_opts #options and defaults when creating new pool or filesystem
 {
-my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off', 'volblocksize' => '8K', 'sparse' => '0');
+my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off', 'xattr' => 'on' );
 return %list;
 }
 
@@ -400,13 +400,17 @@ sub cmd_create_zfs
 my ($zfs, $options)  = @_;
 my $opts = ();
 my %createopts = create_opts();
-if ($options{'sparse'}) { 
-	$opts = "-s "; 
-	delete $options{'sparse'};
+$createopts{'volblocksize'} = '8k';
+#$createopts{'sparse'} = '0';
+if (${$options}{'sparse'}) { $opts .= "-s "; }
+delete ${$options}{'sparse'};
+if (${$options}{'zvol'}) { 
+	$zfs = "-V ".${$options}{'zvol'}." ".$zfs; 
+	delete ${$options}{'zvol'};
 }
-foreach $key (sort(keys %options))
+foreach $key (sort(keys %${options}))
 {
-	$opts = (($createopts{$key}) && ($options{$key} =~ 'default')) ? $opts : $opts.' -o '.$key.'='.$options{$key};
+	$opts = (($createopts{$key}) && (${$options}{$key} =~ 'default')) ? $opts : $opts.' -o '.$key.'='.${$options}{$key};
 }
 my $cmd="zfs create $opts $zfs";
 my @result = ($cmd, `$cmd 2>&1`);

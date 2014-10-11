@@ -34,15 +34,23 @@ elsif ($in{'cmd'} =~ "snap")  {
 elsif ($in{'cmd'} =~ "createzfs")  {
 	#print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";
 	my %createopts = create_opts();
+	#$createopts{'volblocksize'} = '8k';
+	#$createopts{'sparse'} = '0';
 	my %options = ();
 	foreach $key (sort (keys %createopts)) {
 		$options{$key} = ($in{$key}) ? $in{$key} : undef;
 		#if ($in{$key}) { $options{$key} = $in{$key};}
 	}
 	if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
-	if ($in{'zvol'} == '1') { $in{'zfs'} = "-V ".$in{'size'}." ".$in{'parent'}."/".$in{'zfs'}; } 
-	else { $in{'zfs'} = $in{'parent'}."/".$in{'zfs'}; }
-	my @result = (($in{'parent'}) && ($conf{'zfs_properties'} =~ /1/)) ? cmd_create_zfs($in{'zfs'}, $options) : undef;
+	if ($in{'zvol'} == '1') { 
+		#$in{'zfs'} = "-V ".$in{'size'}." ".$in{'parent'}."/".$in{'zfs'};
+		$options{'zvol'} = $in{'size'};
+		$options{'sparse'} = $in{'sparse'};
+		$options{'volblocksize'} = $in{'volblocksize'};
+	} 
+	#else { $in{'zfs'} = $in{'parent'}."/".$in{'zfs'}; }
+	#print Dumper(\%options);
+	my @result = (($in{'parent'}) && ($conf{'zfs_properties'} =~ /1/)) ? cmd_create_zfs($in{'parent'}."/".$in{'zfs'}, \%options) : undef;
 	$in{'confirm'} = "yes";
 	print ui_cmd("create filesystem $in{'parent'}/$in{'zfs'}", @result);
 	#print "", (!$result[1]) ? ui_zfs_list($in{'zfs'}) : undef;
