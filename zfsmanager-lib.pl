@@ -458,7 +458,7 @@ my ($snap, $dest, $opts, $confirm) = @_;
 my $cmd="zfs send $opts $snap | $dest";
 if ($confirm =~ /yes/) 
 	{ 
-		@result = ($cmd, `cmd 2>&1`);
+		@result = ($cmd, `$cmd 2>&1`);
 	} else 
 	{ 
 		@result = ($cmd, "" ); 
@@ -578,6 +578,7 @@ sub ui_zfs_properties
 my ($zfs)=@_;
 require './property-list-en.pl';
 my %hash = zfs_get($zfs, "all");
+if (!$hash{$zfs}{'com.sun:auto-snapshot'}) { $hash{$zfs}{'com.sun:auto-snapshot'}{'value'} = '-'; }
 my %props =  property_desc();
 my %properties = properties_list();
 #my %pool = %{$hash->{$zfs}};

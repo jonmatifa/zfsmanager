@@ -110,44 +110,23 @@ elsif ($in{'cmd'} =~ "createzpool")  {
 	#^^^this doesn't work for some reason
 	#$in{'pool'} = $in{'parent'};
 }
-
+elsif ($in{'cmd'} =~ "online") {
+	$in{'confirm'} = "yes";
+	my $cmd = "zpool online $in{'pool'} $in{'online'}";
+	my @result = ($conf{'pool_properties'} =~ /1/) ? ($cmd, `$cmd 2>&1`) : undef;
+	print ui_cmd("bring $in{'online'} online", @result);
+}
+elsif ($in{'cmd'} =~ "offline") {
+	$in{'confirm'} = "yes";
+	my $cmd = "zpool offline $in{'pool'} $in{'offline'}";
+	my @result = ($conf{'pool_properties'} =~ /1/) ? ($cmd, `$cmd 2>&1`) : undef;
+	print ui_cmd("bring $in{'offline'} offline", @result);
+}
 
 
 #legacy commands
 
-if (($in{'online'}) && ($conf{'pool_properties'} =~ /1/))
-{
-	print "Attempting to bring $in{'online'} online with command... <br />";
-	my @result = cmd_online($in{'pool'}, $in{'online'});
-	print $result[0], "<br />";
-	if ($result[1] == //)
-	{
-		print "Success! <br />";
-		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
-	} else
-	{
-	print "error: ", $result[1], "<br />";
-	}
-#ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
-popup_footer();
-}
 
-if (($in{'offline'}) && ($conf{'pool_properties'} =~ /1/))
-{
-	print "Attempting to bring $in{'offline'} offline with command... <br />";
-	my @result = cmd_offline($in{'pool'}, $in{'offline'});
-	print $result[0], "<br />";
-	if ($result[1] == //)
-	{
-		print "Success! <br />";
-		print "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>";
-	} else
-	{
-	print "error: ", $result[1], "<br />";
-	}
-#ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});
-popup_footer();
-}
 
 if (($in{'remove'}) && ($conf{'pool_properties'} =~ /1/))
 {

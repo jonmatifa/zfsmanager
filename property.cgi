@@ -100,6 +100,7 @@ if ($in{'zfs'}) {
 	#}
 	if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off', 'inherit' ]; }
 	print "Change to: ";
+	if ($get{$in{'zfs'}}{$in{'property'}}{value} =~ "-") { $get{$in{'zfs'}}{$in{'property'}}{value} = 'inherit'; }
 	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
 	#print Dumper(@select);
 }

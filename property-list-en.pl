@@ -166,6 +166,15 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	   multiplier.	Compression  can be turned on by running "zfs set com-
 	   pression=on dataset". The default value is "off".',
 	   
+	   'com.sun:auto-snapshot' => '
+	   zfs-auto-snapshot  automatically  creates, rotates, and destroys snapshots for all your ZFS datasets, and is compatible with
+       both zfsonlinux and zfs-fuse.<br />
+       <br />
+       --default-exclude<br />
+       By default zfs-auto-snapshot will snapshot all datasets except for those in  which  the  user-property  com.sun:auto-snapshot
+        is set to false. This option reverses the behavior and requires com.sun:auto-snapshot to be set to true.<br />
+       <a href="https://github.com/zfsonlinux/zfs-auto-snapshot">https://github.com/zfsonlinux/zfs-auto-snapshot</a>',
+	   
 		'copies' => 'Controls the number of copies of  data  stored  for	this  dataset.
 	   These  copies  are  in  addition  to any redundancy provided by the
 	   pool, for example, mirroring or raid-z. The copies  are  stored  on
