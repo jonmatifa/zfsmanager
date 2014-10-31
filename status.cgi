@@ -32,18 +32,19 @@ print ui_columns_end();
 my %status = zpool_status($in{'pool'});
 #print "Config:";
 print ui_columns_start([ "Virtual Device", "State", "Read", "Write", "Cksum" ]);
-foreach $key (keys %status)
+#@devs = ( values %status{}{devs} );
+foreach $key (sort keys %status)
 {
-	if (($status{$key}{parent} =~ /pool/) && ($status{$key}{name} !~ $status{pool}{pool})) {
-		print ui_columns_row(["<a href='config-vdev.cgi?pool=".$status{pool}{pool}.'&dev='.$status{$key}{name}."'>".$status{$key}{name}."</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
+	if (($status{$key}{parent} =~ /pool/) && ($key != 0)) {
+		print ui_columns_row(["<a href='config-vdev.cgi?pool=".$status{0}{pool}.'&dev='.$status{$key}{name}."'>".$status{$key}{name}."</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
 		#print ui_columns_row([ui_popup_link($status{$key}{name}, 'config-vdev.cgi?pool='.$status{pool}{pool}.'&dev='.$status{$key}{name}), $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
 		#if (($status{$key}{name} =~ /logs/) || ($status{$key}{name} =~ /cache/) || ($status{$key}{name} =~ /mirror/) || ($status{$key}{name} =~ /raidz/))
 		#{
 		
 		#}
-	} elsif ($status{$key}{name} !~ $status{pool}{pool}) {
+	} elsif ($key != 0) {
 		#print ui_columns_row(['|_'.ui_popup_link($status{$key}{name}, 'config-vdev.cgi?pool='.$status{pool}{pool}.'&dev='.$status{$key}{name}), $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
-		print ui_columns_row(["<a href='config-vdev.cgi?pool=".$status{pool}{pool}.'&dev='.$status{$key}{name}."'>|_".$status{$key}{name}."</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
+		print ui_columns_row(["<a href='config-vdev.cgi?pool=".$status{0}{pool}.'&dev='.$status{$key}{name}."'>|_".$status{$key}{name}."</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
 	}
 	
 	#print ui_columns_row(["<a href=''>$status{$key}{name}</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}, $status{$key}{parent}]);
@@ -51,12 +52,21 @@ foreach $key (keys %status)
 print ui_columns_end();
 print ui_table_start("Status", "width=100%", "10");
 #print test_function($in{'pool'});
-print ui_table_row("Scan:", $status{pool}{scan});
-print ui_table_row("Read:", $status{pool}{read});
-print ui_table_row("Write:", $status{pool}{write});
-print ui_table_row("Checkum:", $status{pool}{cksum});
-print ui_table_row("Errors:", $status{pool}{errors});
+print ui_table_row("Scan:", $status{0}{scan});
+print ui_table_row("Read:", $status{0}{read});
+print ui_table_row("Write:", $status{0}{write});
+print ui_table_row("Checkum:", $status{0}{cksum});
+print ui_table_row("Errors:", $status{0}{errors});
 print ui_table_end();
+
+if ($status{0}{status} or $status{0}{action} or $status{pool}{see}) {
+	print ui_table_start("Attention", "width=100%", "10");
+	if ($status{0}{status}) { print ui_table_row("Status:", $status{0}{status}); }
+	if ($status{0}{action}) { print ui_table_row("Action:", $status{0}{action}); }
+	if ($status{0}{see}) { print ui_table_row("See:", $status{0}{see}); }
+	print ui_table_end();
+}
+	
 
 #--tasks table--
 print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
@@ -76,6 +86,8 @@ if ($conf{'pool_properties'} =~ /1/) {
 if ($conf{'pool_destroy'} =~ /1/) { print ui_table_row("Destroy ", "<a href='cmd.cgi?destroypool=$in{pool}'>Destroy this pool</a>"); }
 #if ($conf{'pool_destroy'} =~ /1/) { print ui_table_row("Destroy ", ui_popup_link("Destroy this pool", "cmd.cgi?destroypool=$in{'pool'}")); }
 print ui_table_end();
+
+#print Dumper(\%status);
 ui_print_footer('', $text{'index_return'});
 }
 
