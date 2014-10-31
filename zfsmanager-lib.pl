@@ -174,55 +174,59 @@ sub zpool_status
 my ($pool)=@_;
 my $parent = "pool";
 my %status = ();
-my $devs = 0;
 my $cmd=`zpool status $pool`;
-open my $fh, "<", \$cmd;
-while (my $line =<$fh>)
+(undef, $cmdout) = split(/  pool: /, $cmd);
+($status{0}{pool}, $cmdout) = split(/ state: /, $cmdout);
+chomp $status{0}{pool};
+if (index($cmd, "status: ") != -1) { 
+	($status{0}{state}, $cmdout) = split("status: ", $cmdout); 
+	($status{0}{status}, $cmdout) = split("action: ", $cmdout); 
+	if (index($cmd, "  see: ") != -1) { 
+		($status{0}{action}, $cmdout) = split("  see: ", $cmdout); 
+		($status{0}{see}, $cmdout) = split("  scan: ", $cmdout); 
+	} else { ($status{0}{action}, $cmdout) = split("  scan: ", $cmdout); }
+} else {
+	($status{0}{state}, $cmdout) = split("  scan: ", $cmdout); 
+}
+($status{0}{scan}, $cmdout) = split("config:", $cmdout); 
+($status{0}{config}, $status{0}{errors}) = split("errors: ", $cmdout); 
+
+$fh= $status{0}{config};
+@array = split("\n", $fh);
+foreach $line (@array) #while (my $line =<$fh>) 
 {
     chomp ($line);
-	$line =~ s/^\s*(.*?)\s*$/$1/;
-	my($key, $value) = split(/:/, $line);
-	$key =~ s/^\s*(.*?)\s*$/$1/;
-	$value =~ s/^\s*(.*?)\s*$/$1/;
-	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors') || ($key =~ 'scrub'))
-	{
-		if ($key =~ 'scrub') { $key = 'scan'; }
-		$status{pool}{$key} = $value;
-	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /status:/) || ($line =~ /action:/) || ($line =~ /see:/))
-	{
-		#do nothing
-	} else
-	{
-		my($name, $state, $read, $write, $cksum) = split(" ", $line);
-		if (($name =~ $status{pool}{pool}) && (length($name) == length($status{pool}{pool})))
-		{
-			$status{pool}{name} = $name;
-			$status{pool}{read} = $read;
-			$status{pool}{write} = $write;
-			$status{pool}{cksum} = $cksum;
-			
-		#check if vdev is a log or cache vdev
-		} elsif (($name =~ /log/) || ($name =~ /cache/))
-		{
-			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => "pool"};
-			$parent = $name;
-			$devs++;
-			
-		#check if vdev is a log or cache vdev
+	my($name, $state, $read, $write, $cksum) = split(" ", $line);
 
-		} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
-		{
-			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
-			$parent = $name;
-			$devs++;
-			
-		#for all other vdevs, should be actual devices at this point
-		} elsif ($name)
-		{
-			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
-			$devs++;
-		}
+	if ($name =~ "NAME") { #do nothing 
+	} elsif (($name =~ $status{0}{pool}) && (length($name) == length($status{0}{pool}))) {
+		$status{0}{name} = $name;
+		$status{0}{read} = $read;
+		$status{0}{write} = $write;
+		$status{0}{cksum} = $cksum;
+		$devs++;
+		
+	#check if vdev is a log or cache vdev
+	} elsif (($name =~ /log/) || ($name =~ /cache/))
+	{
+		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => "pool",};
+		$parent = $name;
+		$devs++;
+		
+	#check if vdev is a log or cache vdev
+	} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
+	{
+		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
+		$parent = $name;
+		$devs++;
+
+	#for all other vdevs, should be actual devices at this point
+	} elsif ($name)
+	{
+		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent,};
+		$devs++;
 	}
+	
 }
 return %status;
 }
@@ -750,93 +754,64 @@ return "<a onClick=\"\window.open('$url', 'cmd', 'toolbar=no,menubar=no,scrollba
 
 sub test_function
 {
-#($pool)=@_;
-#$cmd=`zpool status $pool`;
-#@status = split('\n', $cmd);
-#$cmd =~ s/\n/<br>\n/g;
-#$cmd =~ s/\t/&nbsp/g;
-#$cmd="";
-#foreach $line (@status) {
-#	$cmd .= $line."<br>\n";
-#}
-#return $cmd;
-
 my ($pool)=@_;
 my $parent = "pool";
 my %status = ();
-my $devs = 0;
 my $cmd=`zpool status $pool`;
-#pool - always shows
-my $pooloc = index($cmd, " pool:");
-my $stateloc = index($cmd, " state:");
-$status{pool}{pool} = "";
-#state - always shows
-my $statusloc = index($cmd, "status:");
-$status{pool}{state} = "";
-#status
-my $actionloc = index($cmd, "action:");
-$status{pool}{status} = "";
-#action
-my $seeloc = index($cmd, " see:");
-$status{pool}{action} = "";
-#see
-my $scanloc = index($cmd, " scan:");
-$status{pool}{see} = "";
-#scan - always shows
-my $configloc = index($cmd, "config:");
-$status{pool}{scan} = "";
-#config
-my $errorsloc = index($cmd, "errors:");
+(undef, $cmdout) = split(/  pool: /, $cmd);
+($status{0}{pool}, $cmdout) = split(/ state: /, $cmdout);
+chomp $status{0}{pool};
+if (index($cmd, "status: ") != -1) { 
+	($status{0}{state}, $cmdout) = split("status: ", $cmdout); 
+	($status{0}{status}, $cmdout) = split("action: ", $cmdout); 
+	if (index($cmd, "  see: ") != -1) { 
+		($status{0}{action}, $cmdout) = split("  see: ", $cmdout); 
+		($status{0}{see}, $cmdout) = split("  scan: ", $cmdout); 
+	} else { ($status{0}{action}, $cmdout) = split("  scan: ", $cmdout); }
+} else {
+	($status{0}{state}, $cmdout) = split("  scan: ", $cmdout); 
+}
+($status{0}{scan}, $cmdout) = split("config:", $cmdout); 
+($status{0}{config}, $status{0}{errors}) = split("errors: ", $cmdout); 
 
-#errors - always shows
-$status{pool}{errors} = "";
-open my $fh, "<", \$cmd;
-while (my $line =<$fh>)
+$fh= $status{0}{config};
+@array = split("\n", $fh);
+foreach $line (@array) #while (my $line =<$fh>) 
 {
     chomp ($line);
-	$line =~ s/^\s*(.*?)\s*$/$1/;
-	my($key, $value) = split(/:/, $line);
-	$key =~ s/^\s*(.*?)\s*$/$1/;
-	$value =~ s/^\s*(.*?)\s*$/$1/;
-	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors') || ($key =~ 'scrub'))
-	{
-		if ($key =~ 'scrub') { $key = 'scan'; }
-		$status{pool}{$key} = $value;
-	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /status:/) || ($line =~ /action:/) || ($line =~ /see:/))
-	{
-		#do nothing
-	} else
-	{
-		my($name, $state, $read, $write, $cksum) = split(" ", $line);
-		if (($name =~ $status{pool}{pool}) && (length($name) == length($status{pool}{pool})))
-		{
-			$status{pool}{name} = $name;
-			$status{pool}{read} = $read;
-			$status{pool}{write} = $write;
-			$status{pool}{cksum} = $cksum;
-			
-		#check if vdev is a log or cache vdev
-		} elsif (($name =~ /log/) || ($name =~ /cache/))
-		{
-			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => "pool"};
-			$parent = $name;
-			$devs++;
-			
-		#check if vdev is a log or cache vdev
-		} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
-		{
-			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
-			$parent = $name;
-			$devs++;
+	my($name, $state, $read, $write, $cksum) = split(" ", $line);
 
-		#for all other vdevs, should be actual devices at this point
-		} elsif ($name)
-		{
-			$status{$name} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
-			$devs++;
-		}
+	if ($name =~ "NAME") { #do nothing 
+	} elsif (($name =~ $status{0}{pool}) && (length($name) == length($status{0}{pool}))) {
+		$status{0}{name} = $name;
+		$status{0}{read} = $read;
+		$status{0}{write} = $write;
+		$status{0}{cksum} = $cksum;
+		$devs++;
+		
+	#check if vdev is a log or cache vdev
+	} elsif (($name =~ /log/) || ($name =~ /cache/))
+	{
+		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => "pool",};
+		$parent = $name;
+		$devs++;
+		
+	#check if vdev is a log or cache vdev
+	} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
+	{
+		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
+		$parent = $name;
+		$devs++;
+
+	#for all other vdevs, should be actual devices at this point
+	} elsif ($name)
+	{
+		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent,};
+		$devs++;
 	}
+	
 }
+
 return %status;
 
 }
