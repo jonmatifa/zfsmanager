@@ -13,6 +13,7 @@ ui_print_header(undef, $text{'vdev_title'}, "", undef, 1, 1);
 
 my %status = zpool_status($in{'pool'});
 
+#print Dumper(\%status);
 #foreach $key (sort(keys %status))
 #{
 #	if ($status{$key}{name} =~ $in{'dev'})
@@ -21,18 +22,27 @@ my %status = zpool_status($in{'pool'});
 #		#print "seeing device";
 #	}
 #}
-print ui_table_start($text{'vdev_title'}, "width=100%", "10", ['align=left'] );
-print "Pool: ", $status{pool}{pool}, "<br />";
-print "Pool State: ", $status{pool}{state}, "<br />";
-print "Virtual Device: ", $in{'dev'}, "<br />";
+print ui_columns_start([ "Virtual Device", "State", "Read", "Write", "Cksum" ]);
+print ui_columns_row([$status{$in{'dev'}}{name}, $status{$in{'dev'}}{state}, $status{$in{'dev'}}{read}, $status{$in{'dev'}}{write}, $status{$in{'dev'}}{cksum}]);
+print ui_columns_end();
+
+#print ui_table_start($text{'vdev_title'}, "width=100%", "10", ['align=left'] );
+#print "Pool: ", $status{0}{pool}, "<br />";
+#print "Pool State: ", $status{0}{state}, "<br />";
+#print "Virtual Device: ", $status{$in{'dev'}}{name}, "<br />";
+$parent = $status{$in{'dev'}}{parent};
 if ($status{$in{'dev'}}{parent} =~ "pool") 
 {
 	#print "Parent: <a href='status.cgi?pool=", $status{pool}{pool}, "'>pool</a><br />";
-	print "Parent: pool<br />";
+	#print "Parent: pool<br />";
 } else {
-	print "Parent: <a href='config-vdev.cgi?pool=", $in{'pool'}, "&dev=", $status{$in{'dev'}}{parent}, "'>", $status{$in{'dev'}}{parent}, "</a><br />";
+	print ui_columns_start([ "Parent", "State", "Read", "Write", "Cksum" ]);
+	print ui_columns_row(["<a href='config-vdev.cgi?pool=$in{'pool'}&dev=$status{$in{'dev'}}{parent}'>", $status{$parent}{state}, $status{$parent}{read}, $status{$parent}{write}, $status{$parent}{cksum}]);
+	print ui_columns_end();
+	#print "Parent: <a href='config-vdev.cgi?pool=", $in{'pool'}, "&dev=", $status{$in{'dev'}}{parent}, "'>", $status{$in{'dev'}}{parent}, "</a><br />";
 }
-if (($in{'dev'} =~ "cache") || ($in{'dev'} =~ "logs") || ($in{'dev'} =~ "spare") || ($in{'dev'} =~ /mirror/) || ($in{'dev'} =~ /raidz/))
+ui_zpool_status($in{'pool'});
+if (($status{$in{'dev'}}{name} =~ "cache") || ($status{$in{'dev'}}{name} =~ "logs") || ($status{$in{'dev'}}{name} =~ "spare") || ($status{$in{'dev'}}{name} =~ /mirror/) || ($status{$in{'dev'}}{name} =~ /raidz/))
 {
 print "Children: ";
 	foreach $key (sort(keys %status))
@@ -43,24 +53,24 @@ print "Children: ";
 		}
 	}
 } elsif ($conf{'pool_properties'} =~ /1/) {
-	print "VDEV Status: ", $status{$in{'dev'}}{state}, "<br />";
+	#print "VDEV Status: ", $status{$in{'dev'}}{state}, "<br />";
 	print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
 	if ($status{$in{'dev'}}{state} =~ "OFFLINE")	{
 		#print ui_popup_link('bring device online', "cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}"), "<br />";
-		print ui_table_row("Online: ", "<a href='cmd.cgi?cmd=online&pool=$in{'pool'}&online=$in{'dev'}'>Bring device online</a><br />");
+		print ui_table_row("Online: ", "<a href='cmd.cgi?cmd=vdev&action=online&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device online</a><br />");
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
 	elsif ($status{$in{'dev'}}{state} =~ "ONLINE") {
 		#print ui_popup_link('bring device offline', "cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}"), "<br />";
-		print ui_table_row("Offline: ", "<a href='cmd.cgi?cmd=offline&pool=$in{'pool'}&offline=$in{'dev'}'>Bring device offline</a><br />");
+		print ui_table_row("Offline: ", "<a href='cmd.cgi?cmd=vdev&action=offline&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device offline</a><br />");
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
 		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
 	}
 	print ui_table_row("Replace: ", "<a href='#'>Replace device</a><br />");
-	print ui_table_row("Remove: ", "<a href='#'>Remove device</a><br />");
-	print ui_table_row("Detach: ", "<a href='#'>Detach device</a><br />");
-	print ui_table_row("Clear: ", "<a href='#'>Clear errors</a><br />");
+	print ui_table_row("Remove: ", "<a href='cmd.cgi?cmd=vdev&action=remove&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Remove device</a><br />");
+	print ui_table_row("Detach: ", "<a href='cmd.cgi?cmd=vdev&action=detach&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Detach device</a><br />");
+	print ui_table_row("Clear: ", "<a href='cmd.cgi?cmd=vdev&action=clear&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Clear errors</a><br />");
 	print ui_table_end();
 }
 #print $gconfig{'os_type'};
@@ -69,6 +79,6 @@ print "Children: ";
 
 #print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 #popup_footer();
-print ui_table_end();
+#print ui_table_end();
 
 ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});

@@ -334,6 +334,7 @@ return %status;
 }
 
 sub zpool_list
+#not in use can deprecate
 {
 #TODO massage data into something better
 my $list=`zpool list`;
@@ -359,47 +360,8 @@ while (my $file = readdir(DIR))
 return %hash;
 }
 
-#cmd_online($pool, $vdev)
-sub cmd_online
-#deprecated
-{
-my ($pool, $vdev) = @_;
-my $cmd = "zpool online $pool $vdev";
-my @result = ($cmd, `$cmd 2>&1`);
-return @result;
-}
-
-#cmd_offline($pool, $vdev)
-sub cmd_offline
-#deprecated
-{
-my ($pool, $vdev) = @_;
-my $cmd = "zpool offline $pool $vdev";
-my @result = ($cmd, `$cmd 2>&1`);
-return @result;
-}
-
-#cmd_remove($pool, $vdev)
-sub cmd_remove
-#deprecated
-{
-my ($pool, $vdev) = @_;
-my $cmd="zpool remove $pool $vdev";
-@result = ($cmd, `$cmd 2>&1`);
-return @result;
-}
-
-#cmd_snapshot($snap)
-sub cmd_snapshot
-#deprecated
-{
-my ($snap)  = @_;
-my $cmd="zfs snapshot $snap";
-@result = ($cmd, `$cmd 2>&1`);
-return @result;
-}
-
 sub cmd_create_zfs
+#deprecated
 {
 my ($zfs, $options)  = @_;
 my $opts = ();
@@ -417,11 +379,12 @@ foreach $key (sort(keys %${options}))
 	$opts = (($createopts{$key}) && (${$options}{$key} =~ 'default')) ? $opts : $opts.' -o '.$key.'='.${$options}{$key};
 }
 my $cmd="zfs create $opts $zfs";
-my @result = ($cmd, `$cmd 2>&1`);
-return @result;
+#my @result = ($cmd, `$cmd 2>&1`);
+return $cmd;
 }
 
 sub cmd_create_zpool
+#deprecated
 {
 my ($pool, $dev, $options, $poolopts, $force) = @_;
 my $opts = ();
@@ -438,55 +401,13 @@ foreach $key (sort(keys %{$options}))
 #if ($opts) { $opts = '-O '.$opts; }
 #$mount = ($mount) ? '-m '.$mount : ();
 my $cmd="zpool create $force $opts $pool $dev";
-my @result = ($cmd, `$cmd 2>&1`);
-return @result;
-}
-
-sub cmd_zfs_mount
-{
-my ($zfs, $value, $confirm) = @_;
-my $cmd="zfs $value $zfs";
-if ($confirm =~ /yes/) 
-	{ 
-		@result = ($cmd, `$cmd 2>&1`);
-	} else 
-	{ 
-		@result = ($cmd, "" ); 
-	}
-return @result;
-}
-
-sub cmd_zfs_send
-{
-my ($snap, $dest, $opts, $confirm) = @_;
-my $cmd="zfs send $opts $snap | $dest";
-if ($confirm =~ /yes/) 
-	{ 
-		@result = ($cmd, `$cmd 2>&1`);
-	} else 
-	{ 
-		@result = ($cmd, "" ); 
-	}
-return @result;
-}
-
-#cmd_zfs_set($zfs, $property $value, $confirm)
-sub cmd_zfs_set
-{
-my ($zfs, $property, $value, $confirm) = @_;
-my $cmd = ($value =~ 'inherit') ? "zfs inherit $property $zfs" : "zfs set $property=$value $zfs";
-if ($confirm =~ /yes/) 
-	{ 
-		@result = ($cmd, `$cmd 2>&1`);
-	} else 
-	{ 
-		@result = ($cmd, "" ); 
-	}
-return @result;
+#my @result = ($cmd, `$cmd 2>&1`);
+return $cmd;
 }
 
 #cmd_destroy_zfs($zfs, $confirm)
 sub cmd_destroy_zfs
+#deprecated
 {
 my ($zfs, $force, $confirm) = @_;
 my $cmd="zfs destroy $force $zfs";
@@ -504,29 +425,12 @@ return @result;
 
 #cmd_destroy_zpool($zpool, $confirm)
 sub cmd_destroy_zpool
+#deprecated
 {
 my ($zpool, $force, $confirm) = @_;
 my $cmd="zpool destroy $force $zpool";
 if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd 2>&1`))} else { @result = ($cmd, "" ) };
 return @result;
-}
-
-sub cmd_zpool
-#deprecated
-{
-my ($pool, $action, $options, $dev, $confirm) = @_;
-my $cmd="zpool $action $options $pool $dev";
-if ($confirm =~ /yes/) { @result = ($cmd, `$cmd 2>&1`)} else { @result = ($cmd, "" ) };
-return @result;
-}
-
-sub cmd_zfs
-#deprecated
-{
-my ($zfs, $action, $options, $confirm) = @_;
-my $cmd="zfs $action $options $zfs";
-if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd 2>&1`))} else { @result = ($cmd, "" ) };
-return $result;
 }
 
 sub ui_zpool_status
@@ -555,7 +459,6 @@ foreach $key (sort(keys %{$hash{$pool}}))
 	if (($properties{$key}) || ($props{$key}))
 	{
 		print ui_table_row('<a href="property.cgi?pool='.$pool.'&property='.$key.'">'.$key.'</a>', $hash{$pool}{$key}{value});
-		#print ui_table_row(ui_popup_link($key,'property.cgi?pool='.$pool.'&property='.$key), $hash{$pool}{$key}{value});
 	} else {
 	print ui_table_row($key, $hash{$pool}{$key}{value});
 	#print ui_table_row($key, $hash{$pool}{$key}{value});
@@ -585,20 +488,13 @@ my %hash = zfs_get($zfs, "all");
 if (!$hash{$zfs}{'com.sun:auto-snapshot'}) { $hash{$zfs}{'com.sun:auto-snapshot'}{'value'} = '-'; }
 my %props =  property_desc();
 my %properties = properties_list();
-#my %pool = %{$hash->{$zfs}};
-#print Dumper(%pool);
-#print "<br />";
-#print "<br />";
-#print Dumper(%{$hash});
 print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys %{$hash{$zfs}}))
 {		
 	if (($properties{$key}) || ($props{$key}))
 	{		
 		if ($key =~ 'origin') { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', "<a href='status.cgi?snap=$hash{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>");
-		#ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), "<a href='snapshot.cgi?snap=$hash->{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>"
 		} else { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', $hash{$zfs}{$key}{value}); }
-		#ui_table_row(ui_popup_link($key,'property.cgi?zfs='.$zfs.'&property='.$key), $hash{$zfs}{$key}{value});
 	} else {
 	print ui_table_row($key, $hash{$zfs}{$key}{value});
 	}
@@ -626,7 +522,7 @@ foreach $key (sort(keys %snapshot))
 		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 		$num ++;
 	} else {
-		print ui_columns_row([ "<a href='statuscgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	}
 	#if ($zfs =~ undef) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
 	#else {
@@ -636,7 +532,6 @@ foreach $key (sort(keys %snapshot))
 print ui_columns_end();
 if ($admin =~ /1/) { print select_all_link('select', '', "Select All"), " | ", select_invert_link('select', '', "Invert Selection") }
 if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | ".ui_submit("Destroy selected snapshots"); }
-#if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | Destroy selected snapshots".popup_window_button("cmd.cgi?multisnap=1", 600, 400, ('select', 'select', 'select')); }
 if ($admin =~ /1/) { print ui_form_end(); }
 
 }
@@ -651,71 +546,16 @@ $rv .= $zfs."@ ".ui_textbox('snap', $date, 28)."\n";
 $rv .= ui_hidden('zfs', $zfs)."\n";
 $rv .= ui_hidden('cmd', "snap")."\n";
 $rv .= ui_submit("Create");
-#$rv .= popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'snap', 'snap', 'snap'], ['zfs', 'zfs', 'zfs'] ] )."\n";
 $rv .= ui_form_end();
-return $rv;
-}
-
-sub ui_cmd_zpool
-#deprecated
-{
-my ($message, $pool, @params) = @_;
-$rv = "Attempting to $message $pool with command... <br />\n";
-my $result = cmd_zpool(@params);
-$rv .= $result[0]."<br />\n";
-if (!$in{'confirm'})
-{
-	$rv .= "<h3>Would you lke to continue?</h3>\n";
-	$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a>\n";
-	#$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
-} else {
-	if (($result[1] == //))
-	{
-		$rv .= "Success! <br />\n";
-		#$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
-	} else
-	{
-	$rv .= "error: ".$result[1]."<br />\n";
-	}
-}
-return $rv;
-}
-
-sub ui_cmd_zfs
-#deprecated
-{
-my ($message, $zfs, @params) = @_;
-$rv = "Attempting to $message with command... <br />\n";
-my $result = cmd_zfs(@params);
-$rv .= "<i>".$result[0]."</i><br />\n";
-if (!$params[3]) {
-	$rv .= ui_form_start('cmd.cgi', 'post');
-	foreach $key (keys %in) {
-			$rv .= ui_hidden($key, $in{$key});
-	}
-	$rv .= "<h3>Would you lke to continue?</h3>\n";
-	$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." | <a href='status.cgi?zfs=".$in{'zfs'}."'>no</a>";
-	$rv .= ui_form_end();
-	#$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a href='status.cgi?zfs=".$in{'zfs'}."'>No</a>";
-} else {
-	if (($result[1] == //))
-	{
-		$rv .= "Success! <br />\n";
-		#$rv .= "confirm=".$params[3]."</br>";
-		#$rv .= "<a href='status.cgi?zfs=".$in{'zfs'}."'>Close</a>";
-	} else	{
-	$rv .= "error: ".$result[1]."<br />\n";
-	}
-}
 return $rv;
 }
 
 sub ui_cmd
 {
-my ($message, @result) = @_;
+#my ($message, @result) = @_;
+my ($message, $cmd) = @_;
 $rv = "Attempting to $message with command... <br />\n";
-#my $result = cmd_zfs(@params);
-$rv .= "<i># ".$result[0]."</i><br /><br />\n";
+$rv .= "<i># ".$cmd."</i><br /><br />\n";
 if (!$in{'confirm'}) {
 	$rv .= ui_form_start('cmd.cgi', 'post');
 	foreach $key (keys %in) {
@@ -726,17 +566,16 @@ if (!$in{'confirm'}) {
 	#$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." | <a href='status.cgi?zfs=".$in{'zfs'}."'>no</a>";
 	$rv .= ui_form_end();
 	#$rv .= "confirm=".$confirm."</br>";
-	#$rv .= "<a href='$ENV{REQUEST_URI}&confirm=yes'>Yes</a> | <a onClick=\"\window.close('cmd')\"\ href=''>No</a>\n";
 } else {
-	if (!$result[1])
+	@result = (`$cmd 2>&1`);
+	if (!$result[0])
 	{
 		#$rv .= $result[1]."<br />\n";
 		$rv .= "Success! <br />\n";
-		#$rv .= "<a onClick=\"\window.close('cmd')\"\ href=''>Close</a>\n";
 	} else	{
 	#$result[1] =~ s/\R/ /g;
-	$rv .= "<b>error: </b>".$result[1]."<br />\n";
-	foreach $key (@result[2..@result]) {
+	$rv .= "<b>error: </b>".$result[0]."<br />\n";
+	foreach $key (@result[1..@result]) {
 		$rv .= $key."<br />\n";
 	}
 	#print Dumper(@result);
@@ -747,6 +586,7 @@ return $rv;
 }
 
 sub ui_popup_link
+#deprecated
 {
 my ($name, $url)=@_;
 return "<a onClick=\"\window.open('$url', 'cmd', 'toolbar=no,menubar=no,scrollbars=yes,width=600,height=400,resizable=yes'); return false\"\ href='$url'>$name</a>";
@@ -754,64 +594,5 @@ return "<a onClick=\"\window.open('$url', 'cmd', 'toolbar=no,menubar=no,scrollba
 
 sub test_function
 {
-my ($pool)=@_;
-my $parent = "pool";
-my %status = ();
-my $cmd=`zpool status $pool`;
-(undef, $cmdout) = split(/  pool: /, $cmd);
-($status{0}{pool}, $cmdout) = split(/ state: /, $cmdout);
-chomp $status{0}{pool};
-if (index($cmd, "status: ") != -1) { 
-	($status{0}{state}, $cmdout) = split("status: ", $cmdout); 
-	($status{0}{status}, $cmdout) = split("action: ", $cmdout); 
-	if (index($cmd, "  see: ") != -1) { 
-		($status{0}{action}, $cmdout) = split("  see: ", $cmdout); 
-		($status{0}{see}, $cmdout) = split("  scan: ", $cmdout); 
-	} else { ($status{0}{action}, $cmdout) = split("  scan: ", $cmdout); }
-} else {
-	($status{0}{state}, $cmdout) = split("  scan: ", $cmdout); 
-}
-($status{0}{scan}, $cmdout) = split("config:", $cmdout); 
-($status{0}{config}, $status{0}{errors}) = split("errors: ", $cmdout); 
-
-$fh= $status{0}{config};
-@array = split("\n", $fh);
-foreach $line (@array) #while (my $line =<$fh>) 
-{
-    chomp ($line);
-	my($name, $state, $read, $write, $cksum) = split(" ", $line);
-
-	if ($name =~ "NAME") { #do nothing 
-	} elsif (($name =~ $status{0}{pool}) && (length($name) == length($status{0}{pool}))) {
-		$status{0}{name} = $name;
-		$status{0}{read} = $read;
-		$status{0}{write} = $write;
-		$status{0}{cksum} = $cksum;
-		$devs++;
-		
-	#check if vdev is a log or cache vdev
-	} elsif (($name =~ /log/) || ($name =~ /cache/))
-	{
-		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => "pool",};
-		$parent = $name;
-		$devs++;
-		
-	#check if vdev is a log or cache vdev
-	} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
-	{
-		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
-		$parent = $name;
-		$devs++;
-
-	#for all other vdevs, should be actual devices at this point
-	} elsif ($name)
-	{
-		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent,};
-		$devs++;
-	}
-	
-}
-
-return %status;
 
 }

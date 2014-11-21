@@ -58,10 +58,10 @@ if ($in{'property'} =~ 'mountpoint') {
 	if ($get{$in{'zfs'}}{$in{'property'}}{value} =~ 'yes') {
 		#fix this to a post command
 		print ui_hidden('cmd', "unmount");
-		print "<a href='cmd.cgi?zfs=$in{'zfs'}&mount=unmount'>Unmount this file system</a>";
+		print "<a href='cmd.cgi?zfs=$in{'zfs'}&cmd=zfsact&action=unmount'>Unmount this file system</a>";
 	} else {
 		print ui_hidden('cmd', "mount");
-		print "<a href='cmd.cgi?zfs=$in{'zfs'}&mount=mount'>Mount this file system</a>";
+		print "<a href='cmd.cgi?zfs=$in{'zfs'}&cmd=zfsact&action=mount'>Mount this file system</a>";
 	}
 } elsif ($in{'property'} =~ 'sharesmb') {
 
