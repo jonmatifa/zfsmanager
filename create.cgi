@@ -191,7 +191,7 @@ if ($in{'create'} =~ "zpool")
 	foreach $key (sort(keys %imports))
 	{
 		print ui_columns_start([ "Pool", "ID", "State" ]);
-		print ui_columns_row(["<a href='cmd.cgi?cmd=import&import=$key&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$key."</a>", "<a href='cmd.cgi?import=$imports{$key}{'id'}&dir=$in{'dir'}'>".$imports{$key}{'id'}."</a>", $imports{$key}{'state'}]);
+		print ui_columns_row(["<a href='cmd.cgi?cmd=import&import=$key&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$key."</a>", "<a href='cmd.cgi?cmd=import&import=$imports{$key}{'id'}&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$imports{$key}{'id'}."</a>", $imports{$key}{'state'}]);
 		#print ui_table_row("<a href='cmd.cgi?import=$key&dir=$in{'dir'}'>".$key."</a>", $imports{$key}{'id'}." ".$imports{$key}{'state'}, 3);
 		#print ui_columns_end();
 		print ui_table_start();

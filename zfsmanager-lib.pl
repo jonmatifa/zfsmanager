@@ -8,10 +8,6 @@ my %access = &get_module_acl();
 sub properties_list
 #return hash of properties that can be set manually and their data type
 {
-#my ($type)=@_;
-#my %list = ( 'boolean' => [ "atime", "canmount", "devices", "exec", "readonly", "setuid", "xattr" ],
-#			'string' => [ "aclinherit", "aclmode", "checksum", "compression", "primarycache", "secondarycache", "shareiscsi", "sharenfs", "snapdir" ],
-#			'number' => [ "copies", "quota", "recordsize", "refquota", "refreservation", "reservation", "volblocksize" ] );
 my %list = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean',
 			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, lz4, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9, zle', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled', 'xattr' => 'on, off, sa', 'com.sun:auto-snapshot' => 'true, false',
 			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special', 'volsize' => 'special');
@@ -34,7 +30,7 @@ return %list;
 
 sub create_opts #options and defaults when creating new pool or filesystem
 {
-my %list = ( 'atime' => 'on', 'compression' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off', 'xattr' => 'on' );
+my %list = ( 'atime' => 'on', 'compression' => 'off', 'dedup' => 'off', 'readonly' => 'off', 'utf8only' => 'off', 'xattr' => 'on' );
 return %list;
 }
 
@@ -333,14 +329,6 @@ foreach $line (@array)
 return %status;
 }
 
-sub zpool_list
-#not in use can deprecate
-{
-#TODO massage data into something better
-my $list=`zpool list`;
-return $list;
-}
-
 sub list_disk_ids
 {
 #use Cwd 'abs_path';
@@ -403,47 +391,6 @@ foreach $key (sort(keys %{$options}))
 my $cmd="zpool create $force $opts $pool $dev";
 #my @result = ($cmd, `$cmd 2>&1`);
 return $cmd;
-}
-
-#cmd_destroy_zfs($zfs, $confirm)
-sub cmd_destroy_zfs
-#deprecated
-{
-my ($zfs, $force, $confirm) = @_;
-my $cmd="zfs destroy $force $zfs";
-if ($confirm =~ /yes/) 
-	{ 
-		#$out =  backquote_logged($cmd);
-		#chomp $out;
-		@result = ( $cmd, `$cmd 2>&1` );
-	} else 
-	{ 
-		@result = ($cmd, undef ); 
-	}
-return @result;
-}
-
-#cmd_destroy_zpool($zpool, $confirm)
-sub cmd_destroy_zpool
-#deprecated
-{
-my ($zpool, $force, $confirm) = @_;
-my $cmd="zpool destroy $force $zpool";
-if ($confirm =~ /yes/) { @result = ($cmd, (`$cmd 2>&1`))} else { @result = ($cmd, "" ) };
-return @result;
-}
-
-sub ui_zpool_status
-{
-my ($pool, $action) = @_;
-if ($action eq undef) { $action = "status.cgi?pool="; }
-my %zpool = list_zpools($pool);
-print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Cap", "Dedup", "Health"]);
-foreach $key (keys %zpool)
-{
-    print ui_columns_row(["<a href='$action$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
-}
-print ui_columns_end();
 }
 
 sub ui_zpool_properties
@@ -510,7 +457,8 @@ my ($zfs, $admin) = @_;
 if ($admin =~ /1/) { 
 	#print ui_form_start('cmd.cgi', 'get', 'cmd'); 
 	print ui_form_start('cmd.cgi', 'post');
-	print ui_hidden('multisnap', 1);
+	#print ui_hidden('multisnap', 1);
+	print ui_hidden('cmd', 'multisnap');
 	}
 #if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
 print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
@@ -544,7 +492,7 @@ $rv .= "Create new snapshot based on filesystem: ".$zfs."<br />\n";
 my $date = strftime "zfs_manager_%Y-%m-%d-%H%M", localtime;
 $rv .= $zfs."@ ".ui_textbox('snap', $date, 28)."\n";
 $rv .= ui_hidden('zfs', $zfs)."\n";
-$rv .= ui_hidden('cmd', "snap")."\n";
+$rv .= ui_hidden('cmd', "snapshot")."\n";
 $rv .= ui_submit("Create");
 $rv .= ui_form_end();
 return $rv;
