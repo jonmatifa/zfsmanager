@@ -44,7 +44,7 @@ foreach $key (sort keys %status)
 		#}
 	} elsif ($key != 0) {
 		#print ui_columns_row(['|_'.ui_popup_link($status{$key}{name}, 'config-vdev.cgi?pool='.$status{pool}{pool}.'&dev='.$status{$key}{name}), $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
-		print ui_columns_row(["<a href='config-vdev.cgi?pool=".$status{0}{pool}.'&dev='.$status{$key}{name}."'>|_".$status{$key}{name}."</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
+		print ui_columns_row(["<a href='config-vdev.cgi?pool=".$status{0}{pool}.'&dev='.$key."'>|_".$status{$key}{name}."</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
 	}
 	
 	#print ui_columns_row(["<a href=''>$status{$key}{name}</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}, $status{$key}{parent}]);
