@@ -393,6 +393,19 @@ my $cmd="zpool create $force $opts $pool $dev";
 return $cmd;
 }
 
+sub ui_zpool_status
+{
+my ($pool, $action) = @_;
+if ($action eq undef) { $action = "status.cgi?pool="; }
+my %zpool = list_zpools($pool);
+print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Cap", "Dedup", "Health"]);
+foreach $key (keys %zpool)
+{
+    print ui_columns_row(["<a href='$action$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
+}
+print ui_columns_end();
+}
+
 sub ui_zpool_properties
 {
 my ($pool) = @_;
