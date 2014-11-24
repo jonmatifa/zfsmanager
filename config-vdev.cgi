@@ -55,17 +55,11 @@ print "Children: ";
 } elsif ($conf{'pool_properties'} =~ /1/) {
 	#print "VDEV Status: ", $status{$in{'dev'}}{state}, "<br />";
 	print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
-	if ($status{$in{'dev'}}{state} =~ "OFFLINE")	{
-		#print ui_popup_link('bring device online', "cmd.cgi?pool=$in{'pool'}&online=$in{'dev'}"), "<br />";
-		print ui_table_row("Online: ", "<a href='cmd.cgi?cmd=vdev&action=online&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device online</a><br />");
-		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
-		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
-	}
-	elsif ($status{$in{'dev'}}{state} =~ "ONLINE") {
-		#print ui_popup_link('bring device offline', "cmd.cgi?pool=$in{'pool'}&offline=$in{'dev'}"), "<br />";
+	if ($status{$in{'dev'}}{state} =~ "ONLINE")	{
 		print ui_table_row("Offline: ", "<a href='cmd.cgi?cmd=vdev&action=offline&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device offline</a><br />");
-		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>remove device</a><br />";
-		#print "<a href='cmd.cgi?pool=$in{'pool'}&remove=$in{'dev'}'>replace device</a><br />";
+	}
+	elsif ($status{$in{'dev'}}{state} =~ "OFFLINE") {
+		print ui_table_row("Online: ", "<a href='cmd.cgi?cmd=vdev&action=online&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device online</a><br />");
 	}
 	print ui_table_row("Replace: ", "<a href='#'>Replace device</a><br />");
 	print ui_table_row("Remove: ", "<a href='cmd.cgi?cmd=vdev&action=remove&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Remove device</a><br />");
