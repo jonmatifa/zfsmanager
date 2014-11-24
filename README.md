@@ -9,4 +9,4 @@ This project lives at https://github.com/jonmatifa/zfsmanager provide all feedba
 
 I am currently developing this under ZFS on Linux in Ubuntu, but all varients of ZFS/Webmin are planned to be supported in the future.
 
-To install, tar these file contents then upload using the Webmin modules manager.  The ZFS Manager module should then be available under Hardware.
+To Install, you can either use a *.wbm.gz from the releases tab, or "# git clone https://github.com/jonmatifa/zfsmanager.git" from the webmin root directory (Centos/REHL: /usr/libexec/webmin, Debian/Ubuntu: /usr/share/webmin), this will clone everything into the zfsmanager subfolder (which will be created). Then copy the "config" file to /etc/webmin/zfsmanager once that is done, you can then keep up to date with by "# git pull" from the webmin/zfsmanager directory.
