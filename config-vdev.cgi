@@ -58,7 +58,7 @@ print "Children: ";
 	if ($status{$in{'dev'}}{state} =~ "ONLINE")	{
 		print ui_table_row("Offline: ", "<a href='cmd.cgi?cmd=vdev&action=offline&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device offline</a><br />");
 	}
-	elsif ($status{$in{'dev'}}{state} =~ "OFFLINE") {
+	else { #elsif ($status{$in{'dev'}}{state} =~ "OFFLINE") {
 		print ui_table_row("Online: ", "<a href='cmd.cgi?cmd=vdev&action=online&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device online</a><br />");
 	}
 	print ui_table_row("Replace: ", "<a href='#'>Replace device</a><br />");
