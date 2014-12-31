@@ -71,7 +71,7 @@ my ($pool) = @_;
 #my @table=();
 my %hash=();
 #expecting NAME SIZE ALLOC FREE CAP DEDUP HEALTH ALTROOT
-$list=`zpool list -H $pool`;
+$list=`zpool list -o name,size,alloc,free,cap,dedup,health,altroot -H $pool`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
@@ -92,7 +92,7 @@ sub list_zfs
 my ($zfs) = @_;
 my %hash=();
 #expecting NAME USED AVAIL REFER MOUNTPOINT
-$list=`zfs list -H $zfs`;
+$list=`zfs list -o name,used,avail,refer,mountpoint -H $zfs`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
