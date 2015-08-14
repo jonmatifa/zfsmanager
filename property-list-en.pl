@@ -37,6 +37,17 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   than generating the necessary ACL entries to represent the new mode
 	   of the file or directory.',
 	   
+	   'acltype' => 'Controls  whether  ACLs  are  enabled  and if so what type of ACL to use.  When a file system has the acltype
+           property set to noacl (the default) then ACLs are disabled.  Setting the acltype property to  posixacl  indi-
+           cates Posix ACLs should be used.  Posix ACLs are specific to Linux and are not functional on other platforms.
+           Posix ACLs are stored as an xattr and therefore will not overwrite any existing ZFS/NFSv4 ACLs which  may  be
+           set.  Currently only posixacls are supported on Linux.<br />
+			<br />
+           To  obtain the best performance when setting posixacl users are strongly encouraged to set the xattr=sa prop-
+           erty.  This will result in the Posix ACL being stored more efficiently on disk.  But as a consequence of this
+           all new xattrs will only be accessable from ZFS implementations which support the xattr=sa property.  See the
+           xattr property for more details.',
+	   
 	   'allocated' => 'Amount of storage space within the pool that has been physi-
 		 cally allocated.',
 		 
@@ -144,6 +155,9 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 		
 		'comment' => 'A text string consisting of printable ASCII characters that will be stored such that it is available  even  if  the  pool  becomes
            faulted.  An administrator can provide additional information about a pool using this property.',
+           
+		'context' => 'This  flag  sets the SELinux context for all files in the filesytem under the mountpoint for that filesystem.
+           See selinux(8) for more information.',
 		   
 	'clones' => 'A clone is a writable volume or file system whose initial contents are the same as another dataset. As with snapshots, creating a clone is nearly instantaneous, and initially consumes no additional space.
 Clones can only be created from a snapshot. When a snapshot is cloned, it creates an implicit dependency between the parent and child. Even though the clone is created somewhere else in the dataset hierarchy, the original snapshot cannot be destroyed as long as a clone exists. The origin property exposes this dependency, and the destroy command lists any such dependencies, if they exist.
@@ -210,6 +224,8 @@ The clone parent-child dependency relationship can be reversed by using the prom
 		 tion of the deduplication feature.',
 		 
 	'defer_destroy' => 'This property is on if the snapshot has been marked for deferred destroy by using the zfs destroy -d command. Otherwise, the property is off.',
+	
+	'defcontext' => 'This flag sets the SELinux context for unlabeled files.  See selinux(8) for more information.',
 		 
 	'delegation' => 'Controls whether a non-privileged user is granted access based on the
 	 dataset permissions defined on the dataset. See zfs(8) for more
@@ -272,11 +288,89 @@ The clone parent-child dependency relationship can be reversed by using the prom
            the  zfs(8)  command.  Please  note  that doing so will immediately activate the lz4_compress feature on the underlying pool (even
            before any data is written). Since this feature is not read-only compatible, this operation will render the pool  unimportable  on
            systems  without  support  for the lz4_compress feature. At the moment, this operation cannot be reversed. Booting off of lz4-compressed root pools is supported.', 
+           
+	  'feature@spacemap_histogram' => 'GUID                   com.delphix:spacemap_histogram
+           READ-ONLY COMPATIBLE   yes
+           DEPENDENCIES           none
+
+           This features allows ZFS to maintain more information about how free space is organized within the  pool.  If
+           this  feature  is  enabled,  ZFS will set this feature to active when a new space map object is created or an
+           existing space map is upgraded to the new format. Once the feature is active, it will remain  in  that  state
+           until the pool is destroyed.',
+           
+		'feature@extensible_dataset' => 'GUID                   com.delphix:extensible_dataset
+           READ-ONLY COMPATIBLE   no
+           DEPENDENCIES           none
+
+           This  feature  allows  more  flexible  use  of internal ZFS data structures, and exists for other features to
+           depend on.
+
+           This feature will be active when the first dependent feature uses it, and will be  returned  to  the  enabled
+           state when all datasets that use this feature are destroyed.',
+           
+		'feature@bookmarks' => 'GUID                   com.delphix:bookmarks
+           READ-ONLY COMPATIBLE   yes
+           DEPENDENCIES           extensible_dataset
+
+           This feature enables use of the zfs bookmark subcommand.
+
+           This  feature  is  active  while any bookmarks exist in the pool.  All bookmarks in the pool can be listed by
+           running zfs list -t bookmark -r poolname.',
+           
+		'feature@enabled_txg' => 'GUID                   com.delphix:enabled_txg
+           READ-ONLY COMPATIBLE   yes
+           DEPENDENCIES           none
+
+           Once this feature is enabled ZFS records the transaction group number in which new features are enabled. This
+           has no user-visible impact, but other features may depend on this feature.
+
+           This feature becomes active as soon as it is enabled and will never return to being enabled.',
+           
+		'feature@hole_birth' => 'GUID                   com.delphix:hole_birth
+           READ-ONLY COMPATIBLE   no
+           DEPENDENCIES           enabled_txg
+
+           This  feature  improves  performance  of incremental sends ("zfs send -i") and receives for objects with many
+           holes. The most common case of hole-filled objects is zvols.
+
+           An incremental send stream from snapshot A to snapshot B contains information about every block that  changed
+           between  A  and B. Blocks which did not change between those snapshots can be identified and omitted from the
+           stream using a piece of metadata called the ’block birth time’, but birth times are not  recorded  for  holes
+           (blocks  filled  only  with  zeroes).  Since holes created after A cannot be distinguished from holes created
+           before A, information about every hole in the entire filesystem or zvol is included in the send stream.
+
+           For workloads where holes are rare this is not a problem. However, when incrementally replicating filesystems
+           or  zvols  with many holes (for example a zvol formatted with another filesystem) a lot of time will be spent
+           sending and receiving unnecessary information about holes that already exist on the receiving side.
+
+           Once the hole_birth feature has been enabled the block birth times of all new holes will be recorded.  Incre-
+           mental  sends  between  snapshots  created  after this feature is enabled will use this new metadata to avoid
+           sending information about holes that already exist on the receiving side.
+
+           This feature becomes active as soon as it is enabled and will never return to being enabled.',
+           
+		'feature@embedded_data' => 'GUID                   com.delphix:embedded_data
+           READ-ONLY COMPATIBLE   no
+           DEPENDENCIES           none
+
+           This feature improves the performance and compression ratio of highly-compressible blocks.  Blocks whose con-
+           tents can compress to 112 bytes or smaller can take advantage of this feature.
+
+           When  this  feature  is enabled, the contents of highly-compressible blocks are stored in the block "pointer"
+           itself (a misnomer in this case, as it contains the compresseed data, rather than a pointer to  its  location
+           on  disk).   Thus the space of the block (one sector, typically 512 bytes or 4KB) is saved, and no additional
+           i/o is needed to read and write the data block.
+
+           This feature becomes active as soon as it is enabled and will never return to being enabled.',
+	 
+	 'fragmentation' => 'The amount of fragmentation in the pool.',
 	 
 	 'free' => 'Number of blocks within the pool that are not allocated.',
 	 
 	 'freeing' => 'After a file system or snapshot is destroyed, the space it was using is returned to the pool asynchronously. freeing is the 
 	 amount of space remaining to be reclaimed. Over time freeing will decrease while free increases.',
+	 
+	 'fscontext' => 'This flag sets the SELinux context for the filesytem being mounted.  See selinux(8) for more information.',
 	 
 	 'guid' => 'A unique identifier for the pool.',
 	 
@@ -293,6 +387,18 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	 latency. If logbias is set to throughput, ZFS will not use configured
 	 pool log devices.  ZFS will instead optimize synchronous operations
 	 for global pool throughput and efficient use of resources.',
+	 
+	 'logicalreferenced' => 'The amount of space that is "logically" accessible by this dataset.  See the referenced property.  The  logical 
+	        space ignores the effect of the compression and copies properties, giving a quantity closer to the amount
+           of data that applications see.  However, it does include space consumed by metadata.<br />
+			<br />
+           This property can also be referred to by its shortened column name, lrefer.',
+           
+		'logicalused' => 'The amount of space that is "logically" consumed by this dataset and all its descendents.  See the used property.   
+		    The  logical  space  ignores  the  effect of the compression and copies properties, giving a quantity
+           closer to the amount of data that applications see.  However, it does include space consumed by metadata.<br />
+			<br />
+           This property can also be referred to by its shortened column name, lused.',
 	   
 	   'mounted' => 'For file systems, indicates whether the file system is currently
 	 mounted. This property can be either yes or no.',
@@ -347,6 +453,10 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	   
 	   'origin' => 'For cloned file systems or volumes, the snapshot from which the clone
 	 was created. See also the clones property.',
+	 
+	 'overlay' => 'Allow  mounting  on  a  busy  directory  or a directory which already contains files/directories. This is the
+           default mount behavior for Linux filesystems.  However, for consistency with ZFS on other  platforms  overlay
+           mounts are disabled by default.  Set overlay=on to enable overlay mounts.',
 	   
 	   'primarycache' => 'Controls  what  is cached in the primary cache (ARC). If this prop-
 	   erty is set to "all", then both user data and metadata  is  cached.
@@ -380,7 +490,7 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	   The size specified must be a power of two greater than or equal  to
 	   512 and less than or equal to 128 Kbytes.
 
-	   Changing  the  file	system\'\s recordsize only affects files created
+	   Changing  the  file system\'\s recordsize only affects files created
 	   afterward; existing files are unaffected.
 
 	   This property can also be referred to by its shortened column name,
@@ -391,6 +501,28 @@ The clone parent-child dependency relationship can be reversed by using the prom
 
 	   This property can also be referred to by its shortened column name,
 	   "rdonly".',
+	   
+	   'relatime' => 'Controls  the  manner  in  which  the  access time is updated when atime=on is set.  Turning this property on
+           causes the access time to be updated relative to the modify or change time.  Access time is only  updated  if
+           the  previous  access  time was earlier than the current modify or change time or if the existing access time
+           hasn’t been updated within the past 24 hours.  The default value is off.',
+	   
+	   'redundant_metadata' => 'Controls  what  types of metadata are stored redundantly.  ZFS stores an extra copy of metadata, so that if a
+           single block is corrupted, the amount of user data lost is limited.  This extra copy is in  addition  to  any
+           redundancy  provided  at  the  pool  level (e.g. by mirroring or RAID-Z), and is in addition to an extra copy
+           specified by the copies property (up to a total of 3 copies).  For example if the pool is mirrored, copies=2,
+           and  redundant_metadata=most,  then ZFS stores 6 copies of most metadata, and 4 copies of data and some meta-
+           data.<br />
+			<br />
+           When set to all, ZFS stores an extra copy of all metadata.  If a single on-disk block is corrupt, at worst  a
+           single block of user data (which is recordsize bytes long) can be lost.<br />
+			<br />
+           When set to most, ZFS stores an extra copy of most types of metadata.  This can improve performance of random
+           writes, because less metadata must be written.  In practice, at worst about 100 blocks (of  recordsize  bytes
+           each)  of  user  data can be lost if a single on-disk block is corrupt.  The exact behavior of which metadata
+           blocks are stored redundantly may change in future releases.<br />
+			<br />
+           The default value is all.',
 	   
 	   'referenced' => 'The amount of data that is accessible by this dataset, which may or
 	 may not be shared with other datasets in the pool. When a snapshot or
@@ -431,6 +563,8 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	<br />
 	 This property can also be referred to by its shortened column name,
 	 reserv.',
+	 
+	 'rootcontext' => 'This flag sets the SELinux context for the root inode of the filesystem.  See selinux(8)  for  more  information.',
 	   
 	   'secondarycache' => 'Controls what is cached in the secondary  cache  (L2ARC).  If  this
 	   property  is  set  to  "all",  then	both user data and metadata is
