@@ -17,10 +17,11 @@ print &ui_tabs_start(\@tabs, "mode", $in{'mode'} || $tabs[0]->[0], 1);
 #start pools tab
 print &ui_tabs_start_tab("mode", "pools");
 %zpool = list_zpools();
-print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Cap", "Dedup", "Health"]);
+#maybe convert this to the function in the lib
+print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Frag", "Cap", "Dedup", "Health"]);
 foreach $key (sort(keys %zpool))
 {
-    print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
+    print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{frag}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
 }
 print ui_columns_end();
 #print Dumper (\%conf);

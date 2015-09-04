@@ -70,17 +70,17 @@ my ($pool) = @_;
 #zpool list
 #my @table=();
 my %hash=();
-#expecting NAME SIZE ALLOC FREE CAP DEDUP HEALTH ALTROOT
-$list=`zpool list -o name,size,alloc,free,cap,dedup,health,altroot -H $pool`;
+#expecting NAME SIZE ALLOC FREE FRAG CAP DEDUP HEALTH ALTROOT
+$list=`zpool list -o name,size,alloc,free,frag,cap,dedup,health,altroot -H $pool`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
 while (my $line =<$fh>)
 {
     chomp ($line);
-    my($name, $size, $alloc, $free, $cap, $dedup, $health, $altroot) = split(" ", $line);
-    #$hash{$name} = [ $size, $alloc, $free, $cap, $dedup, $health, $altroot ];
-	$hash{$name} = { size => $size, alloc => $alloc, free => $free, cap => $cap, dedup => $dedup, health => $health, altroot => $altroot };
+    my($name, $size, $alloc, $free, $frag, $cap, $dedup, $health, $altroot) = split(" ", $line);
+    #$hash{$name} = [ $size, $alloc, $free, $frag, $cap, $dedup, $health, $altroot ];
+	$hash{$name} = { size => $size, alloc => $alloc, free => $free, frag => $frag, cap => $cap, dedup => $dedup, health => $health, altroot => $altroot };
 }
 return %hash;
 }
@@ -398,10 +398,10 @@ sub ui_zpool_status
 my ($pool, $action) = @_;
 if ($action eq undef) { $action = "status.cgi?pool="; }
 my %zpool = list_zpools($pool);
-print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Cap", "Dedup", "Health"]);
+print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Frag", "Cap", "Dedup", "Health"]);
 foreach $key (keys %zpool)
 {
-    print ui_columns_row(["<a href='$action$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
+    print ui_columns_row(["<a href='$action$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{frag}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
 }
 print ui_columns_end();
 }
