@@ -15,6 +15,7 @@ if ($in{'cmd'} =~ "setzfs") {
 }
 elsif ($in{'cmd'} =~ "setpool")  {
 	$in{'confirm'} = "yes";
+	if ($in{'property'} =~ 'comment') { $in{'set'} = '"'.$in{'set'}.'"'; }
 	my $cmd = ($conf{'pool_properties'} =~ /1/) ? "zpool set $in{'property'}=$in{'set'} $in{'pool'}": undef;
 	print ui_cmd("set pool property $in{'property'} to $in{'set'} in $in{'pool'}", $cmd);
 }

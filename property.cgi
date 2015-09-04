@@ -63,6 +63,11 @@ if ($in{'property'} =~ 'mountpoint') {
 		print ui_hidden('cmd', "mount");
 		print "<a href='cmd.cgi?zfs=$in{'zfs'}&cmd=zfsact&action=mount'>Mount this file system</a>";
 	}
+} elsif ($in{'property'} =~ 'comment') {
+	print ui_hidden('cmd', 'setpool') ;
+	print "Comment (limited to 32 characters): ".ui_textbox('set', $get{$in{'pool'}}{$in{'property'}}{value}, 32)."<br />";
+	print ui_submit('submit', "<br />");
+
 } elsif ($in{'property'} =~ 'sharesmb') {
 
 } elsif ($in{'property'} =~ 'sharenfs') {

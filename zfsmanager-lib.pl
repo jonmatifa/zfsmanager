@@ -24,7 +24,7 @@ sub pool_properties_list
 {
 my %list = ('autoexpand' => 'boolean', 'autoreplace' => 'boolean', 'delegation' => 'boolean', 'listsnaps' => 'boolean', 
 			'failmode' => 'wait, continue, panic', 'feature@async_destroy' => 'enabled, disabled', 'feature@empty_bpobj' => 'enabled, disabled', 'feature@lz4_compress' => 'enabled, disabled', 'feature@embedded_data' => 'enabled, disabled', 'feature@enabled_txg' => 'enabled, disabled', 'feature@bookmarks' => 'enabled, disabled', 'feature@hole_birth' => 'enabled, disabled', 'feature@spacemap_histogram' => 'enabled, disabled', 'feature@extensible_dataset' => 'enabled, disabled',
-			'altroot' => 'special', 'bootfs' => 'special', 'cachefile' => 'special');
+			'altroot' => 'special', 'bootfs' => 'special', 'cachefile' => 'special', 'comment' => 'special');
 return %list;
 }
 
@@ -254,15 +254,15 @@ sub zpool_get
 my ($pool, $property) = @_;
 if (~$property) {my $property="all";}
 my %hash=();
-my $get=`zpool get $property $pool`;
+my $get=`zpool get -H $property $pool`;
 
 open my $fh, "<", \$get;
 #expecting NAME PROPERTY VALUE SOURCE
-my $junk = <$fh>;
+#my $junk = <$fh>;
 while (my $line =<$fh>)
 {
     chomp ($line);
-	my($name, $property, $value, $source) = split(/\s+/, $line);
+	my($name, $property, $value, $source) = split(/\t/, $line);
 	$hash{$name}{$property} = { value => $value, source => $source };
 }
 return %hash;
