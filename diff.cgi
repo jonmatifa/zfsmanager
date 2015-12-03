@@ -7,7 +7,7 @@ ui_print_header(undef, $text{'diff_title'}, "", undef, 1, 1);
 
 print "Snapshot: ".$in{'snap'};
 @array = diff($in{'snap'}, undef);
-%type = ('B' => 'Block device', 'C' => 'Character device', '/' => 'Directory', '>' => 'Door', 'F' = 'Regular file');
+%type = ('B' => 'Block device', 'C' => 'Character device', '/' => 'Directory', '>' => 'Door', 'F' => 'Regular file');
 %action = ('-' => 'removed', '+' => 'created', 'M' => 'Modified', 'R' => 'Renamed');
 print ui_columns_start([ "File", "Action", "Type" ]);
 foreach $key (@array)
