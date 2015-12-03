@@ -67,6 +67,7 @@ elsif ($in{'cmd'} =~ "clone")  {
 	@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
 }
 elsif ($in{'cmd'} =~ "createzpool")  {
+	#if ($in{'add'}) { redirect('create.cgi?srl='.serialise_variable(%in)); }
 	#print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";
 	my %createopts = create_opts();
 	my %options = ();

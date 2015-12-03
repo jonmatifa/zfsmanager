@@ -12,15 +12,18 @@ my %proplist = properties_list();
 if ($in{'create'} =~ "zpool")
 {
 	ui_print_header(undef, "Create Pool", "", undef, 1, 1);
+	#if ($in{srl}) { %in = unserialise_variable($in{srl}); }
 	print ui_table_start("Create Zpool", 'width=100%');
 	print ui_form_start("cmd.cgi", "post");
 	print ui_hidden('cmd', 'createzpool');
-	print ui_table_row(undef, '<b>Pool name:</b> '.ui_textbox('pool', ''));
-	print ui_table_row(undef, '<b>Mount point</b> (blank for default)'.ui_filebox('mountpoint', '', 25, undef, undef, 1));
+	print ui_hidden('create', 'zpool');
+	print ui_table_row(undef, '<b>Pool name:</b> '.ui_textbox('pool', $in{'pool'}));
+	print ui_table_row(undef, '<b>Mount point</b> (blank for default)'.ui_filebox('mountpoint', $in{'mountpoint'}, 25, undef, undef, 1));
 	#print ui_select('vdev', ['sdb1', 'sdc1'], ['sdb1', 'sdc1'], undef, 1);
 	#print ui_table_row(undef, '<b>vdev configuration:</b> '.ui_textbox('dev', ''));
 	#print ui_table_row(undef, '<b>Activate all features:</b> '.ui_checkbox('allfeat', '1'));
-	print ui_table_row(undef, '<b>Pool version:</b> '.ui_select('version', 'default', ['default', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28'], 1, 0, 1));
+	if (!$in{'version'}) { $in{'version'} = 'default'; }
+	print ui_table_row(undef, '<b>Pool version:</b> '.ui_select('version', $in{'version'}, ['default', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28'], 1, 0, 1));
 	print ui_table_row(undef, '<b>Force</b> '.ui_checkbox('force', '-f'));
 	print ui_table_row(undef, "<br />");
 	delete $createopts{'sparse'};
@@ -45,9 +48,10 @@ if ($in{'create'} =~ "zpool")
 	#print ui_popup_link('Add vdev', 'select.cgi'), "<br />";
 	
 	#print "vdev type: ", ui_radio('vdev', 'stripe', [ ['stripe', 'stripe'], ['mirror', 'mirror'], ['raidz1', 'raidz1'],  ['raidz2', 'raidz2'], ['raidz3', 'raidz3'] ] );
-	print "vdev type: ", ui_select('vdev', 'stripe', ['stripe', 'mirror', 'raidz1', 'raidz2', 'raidz3'], 1, 0, 1);
+	if (!$in{'vdev'}) { $in{'vdev'} = 'stripe'; }
+	print "vdev type: ", ui_select('vdev', $in{'vdev'}, ['stripe', 'mirror', 'raidz1', 'raidz2', 'raidz3'], 1, 0, 1);
 	print "<br />";
-	%hash = list_disk_ids();
+	my %hash = list_disk_ids();
 	#delete $hash{'byuuid'};
 	#@byid = ();
 	#foreach $key (sort(keys %{ $hash{byid}})) {
@@ -57,13 +61,31 @@ if ($in{'create'} =~ "zpool")
 	#print "By Disk-ID: ", ui_select("byid", undef, [keys %{ $hash{byid} }]);
 	#print "<br />";
 	#print ui_select("devs", undef, [keys %{ $hash{byid} }], undef, 1);
-	print ui_multi_select("devs", undef, [(sort(keys %{ $hash{byid}}))], 8, undef, undef , 'available', 'selected', 425);
-	#print "By UUID: ", ui_select("byuuid", undef, [keys %{ $hash{byuuid} }]);
+	
+	my @devs = (sort(keys %{$hash{byid}}));
+	my @prev = split(";", $in{'prev'});
+	push (@prev, $in{'adtl'});
+	print ui_hidden("prev", join(';', @prev));
+	#print ui_form_start('create.cgi', 'post');
+	#print "Add custom file to selection: ".ui_filebox("adtl")." ".ui_submit('Add', 'add')."<br />";
+	#print file_choose_button('adtl', 0);
+	#print ui_form_end();
+	push (@devs, @prev);
+	#print ui_multi_select("devs", undef, [(sort(keys %{ $hash{byid}}))], 8, undef, undef , 'available', 'selected', 425);
+	print ui_multi_select("devs", undef, [@devs], 8, undef, undef, 'available', 'selected', 425);
+        #print "By UUID: ", ui_select("byuuid", undef, [keys %{ $hash{byuuid} }]);
 	#print "<br />";
 	#print 'Manual selection: ', ui_filebox('byfile', '', 25, undef, undef, 1);
 	#print "<br />";
 	print ui_table_end();
-	print ui_submit('Create');
+	print ui_submit('Create', 'create');
+	print ui_form_end();
+
+	print ui_form_start('create.cgi', 'post');
+	print ui_hidden('prev', join(';', @prev));
+	print ui_hidden('create', 'zpool');
+	print "Add custom file to selection: ".ui_filebox("adtl")." ".ui_submit('Add');
+	print ui_form_end();
 	#print Dumper (\%hash);
 	#print " | ";
 	ui_print_footer('', $text{'index_return'});
