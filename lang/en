@@ -1,6 +1,6 @@
 index_title=ZFS Manager
 index_root=The root directory is $1.
-index_version=testing pre-alpha 0.0.5
+index_version=testing alpha 0.0.5a
 index_return=pool list
 snapshot_return=snapshot list
 zfs_return=file system list
@@ -10,9 +10,12 @@ status_title=Zpool Status
 vdev_title=Manage Virtual Device
 property_title=Manage Property
 select_title=Select a device for new vdev
+diff_title=Snapshot Differences
 
 cmd_title=Issuing Command
 
 snapshot_title=Snapshot 
 snapshot_create=Create Snapshot
 snapshot_new=Select filesystem for snapshot
+
+zpool_upgrade_msg=This will enable all available features, many of which cannot be disabled again. See zpool-features in man pages for more information. *Avoid using if pool needs to retain backwards compatibilty.*

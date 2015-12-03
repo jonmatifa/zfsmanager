@@ -363,6 +363,38 @@ The clone parent-child dependency relationship can be reversed by using the prom
 
            This feature becomes active as soon as it is enabled and will never return to being enabled.',
 	 
+	 'feature@large_blocks' => 'GUID                   org.open-zfs:large_block
+           READ-ONLY COMPATIBLE   no
+           DEPENDENCIES           extensible_dataset
+
+           The large_block feature allows the record size on a dataset to be set larger than 128KB.
+
+           This feature becomes active once a recordsize property has been set larger than 128KB, and will return to being enabled once all
+           filesystems that have ever had their recordsize larger than 128KB are destroyed.',
+           
+     'feature@filesystem_limits' => 'GUID                   com.joyent:filesystem_limits
+           READ-ONLY COMPATIBLE   yes
+           DEPENDENCIES           extensible_dataset
+
+           This  feature  enables filesystem and snapshot limits. These limits can be used to control how many filesystems and/or snapshots
+           can be created at the point in the tree on which the limits are set.
+
+           This feature is active once either of the limit properties has been set on a dataset. Once activated the feature is never  deac‐
+           tivated.',      
+	 
+	 'filesystem_count' => 'The  total  number of filesystems and volumes that exist under this
+           location in the dataset tree.  This value is only available when  a
+           filesystem_limit has been set somewhere in the tree under which the
+           dataset resides.',
+	 
+	 'filesystem_limit' => 'Limits  the  number of filesystems and volumes that can exist under
+           this point in the dataset tree.  The limit is not enforced  if  the
+           user  is allowed to change the limit. Setting a filesystem_limit on
+           a descendent of a filesystem that already  has  a  filesystem_limit
+           does  not  override  the  ancestor\'s  filesystem_limit,  but rather
+           imposes an additional limit. This feature must  be  enabled  to  be
+           used (see zpool-features(5)).',
+	 
 	 'fragmentation' => 'The amount of fragmentation in the pool.',
 	 
 	 'free' => 'Number of blocks within the pool that are not allocated.',
@@ -641,6 +673,20 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	   The default value is "hidden".',
 	   
 	   'snapdev' => 'Controls whether the snapshots devices of zvol\'s are hidden or visible. The default value is hidden.',
+	   
+	   'snapshot_count' => 'The total number of snapshots that exist under this location in the
+           dataset tree.  This value is only available when  a  snapshot_limit
+           has been set somewhere in the tree under which the dataset resides.',
+	   
+	   'snapshot_limit' => '  Limits the number of snapshots that can be created on a dataset and
+           its descendents. Setting a snapshot_limit  on  a  descendent  of  a
+           dataset  that  already  has  a snapshot_limit does not override the
+           ancestor\'s snapshot_limit, but rather imposes an additional  limit.
+           The  limit  is  not  enforced  if the user is allowed to change the
+           limit. For example, this means that recursive snapshots taken  from
+           the global zone are counted against each delegated dataset within a
+           zone. This feature must be  enabled  to  be  used  (see  zpool-fea‐
+           tures(5)).',
 	   
 	   'setuid' => 'Controls whether the set-UID bit is respected for the file  system.
 	   The default value is "on".',

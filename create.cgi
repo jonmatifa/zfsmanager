@@ -20,7 +20,7 @@ if ($in{'create'} =~ "zpool")
 	#print ui_select('vdev', ['sdb1', 'sdc1'], ['sdb1', 'sdc1'], undef, 1);
 	#print ui_table_row(undef, '<b>vdev configuration:</b> '.ui_textbox('dev', ''));
 	#print ui_table_row(undef, '<b>Activate all features:</b> '.ui_checkbox('allfeat', '1'));
-	print ui_table_row(undef, '<b>Pool version:</b> '.ui_select('version', 'default', ['default', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', 'features-enabled', 'features-disabled'], 1, 0, 1));
+	print ui_table_row(undef, '<b>Pool version:</b> '.ui_select('version', 'default', ['default', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28'], 1, 0, 1));
 	print ui_table_row(undef, '<b>Force</b> '.ui_checkbox('force', '-f'));
 	print ui_table_row(undef, "<br />");
 	delete $createopts{'sparse'};

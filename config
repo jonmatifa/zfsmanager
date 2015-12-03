@@ -5,3 +5,4 @@ snap_destroy=1
 pool_properties=1
 zfs_properties=1
 snap_properties=1
+list_snap=1

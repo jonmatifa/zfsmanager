@@ -11,7 +11,7 @@ my %conf = get_zfsmanager_config();
 @tabs = ();
 push(@tabs, [ "pools", "ZFS Pools", "index.cgi?mode=pools" ]);
 push(@tabs, [ "zfs", "ZFS File Systems", "index.cgi?mode=zfs" ]);
-push(@tabs, [ "snapshot", "Snapshots", "index.cgi?mode=snapshot" ]);
+if ($conf{'list_snap'} =~ /1/) { push(@tabs, [ "snapshot", "Snapshots", "index.cgi?mode=snapshot" ]); }
 print &ui_tabs_start(\@tabs, "mode", $in{'mode'} || $tabs[0]->[0], 1);
 
 #start pools tab
@@ -51,12 +51,14 @@ if ($conf{'zfs_properties'} =~ /1/) { print "<a href='create.cgi?create=zfs'>Cre
 print &ui_tabs_end_tab("mode", "zfs");
 
 #start snapshots tab
+if ($conf{'list_snap'} =~ /1/) {
 print &ui_tabs_start_tab("mode", "snapshot");
 ui_list_snapshots(undef, 1);
 #print $conf{snap_properties};
 #if ($conf{'snap_properties'} =~ 1) { print "<a href='snapshot.cgi?new=1'>Create snapshot</a>"; }
 if ($conf{'snap_properties'} =~ 1) { print "<a href='create.cgi?create=snapshot'>Create snapshot</a>"; }
 print &ui_tabs_end_tab("mode", "snapshot");
+}
 
 #end tabs
 print &ui_tabs_end(1);

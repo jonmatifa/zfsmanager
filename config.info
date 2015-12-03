@@ -5,3 +5,4 @@ snap_destroy=Desctructive snapshot tasks (destroy snapshot),1,1-Enabled,0-Disabl
 pool_properties=Pool administration tasks (create | set properties | configure vdevs),1,1-Enabled,0-Disabled
 zfs_properties=File system administration tasks (create | set properties | mount),1,1-Enabled,0-Disabled
 snap_properties=Snapshot administration tasks (create | clone | send),1,1-Enabled,0-Disabled
+list_snap=Show snapshots tab on index page,1,1-Enabled,0-Disabled

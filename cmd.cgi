@@ -104,6 +104,12 @@ elsif ($in{'cmd'} =~ "scrub") {
 	my $cmd = ($conf{'pool_properties'} =~ /1/) ? "zpool scrub $in{'stop'} $in{'pool'}" : undef;
 	print ui_cmd("scrub pool $in{'pool'}", $cmd);
 }
+elsif ($in{'cmd'} =~ "upgrade") {
+	print "<p>".$text{'zpool_upgrade_msg'}."</p>";
+	#$in{'confirm'} = "yes";
+	my $cmd = ($conf{'pool_properties'} =~ /1/) ? "zpool upgrade $in{'pool'}" : undef;
+	print ui_cmd("upgrade pool $in{'pool'}", $cmd);
+}
 elsif ($in{'cmd'} =~ "export") {
 	$in{'confirm'} = "yes";
 	my $cmd = ($conf{'pool_properties'} =~ /1/) ? "zpool export $in{'pool'}" : undef;

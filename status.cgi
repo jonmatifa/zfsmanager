@@ -77,6 +77,7 @@ if ($conf{'zfs_properties'} =~ /1/) {
 if ($conf{'pool_properties'} =~ /1/) { 
 	if ($status{0}{scan} =~ /scrub in progress/) { print ui_table_row('Scrub ',"<a href='cmd.cgi?cmd=scrub&stop=y&pool=$in{pool}'>Stop scrub</a>"); } 
 	else { print ui_table_row('Scrub ', "<a href='cmd.cgi?cmd=scrub&pool=$in{pool}'>Scrub pool</a>");}
+	print ui_table_row('Upgrade ', "<a href='cmd.cgi?cmd=upgrade&pool=$in{pool}'>Upgrade pool</a>");
 }
 if ($conf{'pool_destroy'} =~ /1/) { print ui_table_row("Destroy ", "<a href='cmd.cgi?cmd=pooldestroy&pool=$in{pool}'>Destroy this pool</a>"); }
 print ui_table_end();
@@ -146,7 +147,7 @@ if ($in{'snap'})
 	
 	#--tasks table--
 	print ui_table_start('Tasks', 'width=100%', undef);
-	print ui_table_row('Differences', "Show differences in $in{'snap'}");
+	print ui_table_row('Differences', "<a href='diff.cgi?snap=$in{snap}'>Show differences in $in{'snap'}</a>");
 	if ($conf{'snap_properties'} =~ /1/) { 
 		#print ui_table_row('Snapshot:', "<a href='snapshot.cgi?zfs=$zfs'>Create new snapshot based on $zfs</a>");
 		print ui_table_row("Snapshot: ", ui_create_snapshot($zfs));
@@ -162,6 +163,6 @@ if ($in{'snap'})
 	}
 	if ($conf{'snap_destroy'} =~ /1/) { print ui_table_row('Destroy:',"<a href='cmd.cgi?cmd=snpdestroy&snapshot=$in{snap}'>Destroy snapshot</a>", ); }
 	print ui_table_end();
-	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	if ($conf{'list_snap'} =~ /1/) { ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'}); } else { ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'}); }
 }
 

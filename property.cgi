@@ -74,10 +74,10 @@ if ($in{'property'} =~ 'mountpoint') {
 
 } elsif ($in{'property'} =~ 'utf8only') {
 
-} elsif ($in{'property'} =~ 'volsize') {
+} elsif ($proplist{$in{'property'}} =~ 'text') {
 
 	print "", ($in{'zfs'}) ? ui_hidden('cmd', 'setzfs') : "";
-	print "Set volume size: ".ui_textbox('set', $get{$in{'zfs'}}{$in{'property'}}{value});
+	print "Set ".$in{'property'}.": ".ui_textbox('set', $get{$in{'zfs'}}{$in{'property'}}{value});
 	print ui_submit('submit'), "<br />";
 
 } elsif ($proplist{$in{'property'}} =~ 'special' || $pool_proplist{$in{'property'}} =~ 'special') {
