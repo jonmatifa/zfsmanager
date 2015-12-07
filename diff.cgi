@@ -16,3 +16,5 @@ foreach $key (@array)
 	print ui_columns_row([ @file[2], $action{@file[0]}, $type{@file[1]} ]);
 }
 print ui_columns_end();
+
+ui_print_footer("status.cgi?snap=$in{'snap'}", $in{'snap'});
