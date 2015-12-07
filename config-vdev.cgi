@@ -31,13 +31,13 @@ print ui_columns_end();
 #print "Pool State: ", $status{0}{state}, "<br />";
 #print "Virtual Device: ", $status{$in{'dev'}}{name}, "<br />";
 $parent = $status{$in{'dev'}}{parent};
-if ($status{$in{'dev'}}{parent} =~ "pool") 
+if ($status{$in{'dev'}}{parent} =~ 'pool') 
 {
 	#print "Parent: <a href='status.cgi?pool=", $status{pool}{pool}, "'>pool</a><br />";
 	#print "Parent: pool<br />";
 } else {
 	print ui_columns_start([ "Parent", "State", "Read", "Write", "Cksum" ]);
-	print ui_columns_row(["<a href='config-vdev.cgi?pool=$in{'pool'}&dev=$status{$in{'dev'}}{parent}'>", $status{$parent}{state}, $status{$parent}{read}, $status{$parent}{write}, $status{$parent}{cksum}]);
+	print ui_columns_row(["<a href='config-vdev.cgi?pool=$in{'pool'}&dev=$status{$in{'dev'}}{parent}'>$status{$parent}{name}</a>", $status{$parent}{state}, $status{$parent}{read}, $status{$parent}{write}, $status{$parent}{cksum}]);
 	print ui_columns_end();
 	#print "Parent: <a href='config-vdev.cgi?pool=", $in{'pool'}, "&dev=", $status{$in{'dev'}}{parent}, "'>", $status{$in{'dev'}}{parent}, "</a><br />";
 }
@@ -49,7 +49,7 @@ print "Children: ";
 	{
 		if ($status{$key}{parent} =~ $in{'dev'}) 
 		{
-			print "<a href='config-vdev.cgi?pool=", $in{'pool'}, "&dev=", $status{$key}{name}, "'>", $status{$key}{name}, "</a>  ";
+			print "<a href='config-vdev.cgi?pool=$in{pool}&dev=$key'>".$status{$key}{name}."</a>  ";
 		}
 	}
 } elsif ($conf{'pool_properties'} =~ /1/) {

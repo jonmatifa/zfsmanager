@@ -207,14 +207,14 @@ foreach $line (@array) #while (my $line =<$fh>)
 	} elsif (($name =~ /log/) || ($name =~ /cache/))
 	{
 		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => "pool",};
-		$parent = $name;
+		$parent = $devs;
 		$devs++;
 		
 	#check if vdev is a log or cache vdev
 	} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
 	{
 		$status{$devs} = {name => $name, state => $state, read => $read, write => $write, cksum => $cksum, parent => $parent};
-		$parent = $name;
+		$parent = $devs;
 		$devs++;
 
 	#for all other vdevs, should be actual devices at this point
