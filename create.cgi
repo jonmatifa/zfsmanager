@@ -88,7 +88,7 @@ if ($in{'create'} =~ "zpool")
 	print ui_form_end();
 	#print Dumper (\%hash);
 	#print " | ";
-	ui_print_footer('', $text{'index_return'});
+	@footer = ('', $text{'index_return'});
 	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 	#print popup_window_button( 'cmd.cgi', '600', '400', '1', [ [ 'pool', 'pool', 'pool'], ['create', 'create', 'create'], ['dev', 'dev', 'dev'], ['mountpoint', 'mountpoint', 'mountpoint'], ['force', 'force', 'force'] ] );
 	#mount::generate_location("vdev", "");
@@ -104,7 +104,7 @@ if ($in{'create'} =~ "zpool")
 	ui_print_header(undef, "Create File System", "", undef, 1, 1);
 	print "<b>Select parent for file system</b>";
 	ui_zfs_list(undef, "create.cgi?create=zfs&parent=");
-	ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
+	@footer = ('index.cgi?mode=zfs', $text{'zfs_return'});
 } elsif (($in{'create'} =~ "zfs")) {
 	ui_print_header(undef, "Create File System", "", undef, 1, 1);
 	#print "Pool:";
@@ -188,7 +188,8 @@ if ($in{'create'} =~ "zpool")
 
 	#end tabs
 	print &ui_tabs_end(1);
-	ui_print_footer("status.cgi?zfs=$in{'parent'}", $in{'parent'});
+	$in{'zfs'} = $in{'parent'};
+	#ui_print_footer("status.cgi?zfs=$in{'parent'}", $in{'parent'});
 	#ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
 	
 } elsif ($in{'import'}) {
@@ -229,7 +230,7 @@ if ($in{'create'} =~ "zpool")
 	}
 	
 	print ui_table_end();
-	ui_print_footer('', $text{'index_return'});
+	@footer = ('', $text{'index_return'});
 	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 } elsif ($in{'clone'}) {
 	ui_print_header(undef, "Clone Snapshot", "", undef, 1, 1);
@@ -256,8 +257,34 @@ if ($in{'create'} =~ "zpool")
 	print ui_submit('Create');
 	print ui_form_end();
 	#print " | ";
-	ui_print_footer("status.cgi?snap=".$in{'clone'}, $in{'clone'});
+	$in{'snap'} = $in{'clone'};
+	#ui_print_footer("status.cgi?snap=".$in{'clone'}, $in{'clone'});
 	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
+} elsif ($in{'rename'}) {
+        #if (index($in{'rename'}, '@') != -1) { my $issnap = true; }
+	ui_print_header(undef, "Rename", "", undef, 1, 1);
+        print ui_form_start("cmd.cgi", "post");
+	if (index($in{'rename'}, '@') != -1) {
+        	#is snapshot
+		# my ($parent) = split('/', $in{'rename'});
+	        ($parent) = split('@', $in{'rename'});
+		print ui_table_start('Rename snapshot', 'width=100%', '6');
+        	print ui_table_row(undef, '<b>Snapshot:</b> '.$in{'rename'});
+        	print ui_table_row(undef, "<b>New Name: </b>".$parent."@".ui_textbox('name'));
+	} else {
+                #in not snapshot
+		print ui_table_start('Rename filesystem', 'width=100%', '6');
+                print ui_table_row(undef, '<b>Filesystem:</b> '.$in{'rename'});
+                print ui_table_row(undef, "<b>New Name: </b>".ui_textbox('name'));
+	}
+        print ui_hidden('cmd', 'rename');
+        print ui_hidden('zfs', $in{'rename'});
+        print ui_table_row(undef, "<br />");
+        print ui_table_end();
+        print ui_submit('Rename');
+        print ui_form_end();
+	$in{'zfs'} = $in{'rename'};
+        #ui_print_footer("status.cgi?zfs=".$in{'rename'}, $in{'rename'});
 } elsif ($in{'send'}) {
 	ui_print_header(undef, "Send Snapshot", "", undef, 1, 1);
 	print ui_form_start("cmd.cgi", "get");
@@ -281,7 +308,9 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_end();
 	print ui_submit('Send');
 	print " | ";
-	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	$in{'snap'} = $in{'send'};
+	#ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	#@footer = ('index.cgi?mode=snapshot', $text{'snapshot_return'});
 	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 } elsif (($in{'create'} =~ "snapshot") &&  ($in{'zfs'} eq undef)) {
 	ui_print_header(undef, $text{'snapshot_new'}, "", undef, 1, 1);
@@ -293,7 +322,8 @@ if ($in{'create'} =~ "zpool")
 		print ui_columns_row(["<a href='create.cgi?create=snapshot&zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 	}
 	print ui_columns_end();
-	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	#ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	@footer = ('index.cgi?mode=snapshot', $text{'snapshot_return'});
 #handle creation of snapshot
 } elsif ($in{'create'} =~ "snapshot") {
 	ui_print_header(undef, $text{'snapshot_create'}, "", undef, 1, 1);
@@ -314,6 +344,17 @@ if ($in{'create'} =~ "zpool")
 	}
 	print ui_columns_end();
 	print ui_create_snapshot($in{'zfs'});
-	ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	#ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
 }
 
+if (@footer) { ui_print_footer(@footer); 
+} elsif ($in{'zfs'} && !@footer) {
+		print "<br />";
+		ui_print_footer("status.cgi?zfs=".$in{'zfs'}, $in{'zfs'});
+} elsif ($in{'pool'} && !@footer) {
+		print "<br />";
+		ui_print_footer("status.cgi?pool=".$in{'pool'}, $in{'pool'});
+} elsif ($in{'snap'} && !@footer) {
+		print "<br />";
+		ui_print_footer("status.cgi?snap=".$in{'snap'}, $in{'snap'});
+}
