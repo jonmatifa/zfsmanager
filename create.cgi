@@ -206,7 +206,7 @@ if ($in{'create'} =~ "zpool")
 	#print ui_table_row();
 	%imports = zpool_imports($in{'dir'}, $in{'destroyed'});
 	#print Dumper (\%imports);
-	print "<br />";
+	#print "<br />";
 	#my @array = split("\n", `zpool import -d $in{'dir'}`);
 	#print Dumper (@array);
 	#print ui_table_row('');
@@ -215,7 +215,7 @@ if ($in{'create'} =~ "zpool")
 	foreach $key (sort(keys %imports))
 	{
 		#print ui_columns_start([ "Pool", "ID", "State" ]);
-		print ui_columns_row(["<a href='cmd.cgi?cmd=import&import=$key&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$key."</a>", "<a href='cmd.cgi?cmd=import&import=$imports{$key}{'id'}&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$imports{$key}{'id'}."</a>", $imports{$key}{'state'}]);
+		print ui_columns_row(["<a href='cmd.cgi?cmd=import&import=$imports{$key}{pool}&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$imports{$key}{pool}."</a>", "<a href='cmd.cgi?cmd=import&import=$imports{$key}{'id'}&dir=$in{'dir'}&destroyed=$in{destroyed}'>".$imports{$key}{'id'}."</a>", $imports{$key}{'state'}]);
 		#print ui_table_row("<a href='cmd.cgi?import=$key&dir=$in{'dir'}'>".$key."</a>", $imports{$key}{'id'}." ".$imports{$key}{'state'}, 3);
 		#print ui_columns_end();
 	}

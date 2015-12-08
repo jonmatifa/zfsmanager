@@ -280,20 +280,22 @@ my $cmd = `zpool import $dir $destoryed`;
 #(undef, $cmdout) = split(/  pool: /, $cmd);
 $count = 0;
 @pools = split(/  pool: /, $cmd);
+shift (@pools);
 foreach $cmdout (@pools) {
 	($status{$count}{pool}, $cmdout) = split(/ id: /, $cmdout);
 	chomp $status{$count}{pool};
 	($status{$count}{id}, $cmdout) = split(/ state: /, $cmdout);
 	chomp $status{$count}{id};
-	if (index($cmd, "status: ") != -1) { 
+	if (index($cmdout, "status: ") != -1) { 
 		($status{$count}{state}, $cmdout) = split("status: ", $cmdout); 
 		($status{$count}{status}, $cmdout) = split("action: ", $cmdout); 
-		if (index($cmd, "  see: ") != -1) { 
+		if (index($cmdout, "  see: ") != -1) { 
 			($status{$count}{action}, $cmdout) = split("  see: ", $cmdout); 
 			($status{$count}{see}, $cmdout) = split("config:\n", $cmdout); 
 		} else { ($status{$count}{action}, $cmdout) = split("config:\n", $cmdout); }
 	} else {
-		($status{$count}{state}, $cmdout) = split(" config:\n", $cmdout); 
+		($status{$count}{state}, $cmdout) = split("action: ", $cmdout); 
+		($status{$count}{action}, $cmdout) = split("config:\n", $cmdout);
 	}
 	#($status{$count}{config}) = split("config: \n", $cmdout); 
 	$status{$count}{config} = $cmdout;
