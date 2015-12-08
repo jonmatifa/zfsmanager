@@ -5,6 +5,13 @@ ReadParse();
 use Data::Dumper;
 ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
 %conf = get_zfsmanager_config();
+
+if ($text{$in{'cmd'}."_desc"}) { 
+	print ui_table_start($text{$in{'cmd'}."_cmd"}, "width=100%", "10", ['align=left'] );
+	print ui_table_row("Command Description:", $text{$in{'cmd'}."_desc"});
+	print ui_table_end();
+};
+
 print ui_table_start($text{'cmd_title'}, "width=100%", "10", ['align=left'] );
 	
 if ($in{'cmd'} =~ "setzfs") {
@@ -64,19 +71,28 @@ elsif ($in{'cmd'} =~ "clone")  {
 	$in{'confirm'} = "yes";
 	my $cmd =  ($conf{'zfs_properties'} =~ /1/) ? "zfs clone ".$in{'clone'}." ".$in{'parent'}.'/'.$in{'zfs'}." ".$opts : undef;
 	print ui_cmd("clone ".$in{'clone'}, $cmd);
-	#@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
-	$in{'snap'} = $in{'clone'};
+	@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
+	#$in{'snap'} = $in{'clone'};
 }
 elsif ($in{'cmd'} =~ "rename")  {
         #$in{'confirm'} = "yes";
 	#print "Rename ".$in{'zfs'}." to ".ui_textbox("name", $in{"name"});
 	if (index($in{'zfs'}, '@') != -1) { 
-		$in{'snap'} = $in{'zfs'};  
-		$in{'name'} = $in{'parent'}.'@'.$in{'name'};
-		$cmd = ($conf{'snap_properties'} =~ /1/) ? "zfs rename ".$in{'zfs'}." ".$in{'name'} : undef;
-		$in{'zfs'} = undef;
-	} else { $cmd = ($conf{'zfs_properties'} =~ /1/) ? "zfs rename ".$in{'zfs'}." ".$in{'name'} : undef; }
-        if ($in{"name"}) { print ui_cmd("rename ".$in{'zfs'}." to ".$in{'name'}, $cmd); }
+		#is a snapshot
+		#$in{'snap'} = $in{'zfs'};  
+		#$in{'name'} = $in{'parent'}.'@'.$in{'name'};
+		#$in{'parent'} = undef;
+		$cmd = ($conf{'snap_properties'} =~ /1/) ? "zfs rename ".$in{'force'}.$in{'recurse'}.$in{'zfs'}." ".$in{'parent'}.'@'.$in{'name'} : undef;
+		#print ui_hidden('zfs', $in{'zfs'});
+		#$in{'zfs'} = undef;
+		@footer = ('status.cgi?snap='.$in{'zfs'}, $in{'zfs'});
+	} elsif (index($in{'zfs'}, '/') != -1) { 
+		#is a filesystem
+		#$in{'name'} = $in{'parent'}.'/'.$in{'name'};
+		#$in{'parent'} = undef;
+		$cmd = ($conf{'zfs_properties'} =~ /1/) ? "zfs rename ".$in{'force'}.$in{'prnt'}.$in{'zfs'}." ".$in{'parent'}.'/'.$in{'name'} : undef; 
+	}
+        print ui_cmd("rename ".$in{'zfs'}." to ".$in{'name'}, $cmd);
 }
 elsif ($in{'cmd'} =~ "createzpool")  {
 	#if ($in{'add'}) { redirect('create.cgi?srl='.serialise_variable(%in)); }

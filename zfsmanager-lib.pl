@@ -402,6 +402,15 @@ my $cmd="zpool create $force $opts $pool $dev";
 return $cmd;
 }
 
+sub find_parent
+{
+my ($filesystem) = @_;
+my %parent = ();
+($parent{'pool'}) = split('/', $filesystem);
+($parent{'filesystem'}) = split('@', $filesystem);
+return %parent;
+}
+
 sub ui_zpool_status
 {
 my ($pool, $action) = @_;

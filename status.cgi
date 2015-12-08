@@ -100,7 +100,8 @@ if ($in{'zfs'})
 
 	#start status tab
 	#print &ui_tabs_start_tab("mode", "status");
-	ui_zfs_list('-r '.$in{'zfs'});
+	#ui_zfs_list('-r '.$in{'zfs'});
+	ui_zfs_list($in{'zfs'});
 
 	#show properties for filesystem
 	ui_zfs_properties($in{'zfs'});
@@ -117,7 +118,7 @@ if ($in{'zfs'})
 	if ($conf{'zfs_properties'} =~ /1/) { 
 		#print ui_table_row("New file system: ", ui_popup_link('Create child file system', "create.cgi?create=zfs&parent=$in{'zfs'}")); 
 		print ui_table_row("New file system: ", "<a href='create.cgi?create=zfs&parent=".$in{'zfs'}."'>Create child file system</a>"); 
-		print ui_table_row("Rename: ", "<a href='create.cgi?rename=".$in{'zfs'}."'>Rename ".$in{'zfs'}."</a>");
+		if (index($in{'zfs'}, '/') != -1) { print ui_table_row("Rename: ", "<a href='create.cgi?rename=".$in{'zfs'}."'>Rename ".$in{'zfs'}."</a>"); }
 		if ($hash{$in{'zfs'}}{origin}) { print ui_table_row("Promote: ", "This file system is a clone, <a href='cmd.cgi?cmd=promote&zfs=$in{zfs}'>promote $in{zfs}</a>"); }
 		#if ($hash{$in{'zfs'}}{origin}) { print ui_table_row("Promote: ", "This file system is a clone, ".ui_popup_link("promote $in{'zfs'}", "cmd.cgi?promote=$in{'zfs'}")); }
 	}

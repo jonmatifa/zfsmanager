@@ -19,3 +19,7 @@ snapshot_create=Create Snapshot
 snapshot_new=Select filesystem for snapshot
 
 zpool_upgrade_msg=This will enable all available features, many of which cannot be disabled again. See zpool-features in man pages for more information. *Avoid using if pool needs to retain backwards compatibilty.*
+
+promote_cmd=zfs promote <u>clone-filesystem</u>
+promote_desc=Promotes a clone file system to no longer be dependent on its "origin" snapshot. This makes it possible to destroy the file system that the clone was created from. The clone parent-child dependency relationship is reversed, so that the origin file system becomes a clone of the specified file system. <br /><br /> The snapshot that was cloned, and any snapshots previous to this snapshot, are now owned by the promoted clone. The space they use moves from the origin file system to the promoted clone, so enough space must be available to accommodate these snapshots. No new space is consumed by this operation, but the space accounting is adjusted. The promoted clone must not have any conflicting snapshot names of its own. The rename subcommand can be used to rename any conflicting snapshots.<br />
+
