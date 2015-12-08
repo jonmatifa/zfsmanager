@@ -271,6 +271,7 @@ if ($in{'create'} =~ "zpool")
 		print ui_table_start('Rename snapshot', 'width=100%', '6');
         	print ui_table_row(undef, '<b>Snapshot:</b> '.$in{'rename'});
         	print ui_table_row(undef, "<b>New Name: </b>".$parent."@".ui_textbox('name'));
+		print ui_hidden('parent', $parent);
 	} else {
                 #in not snapshot
 		print ui_table_start('Rename filesystem', 'width=100%', '6');
