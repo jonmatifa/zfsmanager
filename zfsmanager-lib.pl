@@ -291,9 +291,9 @@ foreach $cmdout (@pools) {
 		if (index($cmd, "  see: ") != -1) { 
 			($status{$count}{action}, $cmdout) = split("  see: ", $cmdout); 
 			($status{$count}{see}, $cmdout) = split("config: ", $cmdout); 
-		} else { ($status{$count}{action}, $cmdout) = split("config: \n", $cmdout); }
+		} else { ($status{$count}{action}, $cmdout) = split("config: ", $cmdout); }
 	} else {
-		($status{$count}{state}, $cmdout) = split(" config: \n", $cmdout); 
+		($status{$count}{state}, $cmdout) = split(" config: ", $cmdout); 
 	}
 	#($status{$count}{config}) = split("config: \n", $cmdout); 
 	$status{$count}{config} = $cmdout;
