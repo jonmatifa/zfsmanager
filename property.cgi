@@ -125,7 +125,8 @@ print ui_form_end();
 }
 
 #print ui_table_end();
-if ($in{'zfs'}) { ui_print_footer("status.cgi?zfs=$in{'zfs'}", $in{'zfs'}); }
+if ($in{'zfs'} && (index($in{'zfs'}, '@') != -1)) { ui_print_footer("status.cgi?snap=$in{'zfs'}", $in{'zfs'}); }
+if ($in{'zfs'} && (index($in{'zfs'}, '@') =~ -1)) { ui_print_footer("status.cgi?zfs=$in{'zfs'}", $in{'zfs'}); }
 if ($in{'pool'}) { ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'}); }
 
 #print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";

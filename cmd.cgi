@@ -64,7 +64,15 @@ elsif ($in{'cmd'} =~ "clone")  {
 	$in{'confirm'} = "yes";
 	my $cmd =  ($conf{'zfs_properties'} =~ /1/) ? "zfs clone ".$in{'clone'}." ".$in{'parent'}.'/'.$in{'zfs'}." ".$opts : undef;
 	print ui_cmd("clone ".$in{'clone'}, $cmd);
-	@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
+	#@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
+	$in{'snap'} = $in{'clone'};
+}
+elsif ($in{'cmd'} =~ "rename")  {
+        #$in{'confirm'} = "yes";
+	print "Rename ".$in{'zfs'}." to ".ui_textbox("name", $in{"name"});
+        my $cmd =  ($conf{'zfs_properties'} =~ /1/) ? "zfs rename ".$in{'zfs'}." ".$in{'name'} : undef;
+        if ($in{"name"}) { print ui_cmd("rename ".$in{'zfs'}." to ".$in{'name'}, $cmd); }
+	if (index($in{'zfs'}, '@') != -1) { $in{'snap'} = $in{'zfs'} $in['zfs'] = undef; }	
 }
 elsif ($in{'cmd'} =~ "createzpool")  {
 	#if ($in{'add'}) { redirect('create.cgi?srl='.serialise_variable(%in)); }
@@ -139,8 +147,8 @@ elsif ($in{'cmd'} =~ "zfsdestroy")  {
 		print ui_hidden('cmd', $in{'cmd'});
 		print ui_hidden('zfs', $in{'zfs'});
 		print "<b>This action will affect the following: </b><br />";
-		ui_zfs_list('-r '.$in{'destroy'});
-		ui_list_snapshots('-r '.$in{'destroy'});
+		ui_zfs_list('-r '.$in{'zfs'});
+		ui_list_snapshots('-r '.$in{'zfs'});
 		if (($conf{'zfs_destroy'} =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
 		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
 		print ui_checkbox('confirm', 'yes', 'I understand', undef );
