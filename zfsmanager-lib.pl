@@ -290,12 +290,12 @@ foreach $cmdout (@pools) {
 		($status{$count}{status}, $cmdout) = split("action: ", $cmdout); 
 		if (index($cmd, "  see: ") != -1) { 
 			($status{$count}{action}, $cmdout) = split("  see: ", $cmdout); 
-			($status{$count}{see}, $cmdout) = split("  scan: ", $cmdout); 
-		} else { ($status{$count}{action}, $cmdout) = split("  scan: ", $cmdout); }
+			($status{$count}{see}, $cmdout) = split("config: ", $cmdout); 
+		} else { ($status{$count}{action}, $cmdout) = split("config: ", $cmdout); }
 	} else {
-		($status{$count}{state}, $cmdout) = split("  scan: ", $cmdout); 
+		($status{$count}{state}, $cmdout) = split(" config: ", $cmdout); 
 	}
-	($status{$count}{scan}, $status{$count}{config}) = split("config:", $cmdout); 
+	(undef, $status{$count}{config}) = split("config:", $cmdout); 
 $count++;
 }
 return %status;
