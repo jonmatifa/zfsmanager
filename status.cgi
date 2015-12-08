@@ -117,6 +117,7 @@ if ($in{'zfs'})
 	if ($conf{'zfs_properties'} =~ /1/) { 
 		#print ui_table_row("New file system: ", ui_popup_link('Create child file system', "create.cgi?create=zfs&parent=$in{'zfs'}")); 
 		print ui_table_row("New file system: ", "<a href='create.cgi?create=zfs&parent=".$in{'zfs'}."'>Create child file system</a>"); 
+		print ui_table_row("Rename: ", "<a href='cmd.cgi?cmd=rename&zfs=".$in{'zfs'}."'>Rename ".$in{'zfs'}."</a>");
 		if ($hash{$in{'zfs'}}{origin}) { print ui_table_row("Promote: ", "This file system is a clone, <a href='cmd.cgi?cmd=promote&zfs=$in{zfs}'>promote $in{zfs}</a>"); }
 		#if ($hash{$in{'zfs'}}{origin}) { print ui_table_row("Promote: ", "This file system is a clone, ".ui_popup_link("promote $in{'zfs'}", "cmd.cgi?promote=$in{'zfs'}")); }
 	}
@@ -152,7 +153,8 @@ if ($in{'snap'})
 	if ($conf{'snap_properties'} =~ /1/) { 
 		#print ui_table_row('Snapshot:', "<a href='snapshot.cgi?zfs=$zfs'>Create new snapshot based on $zfs</a>");
 		print ui_table_row("Snapshot: ", ui_create_snapshot($zfs));
-		print ui_table_row('Rename:', "Rename $in{'snap'}");
+		#print ui_table_row('Rename:', "Rename $in{'snap'}");
+		print ui_table_row("Rename: ", "<a href='cmd.cgi?cmd=rename&zfs=".$in{'snap'}."'>Rename ".$in{'snap'}."</a>");
 	}
 	if ($conf{'zfs_properties'} =~ /1/) { 
 		print ui_table_row('Clone:', "<a href='create.cgi?clone=$in{snap}'>Clone $in{'snap'} to new file system</a>"); 
