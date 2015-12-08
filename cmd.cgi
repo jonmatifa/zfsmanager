@@ -140,7 +140,7 @@ elsif ($in{'cmd'} =~ "upgrade") {
 	print ui_cmd("upgrade pool $in{'pool'}", $cmd);
 }
 elsif ($in{'cmd'} =~ "export") {
-	$in{'confirm'} = "yes";
+	#$in{'confirm'} = "yes";
 	my $cmd = ($conf{'pool_properties'} =~ /1/) ? "zpool export $in{'pool'}" : undef;
 	print ui_cmd("scrub pool $in{'pool'}", $cmd);
 	@footer = ("index.cgi?mode=pools", $text{'index_return'});
