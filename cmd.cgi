@@ -72,7 +72,7 @@ elsif ($in{'cmd'} =~ "rename")  {
 	print "Rename ".$in{'zfs'}." to ".ui_textbox("name", $in{"name"});
         my $cmd =  ($conf{'zfs_properties'} =~ /1/) ? "zfs rename ".$in{'zfs'}." ".$in{'name'} : undef;
         if ($in{"name"}) { print ui_cmd("rename ".$in{'zfs'}." to ".$in{'name'}, $cmd); }
-	if (index($in{'zfs'}, '@') != -1) { $in{'snap'} = $in{'zfs'} $in['zfs'] = undef; }	
+	if (index($in{'zfs'}, '@') != -1) { $in{'snap'} = $in{'zfs'}; $in['zfs'] = undef; }	
 }
 elsif ($in{'cmd'} =~ "createzpool")  {
 	#if ($in{'add'}) { redirect('create.cgi?srl='.serialise_variable(%in)); }
