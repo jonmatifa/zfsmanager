@@ -275,57 +275,27 @@ my ($dir, $destroyed) = @_;
 if ($dir) { $dir = '-d '.$dir; }
 my %status = ();
 #my $parent = 'pool';
-#my $cmd = `zpool import $dir`;
-my @array = split("\n", `zpool import $dir $destroyed`);
-#open my $fh, "<", \$cmd;
-foreach $line (@array)
-{
-    chomp ($line);
-	$line =~ s/^\s*(.*?)\s*$/$1/;
-	my($key, $value) = split(/:/, $line);
-	$key =~ s/^\s*(.*?)\s*$/$1/;
-	$value =~ s/^\s*(.*?)\s*$/$1/;
-	if (($key =~ 'pool') || ($key =~ 'state') || ($key =~ 'scan') || ($key =~ 'errors') || ($key =~ 'scrub') || ($key =~ 'status') || ($key =~ 'id'))
-	{
-		if ($key =~ 'pool') { $pool = $value; }
-		if ($key =~ 'scrub') { $key = 'scan'; }
-		$status{$pool}{$key} = $value;
-	} elsif (($line =~ "config:") || ($line =~ /NAME/) || ($line =~ /action:/) || ($line =~ /see:/))
-	{
-		#do nothing
-	} else
-	{
-		my($name, $state, $status) = split(" ", $line);
-		if ($name == $status{$pool}{pool})
-		{
-			#$status{$pool}{name} = $name;
-			#$status{$pool}{state} = $read;
-			#$status{$pool}{write} = $write;
-			#$status{$pool}{cksum} = $cksum;
-			$status{$pool}{vdevs} = ();
-			$parent = 'pool';
-			
-		#check if vdev is a log or cache vdev
-		} elsif (($name =~ /log/) || ($name =~ /cache/))
-		{
-			$status{$pool}{vdevs}{$name} = {name => $name, state => $state, status => $status, parent => "pool"};
-			$parent = $name;
-			#$devs++;
-			
-		#check if vdev is a mirror, raidz or spare
-		} elsif (($name =~ /mirror/) || ($name =~ /raidz/) || ($name =~ /spare/))
-		{
-			$status{$pool}{vdevs}{$name} = {name => $name, state => $state, status => $status, parent => $parent};
-			$parent = $name;
-			#$devs++;
-			
-		#for all other vdevs, should be actual devices at this point
-		} elsif ($name)
-		{
-			$status{$pool}{vdevs}{$name} = {name => $name, state => $state, status => $status, parent => $parent};
-			#$devs++;
-		}
+my $cmd = `zpool import $dir $destoryed`;
+#my @array = split("\n", `zpool import $dir $destroyed`);
+#(undef, $cmdout) = split(/  pool: /, $cmd);
+$count = 0;
+@pools = split(/  pool: /, $cmd);
+foreach $cmdout (@pools) {
+	($status{$count}{pool}, $cmdout) = split(/ state: /, $cmdout);
+	chomp $status{$count}{pool};
+	if (index($cmd, "status: ") != -1) { 
+		($status{$count}{state}, $cmdout) = split("status: ", $cmdout); 
+		($status{$count}{status}, $cmdout) = split("action: ", $cmdout); 
+		if (index($cmd, "  see: ") != -1) { 
+			($status{$count}{action}, $cmdout) = split("  see: ", $cmdout); 
+			($status{$count}{see}, $cmdout) = split("  scan: ", $cmdout); 
+		} else { ($status{$count}{action}, $cmdout) = split("  scan: ", $cmdout); }
+	} else {
+		($status{$count}{state}, $cmdout) = split("  scan: ", $cmdout); 
 	}
+	($status{$count}{scan}, $cmdout) = split("config:", $cmdout); 
+	($status{$count}{config}, $status{$count}{errors}) = split("errors: ", $cmdout);
+$count++;
 }
 return %status;
 }
