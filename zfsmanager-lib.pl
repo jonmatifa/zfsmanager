@@ -281,8 +281,10 @@ my $cmd = `zpool import $dir $destoryed`;
 $count = 0;
 @pools = split(/  pool: /, $cmd);
 foreach $cmdout (@pools) {
-	($status{$count}{pool}, $cmdout) = split(/ state: /, $cmdout);
+	($status{$count}{pool}, $cmdout) = split(/ id: /, $cmdout);
 	chomp $status{$count}{pool};
+	($status{$count}{id}, $cmdout) = split(/ state: /, $cmdout);
+	chomp $status{$count}{id};
 	if (index($cmd, "status: ") != -1) { 
 		($status{$count}{state}, $cmdout) = split("status: ", $cmdout); 
 		($status{$count}{status}, $cmdout) = split("action: ", $cmdout); 
@@ -293,8 +295,7 @@ foreach $cmdout (@pools) {
 	} else {
 		($status{$count}{state}, $cmdout) = split("  scan: ", $cmdout); 
 	}
-	($status{$count}{scan}, $cmdout) = split("config:", $cmdout); 
-	($status{$count}{config}, $status{$count}{errors}) = split("errors: ", $cmdout);
+	($status{$count}{scan}, $status{$count}{config}) = split("config:", $cmdout); 
 $count++;
 }
 return %status;
