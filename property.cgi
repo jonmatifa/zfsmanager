@@ -52,6 +52,7 @@ print ui_hidden('property', $in{'property'});
 print ui_hidden('zfs', $in{'zfs'});
 print ui_hidden('pool', $in{'pool'});
 if ($in{'property'} =~ 'mountpoint') {
+	print ui_hidden('cmd', 'setzfs');
 	print ui_filebox('set', $get{$in{'zfs'}}{$in{'property'}}{value}, 0, undef, undef, 1);
 	print ui_submit('submit'), "<br />";
 } elsif ($in{'property'} =~ 'mounted') {
