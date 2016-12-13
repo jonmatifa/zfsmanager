@@ -38,7 +38,8 @@ return %list;
 sub get_zfsmanager_config
 {
 #my ($setting)=@_;
-my $lref = &read_file_lines($config{'zfsmanager_conf'});
+#my $lref = &read_file_lines($config{'zfsmanager_conf'});
+my $lref = &read_file_lines($module_config_file);
 my %rv;
 my $lnum = 0;
 foreach my $line (@$lref) {
@@ -62,7 +63,7 @@ my ($zfs, $property) = @_;
 %pool_props = pool_properties_list();
 my %type = zfs_get($zfs, 'type');
 if ($type{$zfs}{type}{value} =~ 'snapshot') { return 0; } 
-elsif ((($zfs_props{$property}) && ($conf{'zfs_properties'} =~ /1/)) || (($pool_props{$property}) && ($conf{'pool_properties'} =~ /1/))) { return 1; }
+elsif ((($zfs_props{$property}) && ($config{'zfs_properties'} =~ /1/)) || (($pool_props{$property}) && ($config{'pool_properties'} =~ /1/))) { return 1; }
 }
 
 sub list_zpools
@@ -484,7 +485,7 @@ foreach $key (sort(keys %snapshot))
 }
 print ui_columns_end();
 if ($admin =~ /1/) { print select_all_link('select', '', "Select All"), " | ", select_invert_link('select', '', "Invert Selection") }
-if (($admin =~ /1/) && ($conf{'snap_destroy'} =~ /1/)) { print " | ".ui_submit("Destroy selected snapshots"); }
+if (($admin =~ /1/) && ($config{'snap_destroy'} =~ /1/)) { print " | ".ui_submit("Destroy selected snapshots"); }
 if ($admin =~ /1/) { print ui_form_end(); }
 
 }

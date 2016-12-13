@@ -3,7 +3,7 @@
 require './zfsmanager-lib.pl';
 ReadParse();
 use Data::Dumper;
-%conf = get_zfsmanager_config();
+#%conf = get_zfsmanager_config();
 
 #show pool status
 if ($in{'pool'})
@@ -70,17 +70,17 @@ if ($status{0}{status} or $status{0}{action} or $status{pool}{see}) {
 #--tasks table--
 print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
 #print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'}));
-if ($conf{'zfs_properties'} =~ /1/) { 
+if ($config{'zfs_properties'} =~ /1/) { 
 	print ui_table_row("New file system: ", "<a href='create.cgi?create=zfs&parent=$in{pool}'>Create file system</a>"); 
 	#print ui_table_row('Export ',  "<a href='cmd.cgi?cmd=export&pool=$in{pool}'>Export pool</a>");
 }
-if ($conf{'pool_properties'} =~ /1/) { 
+if ($config{'pool_properties'} =~ /1/) { 
 	if ($status{0}{scan} =~ /scrub in progress/) { print ui_table_row('Scrub ',"<a href='cmd.cgi?cmd=scrub&stop=y&pool=$in{pool}'>Stop scrub</a>"); } 
 	else { print ui_table_row('Scrub ', "<a href='cmd.cgi?cmd=scrub&pool=$in{pool}'>Scrub pool</a>");}
 	print ui_table_row('Upgrade ', "<a href='cmd.cgi?cmd=upgrade&pool=$in{pool}'>Upgrade pool</a>");
 	print ui_table_row('Export ',  "<a href='cmd.cgi?cmd=export&pool=$in{pool}'>Export pool</a>");
 }
-if ($conf{'pool_destroy'} =~ /1/) { print ui_table_row("Destroy ", "<a href='cmd.cgi?cmd=pooldestroy&pool=$in{pool}'>Destroy this pool</a>"); }
+if ($config{'pool_destroy'} =~ /1/) { print ui_table_row("Destroy ", "<a href='cmd.cgi?cmd=pooldestroy&pool=$in{pool}'>Destroy this pool</a>"); }
 print ui_table_end();
 
 ui_print_footer('', $text{'index_return'});
@@ -114,15 +114,15 @@ if ($in{'zfs'})
 	
 	#--tasks table--
 	print ui_table_start("Tasks", "width=100%", "10");
-	if ($conf{'snap_properties'} =~ /1/) { print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'})); }
-	if ($conf{'zfs_properties'} =~ /1/) { 
+	if ($config{'snap_properties'} =~ /1/) { print ui_table_row("Snapshot: ", ui_create_snapshot($in{'zfs'})); }
+	if ($config{'zfs_properties'} =~ /1/) { 
 		#print ui_table_row("New file system: ", ui_popup_link('Create child file system', "create.cgi?create=zfs&parent=$in{'zfs'}")); 
 		print ui_table_row("New file system: ", "<a href='create.cgi?create=zfs&parent=".$in{'zfs'}."'>Create child file system</a>"); 
 		if (index($in{'zfs'}, '/') != -1) { print ui_table_row("Rename: ", "<a href='create.cgi?rename=".$in{'zfs'}."'>Rename ".$in{'zfs'}."</a>"); }
 		if ($hash{$in{'zfs'}}{origin}) { print ui_table_row("Promote: ", "This file system is a clone, <a href='cmd.cgi?cmd=promote&zfs=$in{zfs}'>promote $in{zfs}</a>"); }
 		#if ($hash{$in{'zfs'}}{origin}) { print ui_table_row("Promote: ", "This file system is a clone, ".ui_popup_link("promote $in{'zfs'}", "cmd.cgi?promote=$in{'zfs'}")); }
 	}
-	if ($conf{'zfs_destroy'} =~ /1/) { print ui_table_row("Destroy: ", "<a href='cmd.cgi?cmd=zfsdestroy&zfs=$in{zfs}'>Destroy this file system</a>"); }
+	if ($config{'zfs_destroy'} =~ /1/) { print ui_table_row("Destroy: ", "<a href='cmd.cgi?cmd=zfsdestroy&zfs=$in{zfs}'>Destroy this file system</a>"); }
 	#if ($conf{'zfs_destroy'} =~ /1/) { print ui_table_row("Destroy: ", ui_popup_link("Destroy this file system", "cmd.cgi?destroy=$in{'zfs'}")); }
 	print ui_table_end();
 	ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'});
@@ -151,22 +151,22 @@ if ($in{'snap'})
 	#--tasks table--
 	print ui_table_start('Tasks', 'width=100%', undef);
 	print ui_table_row('Differences', "<a href='diff.cgi?snap=$in{snap}'>Show differences in $in{'snap'}</a>");
-	if ($conf{'snap_properties'} =~ /1/) { 
+	if ($config{'snap_properties'} =~ /1/) { 
 		#print ui_table_row('Snapshot:', "<a href='snapshot.cgi?zfs=$zfs'>Create new snapshot based on $zfs</a>");
 		print ui_table_row("Snapshot: ", ui_create_snapshot($zfs));
 		#print ui_table_row('Rename:', "Rename $in{'snap'}");
 		print ui_table_row("Rename: ", "<a href='create.cgi?rename=".$in{'snap'}."'>Rename ".$in{'snap'}."</a>");
 	}
-	if ($conf{'zfs_properties'} =~ /1/) { 
+	if ($config{'zfs_properties'} =~ /1/) { 
 		print ui_table_row('Clone:', "<a href='create.cgi?clone=$in{snap}'>Clone $in{'snap'} to new file system</a>"); 
 	}
-	if (($conf{'snap_properties'} =~ /1/) && ($conf{'zfs_properties'} =~ /1/)) { 
+	if (($config{'snap_properties'} =~ /1/) && ($config{'zfs_properties'} =~ /1/)) { 
 		#print ui_table_row('Clone:', "Clone $in{'snap'} to new file system"); 
 		print ui_table_row('Rollback:', "Rollback $zfs to $in{'snap'}");
 		#print ui_table_row('Send:', "Send $in{'snap'}");
 	}
-	if ($conf{'snap_destroy'} =~ /1/) { print ui_table_row('Destroy:',"<a href='cmd.cgi?cmd=snpdestroy&snapshot=$in{snap}'>Destroy snapshot</a>", ); }
+	if ($config{'snap_destroy'} =~ /1/) { print ui_table_row('Destroy:',"<a href='cmd.cgi?cmd=snpdestroy&snapshot=$in{snap}'>Destroy snapshot</a>", ); }
 	print ui_table_end();
-	if ($conf{'list_snap'} =~ /1/) { ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'}); } else { ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'}); }
+	if ($config{'list_snap'} =~ /1/) { ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'}); } else { ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'}); }
 }
 

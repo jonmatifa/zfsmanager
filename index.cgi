@@ -5,13 +5,13 @@ require './zfsmanager-lib.pl';
 use Data::Dumper;
 ui_print_header(undef, $text{'index_title'}, "", undef, 1, 1, 0, &help_search_link("zfs, zpool", "man", "doc", "google"), undef, undef, $text{'index_version'} );
 
-my %conf = get_zfsmanager_config();
+#my %conf = get_zfsmanager_config();
 
 #start tabs
 @tabs = ();
 push(@tabs, [ "pools", "ZFS Pools", "index.cgi?mode=pools" ]);
 push(@tabs, [ "zfs", "ZFS File Systems", "index.cgi?mode=zfs" ]);
-if ($conf{'list_snap'} =~ /1/) { push(@tabs, [ "snapshot", "Snapshots", "index.cgi?mode=snapshot" ]); }
+if ($config{'list_snap'} =~ /1/) { push(@tabs, [ "snapshot", "Snapshots", "index.cgi?mode=snapshot" ]); }
 print &ui_tabs_start(\@tabs, "mode", $in{'mode'} || $tabs[0]->[0], 1);
 
 #start pools tab
@@ -26,7 +26,7 @@ foreach $key (sort(keys %zpool))
 print ui_columns_end();
 #print Dumper (\%conf);
 #print $config{'zfsmanager_conf'};
-if ($conf{'pool_properties'} =~ /1/) { 
+if ($config{'pool_properties'} =~ /1/) { 
 	print "<a href='create.cgi?create=zpool'>Create new pool<a/>";
 	#print ui_popup_link('Create new pool', 'create.cgi?create=zpool'); 
 	print " | ";
@@ -47,16 +47,16 @@ foreach $key (sort(keys %zfs))
 print ui_columns_end();
 #print $conf{'zfs_properties'};
 #if ($conf{'zfs_properties'} =~ /1/) { print ui_popup_link('Create file system', 'create.cgi?create=zfs'); }
-if ($conf{'zfs_properties'} =~ /1/) { print "<a href='create.cgi?create=zfs'>Create file system</a>"; }
+if ($config{'zfs_properties'} =~ /1/) { print "<a href='create.cgi?create=zfs'>Create file system</a>"; }
 print &ui_tabs_end_tab("mode", "zfs");
 
 #start snapshots tab
-if ($conf{'list_snap'} =~ /1/) {
+if ($config{'list_snap'} =~ /1/) {
 print &ui_tabs_start_tab("mode", "snapshot");
 ui_list_snapshots(undef, 1);
 #print $conf{snap_properties};
 #if ($conf{'snap_properties'} =~ 1) { print "<a href='snapshot.cgi?new=1'>Create snapshot</a>"; }
-if ($conf{'snap_properties'} =~ 1) { print "<a href='create.cgi?create=snapshot'>Create snapshot</a>"; }
+if ($config{'snap_properties'} =~ 1) { print "<a href='create.cgi?create=snapshot'>Create snapshot</a>"; }
 print &ui_tabs_end_tab("mode", "snapshot");
 }
 

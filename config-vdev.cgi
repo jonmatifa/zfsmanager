@@ -9,7 +9,7 @@ use Data::Dumper;
 ui_print_header(undef, $text{'vdev_title'}, "", undef, 1, 1);
 #popup_header($text{'cmd_title'});
 
-%conf = get_zfsmanager_config();
+#%conf = get_zfsmanager_config();
 
 my %status = zpool_status($in{'pool'});
 
@@ -52,7 +52,7 @@ print "Children: ";
 			print "<a href='config-vdev.cgi?pool=$in{pool}&dev=$key'>".$status{$key}{name}."</a>  ";
 		}
 	}
-} elsif ($conf{'pool_properties'} =~ /1/) {
+} elsif ($config{'pool_properties'} =~ /1/) {
 	#print "VDEV Status: ", $status{$in{'dev'}}{state}, "<br />";
 	print ui_table_start("Tasks", "width=100%", "10", ['align=left'] );
 	if ($status{$in{'dev'}}{state} =~ "ONLINE")	{

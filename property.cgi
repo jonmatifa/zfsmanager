@@ -7,7 +7,7 @@ use Data::Dumper;
 ui_print_header(undef, $text{'property_title'}, "", undef, 1, 1);
 #ui_print_header(undef, $text{'property_title'}." ".$in{'property'}." on ".$in{'zfs'}, "", undef, 1, 1);
 #popup_header($text{'property_title'}." ".$in{'property'}." on ".$in{'zfs'});
-%conf = get_zfsmanager_config();
+#%conf = get_zfsmanager_config();
 %props =  property_desc();
 %pool_proplist = pool_properties_list();
 %proplist = properties_list();
