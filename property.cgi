@@ -6,7 +6,6 @@ ReadParse();
 use Data::Dumper;
 ui_print_header(undef, $text{'property_title'}, "", undef, 1, 1);
 #ui_print_header(undef, $text{'property_title'}." ".$in{'property'}." on ".$in{'zfs'}, "", undef, 1, 1);
-#popup_header($text{'property_title'}." ".$in{'property'}." on ".$in{'zfs'});
 #%conf = get_zfsmanager_config();
 %props =  property_desc();
 %pool_proplist = pool_properties_list();
@@ -106,7 +105,8 @@ if ($in{'zfs'}) {
 	#}
 	if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off', 'inherit' ]; }
 	print "Change to: ";
-	if ($get{$in{'zfs'}}{$in{'property'}}{value} =~ "-") { $get{$in{'zfs'}}{$in{'property'}}{value} = 'inherit'; }
+	#The following line was specifically added when com.sun:auto-snapshot does not have a value
+	if ($get{$in{'zfs'}}{$in{'property'}}{value} eq "-") { $get{$in{'zfs'}}{$in{'property'}}{value} = 'inherit'; }
 	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
 	#print Dumper(@select);
 }
@@ -129,6 +129,3 @@ print ui_form_end();
 if ($in{'zfs'} && (index($in{'zfs'}, '@') != -1)) { ui_print_footer("status.cgi?snap=$in{'zfs'}", $in{'zfs'}); }
 if ($in{'zfs'} && (index($in{'zfs'}, '@') =~ -1)) { ui_print_footer("status.cgi?zfs=$in{'zfs'}", $in{'zfs'}); }
 if ($in{'pool'}) { ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'}); }
-
-#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
-#popup_footer();

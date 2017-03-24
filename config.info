@@ -1,6 +1,6 @@
-pool_destroy=Desctructive pool tasks (zpool destroy),1,1-Enabled,0-Disabled
-zfs_destroy=Desctructive file system tasks (zfs destroy),1,1-Enabled,0-Disabled
-snap_destroy=Desctructive snapshot tasks (destroy snapshot),1,1-Enabled,0-Disabled
+pool_destroy=Destructive pool tasks (zpool destroy),1,1-Enabled,0-Disabled
+zfs_destroy=Destructive file system tasks (zfs destroy),1,1-Enabled,0-Disabled
+snap_destroy=Destructive snapshot tasks (destroy snapshot),1,1-Enabled,0-Disabled
 pool_properties=Pool administration tasks (create | set properties | configure vdevs),1,1-Enabled,0-Disabled
 zfs_properties=File system administration tasks (create | set properties | mount),1,1-Enabled,0-Disabled
 snap_properties=Snapshot administration tasks (create | clone | send),1,1-Enabled,0-Disabled

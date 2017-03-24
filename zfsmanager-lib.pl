@@ -8,9 +8,9 @@ my %access = &get_module_acl();
 sub properties_list
 #return hash of properties that can be set manually and their data type
 {
-my %list = ('atime' => 'boolean', 'canmount' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean', 'relatime' => 'boolean', 'overlay' => 'boolean',
-			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, lz4, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9, zle', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled', 'xattr' => 'on, off, sa', 'com.sun:auto-snapshot' => 'true, false', 'acltype' => 'noacl, posixacl', 'redundant_metadata' => 'all, most', 'recordsize' => '512, 1K, 2K, 4K, 8K, 16K, 32K, 64K, 128K',
-			'quota' => 'text', 'refquota' => 'text', 'volsize' => 'text', 'filesystem_limit' => 'text', 'snapshot_limit' => 'text', 
+my %list = ('atime' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', 'nbmand' => 'boolean', 'readonly' => 'boolean', 'setuid' => 'boolean', 'shareiscsi' => 'boolean', 'utf8only' => 'boolean', 'vscan' => 'boolean', 'zoned' => 'boolean', 'relatime' => 'boolean', 'overlay' => 'boolean',
+			'aclinherit' => 'discard, noallow, restricted, pasthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, lz4, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9, zle', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled', 'xattr' => 'on, off, sa', 'com.sun:auto-snapshot' => 'true, false', 'acltype' => 'noacl, posixacl', 'redundant_metadata' => 'all, most', 'recordsize' => '512, 1K, 2K, 4K, 8K, 16K, 32K, 64K, 128K, 256K, 512K, 1M', 'canmount' => 'on, off, noauto',
+			'quota' => 'text', 'refquota' => 'text', 'reservation' => 'text', 'refreservation' => 'text', 'volsize' => 'text', 'filesystem_limit' => 'text', 'snapshot_limit' => 'text', 
 			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special', 'context' => 'special', 'defcontext' => 'special', 'fscontext' => 'special', 'rootcontext' => 'special');
 #if ($type != undef)
 #{
@@ -23,7 +23,7 @@ return %list;
 
 sub pool_properties_list
 {
-my %list = ('autoexpand' => 'boolean', 'autoreplace' => 'boolean', 'delegation' => 'boolean', 'listsnaps' => 'boolean', 
+my %list = ('autoexpand' => 'boolean', 'autoreplace' => 'boolean', 'delegation' => 'boolean', 'listsnapshots' => 'boolean', 
 			'failmode' => 'wait, continue, panic', 'feature@async_destroy' => 'enabled, disabled', 'feature@empty_bpobj' => 'enabled, disabled', 'feature@lz4_compress' => 'enabled, disabled', 'feature@embedded_data' => 'enabled, disabled', 'feature@enabled_txg' => 'enabled, disabled', 'feature@bookmarks' => 'enabled, disabled', 'feature@hole_birth' => 'enabled, disabled', 'feature@spacemap_histogram' => 'enabled, disabled', 'feature@extensible_dataset' => 'enabled, disabled', 'feature@large_blocks' => 'enabled, disabled', 'feature@filesystem_limits' => 'enabled, disabled',
 			'altroot' => 'special', 'bootfs' => 'special', 'cachefile' => 'special', 'comment' => 'special');
 return %list;
@@ -31,7 +31,7 @@ return %list;
 
 sub create_opts #options and defaults when creating new pool or filesystem
 {
-my %list = ( 'atime' => 'on', 'compression' => 'off', 'dedup' => 'off', 'readonly' => 'off', 'utf8only' => 'off', 'xattr' => 'on' );
+my %list = ( 'atime' => 'on', 'compression' => 'off', 'canmount' => 'on', 'dedup' => 'off', 'exec' => 'on', 'readonly' => 'off', 'utf8only' => 'off', 'xattr' => 'on' );
 return %list;
 }
 
@@ -159,7 +159,11 @@ if ($alerts =~ /all pools are healthy/)
 	my $out = "<b>";
 	foreach $key (sort(keys %status))
 	{
-		if (true) { $out .= "pool \'".$key."\' is ".$status{$key}{state}." with ".$status{$key}{errors}."<br />";}
+		#if (true) { $out .= "pool \'".$key."\' is ".$status{$key}{state}." with ".$status{$key}{errors}."<br />";}
+		%zstat = zpool_status($key);
+		$out .= "pool \'".$key."\' is ".$zstat{0}{state}." with ".$zstat{0}{errors}."<br />";
+		if ($zstat{0}{scan}) { $out .= "scan: ".$zstat{0}{scan}."<br />"; }
+		$out .= "<br />";
 	}
 	$out .= "</b>";
 	return $out;
