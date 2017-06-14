@@ -3,7 +3,7 @@
 require './zfsmanager-lib.pl';
 &ReadParse();
 use Data::Dumper;
-ui_print_header(undef, $text{'index_title'}, "", undef, 1, 1, 0, &help_search_link("zfs, zpool", "man", "doc", "google"), undef, undef, $text{'index_version'} );
+ui_print_header(undef, $text{'index_title'}, "", undef, 1, 1, 0, "<a href='about.cgi'>About ZFS Manager</a><br />".&help_search_link("zfs, zpool", "man", "doc", "google"), undef, undef, $text{'index_version'} );
 
 #my %conf = get_zfsmanager_config();
 

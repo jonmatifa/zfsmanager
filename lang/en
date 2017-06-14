@@ -12,6 +12,8 @@ property_title=Manage Property
 select_title=Select a device for new vdev
 diff_title=Snapshot Differences
 
+about_title=About ZFS Manager
+
 cmd_title=Issuing Command
 cmd_with=with command...
 cmd_setzfs=Attempting to set zfs property
