@@ -197,7 +197,7 @@ if ($in{'create'} =~ "zpool")
 	print ui_table_start("Import Zpool", 'width=100%');
 	print ui_form_start("create.cgi", "post");
 	print ui_hidden('import', '1');
-	print ui_table_row(undef, "Import search directory (blank for default):".ui_filebox('dir', $in{'dir'}, 25, undef, undef, 1));
+	print ui_table_row(undef, "Import search directory (blank for default):".ui_filebox('dir', $in{'dir'}, 25, undef, undef, undef, 1));
 	print ui_table_row(undef, ui_checkbox('destroyed', '-D', 'Search for destroyed pools', undef ));
 	#print "<br />";
 	print ui_table_row(undef, ui_submit('Search'));

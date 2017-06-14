@@ -1,6 +1,6 @@
 index_title=ZFS Manager
 index_root=The root directory is $1.
-index_version=testing alpha 0.0.5a
+index_version=testing alpha 0.0.6
 index_return=pool list
 snapshot_return=snapshot list
 zfs_return=file system list
@@ -13,6 +13,26 @@ select_title=Select a device for new vdev
 diff_title=Snapshot Differences
 
 cmd_title=Issuing Command
+cmd_with=with command...
+cmd_setzfs=Attempting to set zfs property
+cmd_setpool=Attempting to set pool property
+cmd_snapshot=Attempting to create snapshot
+cmd_send=Attempting to send snapshot
+cmd_createzfs=Attempting to create filesystem
+cmd_clone=Attempting to clone
+cmd_rename=Attempting to rename
+cmd_createzpool=Attempting to create pool
+cmd_vdev=Attempting to 
+cmd_promote=Attempting to promote
+cmd_scrub=Attempting to scrub pool
+cmd_upgrade=Attempting to upgrade pool
+cmd_export=Attempting to export pool
+cmd_import=Attempting to import pool
+cmd_zfsact=Attempting to 
+cmd_zfsdestroy=Attempting to destroy filesystem
+cmd_snpdestroy=Attempting to destroy snapshot
+cmd_pooldestroy=Attempting to destroy pool
+cmd_multisnap=Attempting to destroy multiple snapshots...
 
 snapshot_title=Snapshot 
 snapshot_create=Create Snapshot

@@ -510,38 +510,67 @@ return $rv;
 
 sub ui_cmd
 {
-#my ($message, @result) = @_;
 my ($message, $cmd) = @_;
-$rv = "Attempting to $message with command... <br />\n";
-$rv .= "<i># ".$cmd."</i><br /><br />\n";
+print "$text{'cmd_'.$in{'cmd'}} $message $text{'cmd_with'}<br />\n";
+print "<i># ".$cmd."</i><br /><br />\n";
 if (!$in{'confirm'}) {
-	$rv .= ui_form_start('cmd.cgi', 'post');
+	print ui_form_start('cmd.cgi', 'post');
 	foreach $key (keys %in) {
-			$rv .= ui_hidden($key, $in{$key});
+		print ui_hidden($key, $in{$key});
 	}
-	$rv .= "<h3>Would you lke to continue?</h3>\n";
-	$rv .= ui_submit("yes", "confirm", 0)."<br />";
-	#$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." | <a href='status.cgi?zfs=".$in{'zfs'}."'>no</a>";
-	$rv .= ui_form_end();
-	#$rv .= "confirm=".$confirm."</br>";
+	print "<h3>Would you lke to continue?</h3>\n";
+	print ui_submit("yes", "confirm", 0)."<br />";
+	print ui_form_end();
 } else {
 	@result = (`$cmd 2>&1`);
 	if (!$result[0])
 	{
-		#$rv .= $result[1]."<br />\n";
-		$rv .= "Success! <br />\n";
+		print "Success! <br />\n";
 	} else	{
-	#$result[1] =~ s/\R/ /g;
-	$rv .= "<b>error: </b>".$result[0]."<br />\n";
+	print "<b>error: </b>".$result[0]."<br />\n";
 	foreach $key (@result[1..@result]) {
-		$rv .= $key."<br />\n";
+		print $key."<br />\n";
 	}
-	#print Dumper(@result);
 	}
+}
+print "<br />";
+}
+
+sub ui_cmd_old
+{
+my ($message, $cmd) = @_;
+$rv = "Attempting to $message with command... <br />\n";
+$rv .= "<i># ".$cmd."</i><br /><br />\n";
+if (!$in{'confirm'}) {
+        $rv .= ui_form_start('cmd.cgi', 'post');
+        foreach $key (keys %in) {
+                        $rv .= ui_hidden($key, $in{$key});
+        }
+        $rv .= "<h3>Would you lke to continue?</h3>\n";
+        $rv .= ui_submit("yes", "confirm", 0)."<br />";
+        #$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." |$
+        $rv .= ui_form_end();
+        #$rv .= "confirm=".$confirm."</br>";
+} else {
+        @result = (`$cmd 2>&1`);
+        if (!$result[0])
+        {
+                #$rv .= $result[1]."<br />\n";
+                $rv .= "Success! <br />\n";
+        } else  {
+        #$result[1] =~ s/\R/ /g;
+        $rv .= "<b>error: </b>".$result[0]."<br />\n";
+        foreach $key (@result[1..@result]) {
+                $rv .= $key."<br />\n";
+        }
+        #print Dumper(@result);
+        }
 }
 
 return $rv;
 }
+
+
 
 sub ui_popup_link
 #deprecated

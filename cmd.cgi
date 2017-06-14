@@ -18,36 +18,41 @@ if ($in{'cmd'} =~ "setzfs") {
 	$in{'confirm'} = "yes";
 	if (($in{'set'} =~ "inherit") && ($config{'zfs_properties'} =~ /1/)) { $cmd = "zfs inherit $in{'property'} $in{'zfs'}"; 
 	} elsif ($config{'zfs_properties'} =~ /1/) { $cmd =  "zfs set $in{'property'}=$in{'set'} $in{'zfs'}"; }
-	print ui_cmd("set zfs property $in{'property'} to $in{'set'} in $in{'zfs'}", $cmd);
+	#print $text{'cmd_setzfs'}." $in{'property'} to $in{'set'} on $in{'zfs'} $text{'cmd_with'}<br /><i>".$cmd."</i>";
+	ui_cmd("$in{'property'} to $in{'set'} on $in{'zfs'}", $cmd);
 }
 elsif ($in{'cmd'} =~ "setpool")  {
 	$in{'confirm'} = "yes";
 	if ($in{'property'} =~ 'comment') { $in{'set'} = '"'.$in{'set'}.'"'; }
 	my $cmd = ($config{'pool_properties'} =~ /1/) ? "zpool set $in{'property'}=$in{'set'} $in{'pool'}": undef;
-	print ui_cmd("set pool property $in{'property'} to $in{'set'} in $in{'pool'}", $cmd);
+	ui_cmd("$in{'property'} to $in{'set'} in $in{'pool'}", $cmd);
 }
 elsif ($in{'cmd'} =~ "snapshot")  {
 	my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs snapshot ".$in{'zfs'}."@".$in{'snap'} : undef;
 	$in{'confirm'} = "yes";
-	print ui_cmd("create snapshot $in{'snap'}", $cmd);
+	ui_cmd($in{'snap'}, $cmd);
 	print "", (!$result[1]) ? ui_list_snapshots($in{'zfs'}."@".$in{'snap'}) : undef;
 }
 elsif ($in{'cmd'} =~ "send") {
 	if (!$in{'dest'}) {
-                print "Please select destination: $in{'snap'}... <br />";
+                print "Send snapshot: $in{'snap'} to gzip file <br />";
                 print "<br />";
                 print ui_form_start('cmd.cgi', 'post');
                 print ui_hidden('cmd', $in{'cmd'});
 		print ui_hidden('snap', $in{'snap'});
 		#my %comp = ('none1', 'gzip', 'bzip');
 		#print "<b>Compression: </b>".ui_select('comp', 'gzip', [%comp])."</br>";
-		print "<b>Destination: </b>".ui_filebox('dest', undef, 25, undef, undef, 0)."<br>";
+		my $newfile = $in{'snap'} =~ s![/@]!_!gr;
+		print "<b>Destination: </b>".ui_filebox('dest', undef, 35, undef, undef, undef, 1)."<br />";
+		print "<b>Filename: </b>".ui_textbox('file', $newfile.'.gz', 50)."<br />";
 		print ui_submit("Continue", undef, undef);
                 print ui_form_end();
 	} else { 
 		$in{'confirm'} = "yes";
-		my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs send ".$in{'snap'}." | gzip > ".$in{'dest'} : undef;
-		print ui_cmd("send snapshot $in{'snap'}", $cmd);
+		my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs send ".$in{'snap'}." | gzip > ".$in{'dest'}."/".$in{'file'} : undef;
+		ui_cmd($in{'snap'}, $cmd);
+		#print "<br />";
+		print `ls -al $in{'dest'}'."/".$in{'file'}`;
 	}
 }
 elsif ($in{'cmd'} =~ "createzfs")  {
@@ -70,7 +75,7 @@ elsif ($in{'cmd'} =~ "createzfs")  {
 	#else { $in{'zfs'} = $in{'parent'}."/".$in{'zfs'}; }
 	my $cmd = (($in{'parent'}) && ($config{'zfs_properties'} =~ /1/)) ? cmd_create_zfs($in{'parent'}."/".$in{'zfs'}, \%options) : undef;
 	$in{'confirm'} = "yes";
-	print ui_cmd("create filesystem $in{'parent'}/$in{'zfs'}", $cmd);
+	ui_cmd("$in{'parent'}/$in{'zfs'}", $cmd);
 	#print "", (!$result[1]) ? ui_zfs_list($in{'zfs'}) : undef;
 	#^^^this doesn't work for some reason
 	@footer = ("status.cgi?zfs=".$in{'parent'}, $in{'parent'});
@@ -88,7 +93,7 @@ elsif ($in{'cmd'} =~ "clone")  {
 	if ($in{'mountpoint'}) { $opts .= ' -o mountpoint='.$in{'mountpoint'}; }
 	$in{'confirm'} = "yes";
 	my $cmd =  ($config{'zfs_properties'} =~ /1/) ? "zfs clone ".$in{'clone'}." ".$in{'parent'}.'/'.$in{'zfs'}." ".$opts : undef;
-	print ui_cmd("clone ".$in{'clone'}, $cmd);
+	ui_cmd($in{'clone'}, $cmd);
 	@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
 	#$in{'snap'} = $in{'clone'};
 }
@@ -110,7 +115,7 @@ elsif ($in{'cmd'} =~ "rename")  {
 		#$in{'parent'} = undef;
 		$cmd = ($config{'zfs_properties'} =~ /1/) ? "zfs rename ".$in{'force'}.$in{'prnt'}.$in{'zfs'}." ".$in{'parent'}.'/'.$in{'name'} : undef; 
 	}
-        print ui_cmd("rename ".$in{'zfs'}." to ".$in{'name'}, $cmd);
+        ui_cmd($in{'zfs'}." to ".$in{'name'}, $cmd);
 }
 elsif ($in{'cmd'} =~ "createzpool")  {
 	#if ($in{'add'}) { redirect('create.cgi?srl='.serialise_variable(%in)); }
@@ -132,35 +137,35 @@ elsif ($in{'cmd'} =~ "createzpool")  {
 	%poolopts = ( 'version' => $in{'version'} );
 	my $cmd = (($config{'pool_properties'} =~ /1/)) ? cmd_create_zpool($in{'pool'}, $in{'vdev'}.$in{'devs'}, \%options, \%poolopts, $in{'force'}) : undef;
 	$in{'confirm'} = "yes";
-	print ui_cmd("create pool $in{'pool'}", $cmd);
+	ui_cmd($in{'pool'}, $cmd);
 	#print "", (!$result[1]) ? ui_zfs_list($in{'zfs'}) : undef;
 	#^^^this doesn't work for some reason
 }
 elsif ($in{'cmd'} =~ "vdev") {
 	$in{'confirm'} = "yes";
 	my $cmd =  ($config{'pool_properties'} =~ /1/) ? "zpool $in{'action'} $in{'pool'} $in{'vdev'}": undef;
-	print ui_cmd("$in{'action'} $in{'vdev'}", $cmd);
+	ui_cmd("$in{'action'} $in{'vdev'}", $cmd);
 }
 elsif ($in{'cmd'} =~ "promote") {
 	my $cmd = ($config{'zfs_properties'} =~ /1/) ? "zfs promote $in{'zfs'}": undef;
-	print ui_cmd("promote $in{'zfs'}", $cmd);
+	ui_cmd($in{'zfs'}, $cmd);
 }
 elsif ($in{'cmd'} =~ "scrub") {
 	$in{'confirm'} = "yes";
 	if ($in{'stop'}) { $in{'stop'} = "-s"; }
 	my $cmd = ($config{'pool_properties'} =~ /1/) ? "zpool scrub $in{'stop'} $in{'pool'}" : undef;
-	print ui_cmd("scrub pool $in{'pool'}", $cmd);
+	ui_cmd($in{'pool'}, $cmd);
 }
 elsif ($in{'cmd'} =~ "upgrade") {
 	print "<p>".$text{'zpool_upgrade_msg'}."</p>";
 	#$in{'confirm'} = "yes";
 	my $cmd = ($config{'pool_properties'} =~ /1/) ? "zpool upgrade $in{'pool'}" : undef;
-	print ui_cmd("upgrade pool $in{'pool'}", $cmd);
+	ui_cmd($in{'pool'}, $cmd);
 }
 elsif ($in{'cmd'} =~ "export") {
 	#$in{'confirm'} = "yes";
 	my $cmd = ($config{'pool_properties'} =~ /1/) ? "zpool export $in{'pool'}" : undef;
-	print ui_cmd("scrub pool $in{'pool'}", $cmd);
+	ui_cmd($in{'pool'}, $cmd);
 	@footer = ("index.cgi?mode=pools", $text{'index_return'});
 }
 elsif ($in{'cmd'} =~ "import")  {
@@ -168,12 +173,12 @@ elsif ($in{'cmd'} =~ "import")  {
 	if ($in{'dir'}) { $dir .= " -d ".$in{'dir'}; }
 	if ($in{'destroyed'}) { $dir .= " -D -f "; }
 	my $cmd = ($config{'pool_properties'} =~ /1/ ) ? "zpool import".$dir." ".$in{'import'}: undef;
-	print ui_cmd("import pool $in{'import'}", $cmd);
+	ui_cmd($in{'import'}, $cmd);
 	@footer = ("index.cgi?mode=pools", $text{'index_return'});
 }
 elsif ($in{'cmd'} =~ "zfsact")  {
 	my $cmd = ($config{'zfs_properties'} =~ /1/) ? "zfs $in{'action'} $in{'zfs'}" : undef;
-	print ui_cmd("$in{'action'} $in{'zfs'}", $cmd);
+	ui_cmd("$in{'action'} $in{'zfs'}", $cmd);
 }
 elsif ($in{'cmd'} =~ "zfsdestroy")  {
 	my $cmd = ($config{'zfs_destroy'} =~ /1/) ? "zfs destroy $in{'force'} $in{'zfs'}" : undef;
@@ -195,9 +200,8 @@ elsif ($in{'cmd'} =~ "zfsdestroy")  {
 		print "<br /><br />";
 		print ui_submit("Continue", undef, undef);
 		print ui_form_end();
-		#print ui_cmd("destroy $in{'zfs'}", $cmd);
 	} else {
-		print ui_cmd("destroy $in{'zfs'}", $cmd);
+		ui_cmd($in{'zfs'}, $cmd);
 	}
 	@footer = ("index.cgi?mode=zfs", $text{'zfs_return'});
 }
@@ -221,7 +225,7 @@ elsif ($in{'cmd'} =~ "snpdestroy")  {
 		print ui_form_end();
 
 	} else {
-		print ui_cmd("destroy $in{'snapshot'}", $cmd);
+		ui_cmd($in{'snapshot'}, $cmd);
 	}
 	print ui_form_end();
 	@footer = ("index.cgi?mode=snapshot", $text{'snapshot_return'});
@@ -248,7 +252,7 @@ my $cmd = ($config{'pool_destroy'} =~ /1/) ? "zpool destroy $in{'pool'}" : undef
 		print "<br /><br />";
 		print ui_submit("Continue", undef, undef);
 	} else {
-		print ui_cmd("destroy $in{'pool'}", $cmd);
+		ui_cmd($in{'pool'}, $cmd);
 	}
 	@footer = ("index.cgi?mode=pools", $text{'index_return'});
 }
