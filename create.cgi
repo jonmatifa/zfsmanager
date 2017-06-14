@@ -288,33 +288,6 @@ if ($in{'create'} =~ "zpool")
         print ui_form_end();
 	$in{'zfs'} = $in{'rename'};
         #ui_print_footer("status.cgi?zfs=".$in{'rename'}, $in{'rename'});
-} elsif ($in{'send'}) {
-	ui_print_header(undef, "Send Snapshot", "", undef, 1, 1);
-	print ui_form_start("cmd.cgi", "get");
-	print ui_table_start('Send Snapshot', 'width=100%', '6');
-	print ui_table_row(undef, '<b>Snapshot:</b> '.$in{'send'});
-	print ui_table_row(undef, ui_oneradio('type', 'new', '<b>New local filesystem</b> ', 1));
-	%hash = list_zfs();
-	@zfs = keys(%hash);
-	print ui_table_row(undef, "<b>Name: </b>".ui_select('parent', undef, [@zfs])."/".ui_textbox('zfs'));
-	print ui_table_row(undef, ui_checkbox('replicate', '1', 'Replicate entire file system?', 0));
-	print ui_hidden('send', $in{'send'});
-	print ui_table_row(undef, "<br />");
-	print ui_table_row(undef, ui_oneradio('type', 'exist', '<b>Existing local filesystem</b> ', 0));
-	print ui_table_row(undef, "<b>Name: </b>".ui_select('existzfs', undef, [@zfs]));
-	print ui_table_row(undef, ui_checkbox('increment', '1', 'Incremental?', 0));
-	print ui_table_row(undef, ui_checkbox('force', '1', 'Force overwrite?', 0));
-	print ui_table_row(undef, "<br />");
-	print ui_table_row(undef, ui_oneradio('type', 'ssh', '<b>Remote filesystem by SSH</b> ', 0, undef, 1));
-	print ui_table_row(undef, "<i>Not yet implemented</i>");
-	print ui_table_row(undef, "<br />");
-	print ui_table_end();
-	print ui_submit('Send');
-	print " | ";
-	$in{'snap'} = $in{'send'};
-	#ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'});
-	#@footer = ('index.cgi?mode=snapshot', $text{'snapshot_return'});
-	#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
 } elsif (($in{'create'} =~ "snapshot") &&  ($in{'zfs'} eq undef)) {
 	ui_print_header(undef, $text{'snapshot_new'}, "", undef, 1, 1);
 	%zfs = list_zfs();

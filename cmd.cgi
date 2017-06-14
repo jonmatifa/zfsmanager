@@ -27,10 +27,28 @@ elsif ($in{'cmd'} =~ "setpool")  {
 	print ui_cmd("set pool property $in{'property'} to $in{'set'} in $in{'pool'}", $cmd);
 }
 elsif ($in{'cmd'} =~ "snapshot")  {
-		my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs snapshot ".$in{'zfs'}."@".$in{'snap'} : undef;
+	my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs snapshot ".$in{'zfs'}."@".$in{'snap'} : undef;
+	$in{'confirm'} = "yes";
+	print ui_cmd("create snapshot $in{'snap'}", $cmd);
+	print "", (!$result[1]) ? ui_list_snapshots($in{'zfs'}."@".$in{'snap'}) : undef;
+}
+elsif ($in{'cmd'} =~ "send") {
+	if (!$in{'dest'}) {
+                print "Please select destination: $in{'snap'}... <br />";
+                print "<br />";
+                print ui_form_start('cmd.cgi', 'post');
+                print ui_hidden('cmd', $in{'cmd'});
+		print ui_hidden('snap', $in{'snap'});
+		#my %comp = ('none1', 'gzip', 'bzip');
+		#print "<b>Compression: </b>".ui_select('comp', 'gzip', [%comp])."</br>";
+		print "<b>Destination: </b>".ui_filebox('dest', undef, 25, undef, undef, 0)."<br>";
+		print ui_submit("Continue", undef, undef);
+                print ui_form_end();
+	} else { 
 		$in{'confirm'} = "yes";
-		print ui_cmd("create snapshot $in{'snap'}", $cmd);
-		print "", (!$result[1]) ? ui_list_snapshots($in{'zfs'}."@".$in{'snap'}) : undef;
+		my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs send ".$in{'snap'}." | gzip > ".$in{'dest'} : undef;
+		print ui_cmd("send snapshot $in{'snap'}", $cmd);
+	}
 }
 elsif ($in{'cmd'} =~ "createzfs")  {
 	#print "Attempting to create filesystem $in{'parent'}/$in{'zfs'} with command... <br />";

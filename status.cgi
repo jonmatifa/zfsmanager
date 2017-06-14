@@ -156,6 +156,7 @@ if ($in{'snap'})
 		print ui_table_row("Snapshot: ", ui_create_snapshot($zfs));
 		#print ui_table_row('Rename:', "Rename $in{'snap'}");
 		print ui_table_row("Rename: ", "<a href='create.cgi?rename=".$in{'snap'}."'>Rename ".$in{'snap'}."</a>");
+		print ui_table_row("Send: ", "<a href='cmd.cgi?cmd=send&snap=".$in{'snap'}."'>Send ".$in{'snap'}." to gzip</a>");
 	}
 	if ($config{'zfs_properties'} =~ /1/) { 
 		print ui_table_row('Clone:', "<a href='create.cgi?clone=$in{snap}'>Clone $in{'snap'} to new file system</a>"); 
