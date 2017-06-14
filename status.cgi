@@ -12,20 +12,22 @@ ui_print_header(undef, $text{'status_title'}, "", undef, 1, 1);
 
 #Show pool information
 #print "Pool:";
-ui_zpool_status($in{'pool'});
+#ui_zpool_status($in{'pool'});
+ui_zpool_list($in{'pool'});
 
 #show properties for pool
 ui_zpool_properties($in{'pool'});
 
 #Show associated file systems
-%zfs = list_zfs("-r ".$in{'pool'});
-#print "Filesystems:";
-print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
-foreach $key (sort(keys %zfs)) 
-{
-    print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
-}
-print ui_columns_end();
+#%zfs = list_zfs("-r ".$in{'pool'});
+
+ui_zfs_list("-r ".$in{'pool'});
+#print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
+#foreach $key (sort(keys %zfs)) 
+#{
+#    print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+#}
+#print ui_columns_end();
 
 #Show device configuration
 #TODO: show devices by vdev hierarchy
@@ -160,10 +162,11 @@ if ($in{'snap'})
 	}
 	if ($config{'zfs_properties'} =~ /1/) { 
 		print ui_table_row('Clone:', "<a href='create.cgi?clone=$in{snap}'>Clone $in{'snap'} to new file system</a>"); 
+		print ui_table_row('Rollback:', "Rollback $zfs to $in{'snap'}");
 	}
 	if (($config{'snap_properties'} =~ /1/) && ($config{'zfs_properties'} =~ /1/)) { 
 		#print ui_table_row('Clone:', "Clone $in{'snap'} to new file system"); 
-		print ui_table_row('Rollback:', "Rollback $zfs to $in{'snap'}");
+		#print ui_table_row('Rollback:', "Rollback $zfs to $in{'snap'}");
 		#print ui_table_row('Send:', "Send $in{'snap'}");
 	}
 	if ($config{'snap_destroy'} =~ /1/) { print ui_table_row('Destroy:',"<a href='cmd.cgi?cmd=snpdestroy&snapshot=$in{snap}'>Destroy snapshot</a>", ); }

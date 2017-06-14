@@ -43,7 +43,7 @@ elsif ($in{'cmd'} =~ "send") {
 		#my %comp = ('none1', 'gzip', 'bzip');
 		#print "<b>Compression: </b>".ui_select('comp', 'gzip', [%comp])."</br>";
 		my $newfile = $in{'snap'} =~ s![/@]!_!gr;
-		print "<b>Destination: </b>".ui_filebox('dest', undef, 35, undef, undef, undef, 1)."<br />";
+		print "<b>Destination: </b>".ui_filebox('dest', $config{'last_send'}, 35, undef, undef, undef, 1)."<br />";
 		print "<b>Filename: </b>".ui_textbox('file', $newfile.'.gz', 50)."<br />";
 		print ui_submit("Continue", undef, undef);
                 print ui_form_end();
@@ -51,6 +51,8 @@ elsif ($in{'cmd'} =~ "send") {
 		$in{'confirm'} = "yes";
 		my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs send ".$in{'snap'}." | gzip > ".$in{'dest'}."/".$in{'file'} : undef;
 		ui_cmd($in{'snap'}, $cmd);
+		$config{'last_send'} = $in{'dest'};
+		save_module_config();
 		#print "<br />";
 		print `ls -al $in{'dest'}'."/".$in{'file'}`;
 	}
@@ -78,7 +80,7 @@ elsif ($in{'cmd'} =~ "createzfs")  {
 	ui_cmd("$in{'parent'}/$in{'zfs'}", $cmd);
 	#print "", (!$result[1]) ? ui_zfs_list($in{'zfs'}) : undef;
 	#^^^this doesn't work for some reason
-	@footer = ("status.cgi?zfs=".$in{'parent'}, $in{'parent'});
+	@footer = ("status.cgi?zfs=".$in{'parent'}."/".$in{'zfs'}, $in{'parent'}."/".$in{'zfs'});
 }
 elsif ($in{'cmd'} =~ "clone")  {
 	my %createopts = create_opts();

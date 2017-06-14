@@ -73,16 +73,23 @@ my ($pool) = @_;
 #my @table=();
 my %hash=();
 #expecting NAME SIZE ALLOC FREE FRAG CAP DEDUP HEALTH ALTROOT
-$list=`zpool list -o name,size,alloc,free,frag,cap,dedup,health,altroot -H $pool`;
+#$list=`zpool list -o name,size,alloc,free,frag,cap,dedup,health,altroot -H $pool`;
+$list=`zpool list -o name,$config{'list_zpool'} -H $pool`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
 while (my $line =<$fh>)
 {
     chomp ($line);
-    my($name, $size, $alloc, $free, $frag, $cap, $dedup, $health, $altroot) = split(" ", $line);
-    #$hash{$name} = [ $size, $alloc, $free, $frag, $cap, $dedup, $health, $altroot ];
-	$hash{$name} = { size => $size, alloc => $alloc, free => $free, frag => $frag, cap => $cap, dedup => $dedup, health => $health, altroot => $altroot };
+    #my($name, $size, $alloc, $free, $frag, $cap, $dedup, $health, $altroot) = split(" ", $line);
+	#$hash{$name} = { size => $size, alloc => $alloc, free => $free, frag => $frag, cap => $cap, dedup => $dedup, health => $health, altroot => $altroot };
+	my @props = split(" ", $line);
+        $ct = 1;
+        foreach $prop (split(",", $config{'list_zpool'})) {
+                $hash{$props[0]}{$prop} = $props[$ct];
+                $ct++;
+        }
+
 }
 return %hash;
 }
@@ -94,16 +101,21 @@ sub list_zfs
 my ($zfs) = @_;
 my %hash=();
 #expecting NAME USED AVAIL REFER MOUNTPOINT
-$list=`zfs list -o name,used,avail,refer,mountpoint -H $zfs`;
+#$list=`zfs list -o name,used,avail,refer,mountpoint -H $zfs`;
+$list=`zfs list -o name,$config{'list_zfs'} -H $zfs`;
 
 open my $fh, "<", \$list;
-#my @table = split("", $firstline=<$fh>);
 while (my $line =<$fh>)
 {
-    chomp ($line);
-    my($name, $used, $avail, $refer, $mount) = split(" ", $line);
-    #$hash{$name} = [ $used, $avail, $refer, $mount ];
-	$hash{$name} = { used => $used, avail => $avail, refer => $refer, mount => $mount };
+	chomp ($line);
+	#my($name, $used, $avail, $refer, $mountpoint) = split(" ", $line);
+	#$hash{$name} = { used => $used, avail => $avail, refer => $refer, mountpoint => $mountpoint };
+	my @props = split(" ", $line);
+	$ct = 1;
+	foreach $prop (split(",", $config{'list_zfs'})) { 
+		$hash{$props[0]}{$prop} = $props[$ct];
+		$ct++;
+	}
 }
 return %hash;
 }
@@ -390,6 +402,25 @@ my %parent = ();
 return %parent;
 }
 
+sub ui_zpool_list
+{
+my ($pool, $action)=@_;
+my %zpool = list_zpools($pool);
+if ($action eq undef) { $action = "status.cgi?pool="; }
+#print $config{list_zpool};
+@props = split(/,/, $config{list_zpool});
+#print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Frag", "Cap", "Dedup", "Health"]);
+print ui_columns_start([ "pool name", @props ]);
+foreach $key (sort(keys %zpool))
+{
+     #print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{frag}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
+     @vals = ();
+     foreach $prop (@props) { push (@vals, $zpool{$key}{$prop}); }
+     print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", @vals ]);
+}
+print ui_columns_end();
+}
+
 sub ui_zpool_status
 {
 my ($pool, $action) = @_;
@@ -429,10 +460,14 @@ sub ui_zfs_list
 my ($zfs, $action)=@_;
 my %zfs = list_zfs($zfs);
 if ($action eq undef) { $action = "status.cgi?zfs="; }
-print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
+@props = split(/,/, $config{list_zfs});
+print ui_columns_start([ "file system", @props ]);
 foreach $key (sort(keys %zfs)) 
 {
-	print ui_columns_row([ "<a href='$action$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+	#print ui_columns_row([ "<a href='$action$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
+	@vals = ();
+	foreach $prop (@props) { push (@vals, $zfs{$key}{$prop}); }
+    	print ui_columns_row(["<a href='$action$key'>$key</a>", @vals ]);
 }
 print ui_columns_end();
 }
@@ -450,7 +485,12 @@ foreach $key (sort(keys %{$hash{$zfs}}))
 {		
 	if (($properties{$key}) || ($props{$key}))
 	{		
-		if ($key =~ 'origin') { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', "<a href='status.cgi?snap=$hash{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>");
+		if ($key =~ 'origin') { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', "<a href='status.cgi?snap=$hash{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>"); }
+		elsif ($key =~ 'clones') { 
+			$row = "";
+			@clones = split(',', $hash{$zfs}{$key}{value});
+			foreach $clone (@clones) { $row .= "<a href='status.cgi?zfs=$clone'>$clone</a> "; }
+			print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', $row);
 		} else { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', $hash{$zfs}{$key}{value}); }
 	} else {
 	print ui_table_row($key, $hash{$zfs}{$key}{value});

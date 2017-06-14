@@ -112,7 +112,7 @@ if ($in{'create'} =~ "zpool")
 	#Show associated file systems
 	
 	print "Parent file system:";
-	ui_zfs_list("-r ".$in{'parent'}, "");
+	ui_zfs_list($in{'parent'}, "");
 	
 	@tabs = ();
 	push(@tabs, [ "zfs", "Create Filesystem", "create.cgi?mode=zfs" ]);
