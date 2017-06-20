@@ -1,4 +1,4 @@
-zfsmanager
+ZFS Manager
 ==========
 
 ZFS administration tool for Webmin

@@ -3,28 +3,9 @@ use WebminCore;
 init_config();
 
 sub property_desc
+#deprecated, migrate all to lang/en
 {
-my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files  and  directories
-	   are	created.  A file system with an "aclinherit" property of "dis-
-	   card" does not inherit any ACL  entries.  A	file  system  with  an
-	   "aclinherit"  property value of "noallow" only inherits inheritable
-	   ACL entries that specify "deny"  permissions.  The  property  value
-	   "restricted"    (the   default)   removes   the   "write_acl"   and
-	   "write_owner" permissions when the ACL entry is inherited.  A  file
-	   system  with an "aclinherit" property value of "passthrough" inher-
-	   its all inheritable ACL entries without any modifications  made  to
-	   the	ACL  entries  when  they  are inherited. A file system with an
-	   "aclinherit" property value of "passthrough-x" has the same meaning
-	   as  "passthrough",  except  that  the owner@, group@, and everyone@
-	   ACEs inherit the execute permission only if the file creation  mode
-	   also requests the execute bit.
-
-	   When  the property value is set to "passthrough," files are created
-	   with a mode determined by the inheritable ACEs. If  no  inheritable
-	   ACEs exist that affect the mode, then the mode is set in accordance
-	   to the requested mode from the application.',
-	   
-	   'aclmode' => 'Controls how an ACL is modified during chmod(2). A file system with
+my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A file system with
 	   an  "aclmode" property of "discard" deletes all ACL entries that do
 	   not represent the mode  of  the  file.  An  "aclmode"  property  of
 	   "groupmask"	(the  default)	reduces user or group permissions. The
@@ -36,125 +17,6 @@ my %hash = ( 'aclinherit' => 'Controls how ACL entries are inherited when files 
 	   "passthrough"  indicates  that no changes are made to the ACL other
 	   than generating the necessary ACL entries to represent the new mode
 	   of the file or directory.',
-	   
-	   'acltype' => 'Controls  whether  ACLs  are  enabled  and if so what type of ACL to use.  When a file system has the acltype
-           property set to noacl (the default) then ACLs are disabled.  Setting the acltype property to  posixacl  indi-
-           cates Posix ACLs should be used.  Posix ACLs are specific to Linux and are not functional on other platforms.
-           Posix ACLs are stored as an xattr and therefore will not overwrite any existing ZFS/NFSv4 ACLs which  may  be
-           set.  Currently only posixacls are supported on Linux.<br />
-			<br />
-           To  obtain the best performance when setting posixacl users are strongly encouraged to set the xattr=sa prop-
-           erty.  This will result in the Posix ACL being stored more efficiently on disk.  But as a consequence of this
-           all new xattrs will only be accessable from ZFS implementations which support the xattr=sa property.  See the
-           xattr property for more details.',
-	   
-	   'allocated' => 'Amount of storage space within the pool that has been physi-
-		 cally allocated.',
-		 
-	   'altroot' => 'Alternate root directory. If set, this directory is prepended to any
-	 mount points within the pool. This can be used when examining an
-	 unknown pool where the mount points cannot be trusted, or in an
-	 alternate boot environment, where the typical paths are not valid.
-	 altroot is not a persistent property. It is valid only while the sys-
-	 tem is up.  Setting altroot defaults to using cachefile=none, though
-	 this may be overridden using an explicit setting.',
-	 
-	 'ashift' => 'Pool sector size exponent, to the power of 2 (internally referred to as "ashift"). I/O operations will be aligned to the specified
-           size  boundaries.  Additionally,  the  minimum (disk) write size will be set to the specified size, so this represents a space vs.
-           performance trade-off. The typical case for setting this property is when performance is important and the  underlying  disks  use
-           4KiB sectors but report 512B sectors to the OS (for compatibility reasons); in that case, set ashift=12 (which is 1<<12 = 4096).
-
-           For  optimal  performance,  the pool sector size should be greater than or equal to the sector size of the underlying disks. Since
-           the property cannot be changed after pool creation, if in a given pool, you ever want to use drives that report 4KiB sectors,  you
-           must set ashift=12 at pool creation time.',
-	 
-	   'autoexpand' => 'Controls automatic pool expansion when the underlying LUN is grown.
-	 If set to "on", the pool will be resized according to the size of the
-	 expanded device. If the device is part of a mirror or raidz then all
-	 devices within that mirror/raidz group must be expanded before the
-	 new space is made available to the pool. The default behavior is
-	 "off".  This property can also be referred to by its shortened column
-	 name, expand.',
-	 
-	 'autoreplace' => 'Controls automatic device replacement. If set to "off", device
-	 replacement must be initiated by the administrator by using the
-	 "zpool replace" command. If set to "on", any new device, found in the
-	 same physical location as a device that previously belonged to the
-	 pool, is automatically formatted and replaced. The default behavior
-	 is "off".  This property can also be referred to by its shortened
-	 column name, "replace".',
-	   
-	   'available' => 'The	amount of space available to the dataset and all its children,
-	   assuming that there is no other activity in the pool. Because space
-	   is  shared within a pool, availability can be limited by any number
-	   of factors, including physical pool size, quotas, reservations,  or
-	   other datasets within the pool.
-
-	   This property can also be referred to by its shortened column name,
-	   "avail".',
-	   
-	   'bootfs' => 'Identifies the default bootable dataset for the root pool. This prop-
-	 erty is expected to be set mainly by the installation and upgrade
-	 programs.',
-	 
-	 'cachefile' => 'Controls the location of where the pool configuration is cached. Dis-
-	 covering all pools on system startup requires a cached copy of the
-	 configuration data that is stored on the root file system. All pools
-	 in this cache are automatically imported when the system boots. Some
-	 environments, such as install and clustering, need to cache this
-	 information in a different location so that pools are not automati-
-	 cally imported. Setting this property caches the pool configuration
-	 in a different location that can later be imported with "zpool import
-	 -c".  Setting it to the special value "none" creates a temporary pool
-	 that is never cached, and the special value \'\' (empty string) uses
-	 the default location',
-	 
-	 'capacity' => 'Percentage of pool space used. This property can also be
-		 referred to by its shortened column name, "cap".',
-	   
-	   'checksum' => 'Controls  the  checksum  used to verify data integrity. The default
-	   value is "on", which automatically selects an appropriate algorithm
-	   (currently, fletcher2, but this may change in future releases). The
-	   value "off" disables integrity checking  on	user  data.  Disabling
-	   checksums is NOT a recommended practice.',
-	   
-		'atime' => 'Controls whether the access time for files is updated when they are
-	   read. Turning this property off avoids producing write traffic when
-	   reading  files  and	can  result  in significant performance gains,
-	   though it might confuse mailers and other  similar  utilities.  The
-	   default value is "on".',
-	   
-	   'canmount' => 'If  this  property  is  set	to  "off",  the  file system cannot be
-	   mounted, and is ignored by "zfs mount -a". Setting this property to
-	   "off"  is  similar  to setting the "mountpoint" property to "none",
-	   except that the dataset still has a normal  "mountpoint"  property,
-	   which  can  be  inherited.  Setting	this  property to "off" allows
-	   datasets to be used solely as a mechanism  to  inherit  properties.
-	   One	example  of  setting canmount=off is to have two datasets with
-	   the same mountpoint, so that the children of both  datasets	appear
-	   in  the  same directory, but might have different inherited charac-
-	   teristics.<br />
-		<br />
-	   When the "noauto" option is set, a dataset can only be mounted  and
-	   unmounted explicitly. The dataset is not mounted automatically when
-	   the dataset is created or imported, nor is it mounted by  the  "zfs
-	   mount -a" command or unmounted by the "zfs unmount -a" command.<br />
-	<br />
-	   This property is not inherited.',
-	   
-	   'casesensitivity' => 'Indicates whether the file name matching algorithm used by the file system should be case-sensitive, 
-		case-insensitive, or allow a combination of both styles of matching. The default value
-		for the casesensitivity property is sensitive. Traditionally, UNIX and POSIX file systems have
-		case-sensitive file names.<br />
-		<br />
-		The mixed value for the casesensitivity property indicates that the file  system  can  support
-		requests  for  both  case-sensitive  and  case-insensitive matching behavior. Currently, case-
-		insensitive matching behavior on a file system that supports mixed behavior is limited to  the
-		Solaris  CIFS  server  product.  For  more information about the mixed value behavior, see the
-		Solaris ZFS Administration Guide.',
-		
-		'comment' => 'A text string consisting of printable ASCII characters that will be stored such that it is available  even  if  the  pool  becomes
-           faulted.  An administrator can provide additional information about a pool using this property.',
            
 		'context' => 'This  flag  sets the SELinux context for all files in the filesytem under the mountpoint for that filesystem.
            See selinux(8) for more information.',
@@ -164,30 +26,9 @@ Clones can only be created from a snapshot. When a snapshot is cloned, it create
 
 The clone parent-child dependency relationship can be reversed by using the promote subcommand. This causes the "origin" file system to become a clone of the specified file system, which makes it possible to destroy the file system that the clone was created from.',
 	   
-		'compression' => 'Controls  the  compression  algorithm  used	for  this dataset. The
-	   "lzjb" compression algorithm is  optimized  for  performance  while
-	   providing decent data compression. Setting compression to "on" uses
-	   the "lzjb" compression algorithm. The "gzip" compression  algorithm
-	   uses  the  same compression as the gzip(1) command. You can specify
-	   the "gzip" level by using the value "gzip-N" where N is an  integer
-	   from  1  (fastest) to 9 (best compression ratio). Currently, "gzip"
-	   is equivalent to "gzip-6" (which is also the default for  gzip(1)).
-
-	   This  property can also be referred to by its shortened column name
-	   "compress".',
-	   
 	   'compressratio' => 'The compression ratio achieved for this  dataset,  expressed  as  a
 	   multiplier.	Compression  can be turned on by running "zfs set com-
 	   pression=on dataset". The default value is "off".',
-	   
-	   'com.sun:auto-snapshot' => '
-	   zfs-auto-snapshot  automatically  creates, rotates, and destroys snapshots for all your ZFS datasets, and is compatible with
-       both zfsonlinux and zfs-fuse.<br />
-       <br />
-       --default-exclude<br />
-       By default zfs-auto-snapshot will snapshot all datasets except for those in  which  the  user-property  com.sun:auto-snapshot
-        is set to false. This option reverses the behavior and requires com.sun:auto-snapshot to be set to true.<br />
-       <a href="https://github.com/zfsonlinux/zfs-auto-snapshot">https://github.com/zfsonlinux/zfs-auto-snapshot</a>',
 	   
 		'copies' => 'Controls the number of copies of  data  stored  for	this  dataset.
 	   These  copies  are  in  addition  to any redundancy provided by the

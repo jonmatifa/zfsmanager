@@ -20,30 +20,30 @@ if ($in{'zfs'}) {
 	print "Source: <b>", $get{$in{'zfs'}}{$in{'property'}}{source}."</b>";
 	print "<br />";
 	print "<br />";
-	#print ui_columns_start([ "File system", "Property", "Setting", "Source" ]);
-	#print ui_columns_row([ $in{'zfs'}, $in{'property'}, $get{$in{'zfs'}}{$in{'property'}}{value}, $get{$in{'zfs'}}{$in{'property'}}{source} ]);
-	#print ui_columns_end();
 } elsif ($in{'pool'}) { 
 	%get = zpool_get($in{'pool'},  $in{'property'}); 
 	print "Pool:  <b>".$in{'pool'}."</b><br /> ";
 	print "Property: <b>", $in{'property'}, "</b> is currently: <b>", $get{$in{'pool'}}{$in{'property'}}{value}, "</b><br />";
 	print "Source: <b>", $get{$in{'pool'}}{$in{'property'}}{source}."</b><br />";
-	#print Dumper(%get);
-	print "<br />";
-	
+	print "<br />";	
 }
-
-
 
 if ($props{$in{'property'}})
 {
 	print "<b>Description:</b><br />";
-	#print ui_table_span($props{$in{'property'}});
 	print $props{$in{'property'}};
 	print "<br />";
 	print "<br />";
-	print ui_table_end();
 }
+
+if ($text{'prop_'.$in{'property'}})
+{
+        print "<b>Description:</b><br />";
+        print $text{'prop_'.$in{'property'}};
+        print "<br />";
+        print "<br />";
+}
+print ui_table_end();
 
 if (can_edit($in{'zfs'}, $in{'property'}) =~ 1) {
 print ui_form_start('cmd.cgi', 'post');

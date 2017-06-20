@@ -41,7 +41,8 @@ if ($status{$in{'dev'}}{parent} =~ 'pool')
 	print ui_columns_end();
 	#print "Parent: <a href='config-vdev.cgi?pool=", $in{'pool'}, "&dev=", $status{$in{'dev'}}{parent}, "'>", $status{$in{'dev'}}{parent}, "</a><br />";
 }
-ui_zpool_status($in{'pool'});
+#ui_zpool_status($in{'pool'});
+ui_zpool_list($in{'pool'});
 if (($status{$in{'dev'}}{name} =~ "cache") || ($status{$in{'dev'}}{name} =~ "logs") || ($status{$in{'dev'}}{name} =~ "spare") || ($status{$in{'dev'}}{name} =~ /mirror/) || ($status{$in{'dev'}}{name} =~ /raidz/))
 {
 print "Children: ";
@@ -69,10 +70,5 @@ print "Children: ";
 }
 #print $gconfig{'os_type'};
 #print mount::get_mount();
-#print "<a href='create.cgi'>create</a>";
-
-#print "<a onClick=\"\window.close('cmd')\"\ href=''>Cancel</a>";
-#popup_footer();
-#print ui_table_end();
 
 ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'});

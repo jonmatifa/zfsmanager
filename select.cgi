@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+#deprecated
 require './zfsmanager-lib.pl';
 ReadParse();
 use Data::Dumper;

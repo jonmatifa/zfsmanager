@@ -107,8 +107,6 @@ if ($in{'create'} =~ "zpool")
 	@footer = ('index.cgi?mode=zfs', $text{'zfs_return'});
 } elsif (($in{'create'} =~ "zfs")) {
 	ui_print_header(undef, "Create File System", "", undef, 1, 1);
-	#print "Pool:";
-	#ui_zpool_status($in{'pool'});
 	#Show associated file systems
 	
 	print "Parent file system:";

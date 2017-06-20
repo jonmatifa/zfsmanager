@@ -11,23 +11,14 @@ if ($in{'pool'})
 ui_print_header(undef, $text{'status_title'}, "", undef, 1, 1);
 
 #Show pool information
-#print "Pool:";
-#ui_zpool_status($in{'pool'});
 ui_zpool_list($in{'pool'});
 
 #show properties for pool
 ui_zpool_properties($in{'pool'});
 
 #Show associated file systems
-#%zfs = list_zfs("-r ".$in{'pool'});
 
 ui_zfs_list("-r ".$in{'pool'});
-#print ui_columns_start([ "File System", "Used", "Avail", "Refer", "Mountpoint" ]);
-#foreach $key (sort(keys %zfs)) 
-#{
-#    print ui_columns_row(["<a href='status.cgi?zfs=$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
-#}
-#print ui_columns_end();
 
 #Show device configuration
 #TODO: show devices by vdev hierarchy

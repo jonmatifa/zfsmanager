@@ -74,7 +74,7 @@ my ($pool) = @_;
 my %hash=();
 #expecting NAME SIZE ALLOC FREE FRAG CAP DEDUP HEALTH ALTROOT
 #$list=`zpool list -o name,size,alloc,free,frag,cap,dedup,health,altroot -H $pool`;
-$list=`zpool list -o name,$config{'list_zpool'} -H $pool`;
+$list=`zpool list -H -o name,$config{'list_zpool'} $pool`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
@@ -102,7 +102,7 @@ my ($zfs) = @_;
 my %hash=();
 #expecting NAME USED AVAIL REFER MOUNTPOINT
 #$list=`zfs list -o name,used,avail,refer,mountpoint -H $zfs`;
-$list=`zfs list -o name,$config{'list_zfs'} -H $zfs`;
+$list=`zfs list -H -o name,$config{'list_zfs'} $zfs`;
 
 open my $fh, "<", \$list;
 while (my $line =<$fh>)
@@ -127,7 +127,7 @@ my ($snap) = @_;
 #my @table=();
 my %hash=();
 #expecting NAME USED AVAIL REFER MOUNTPOINT
-$list=`zfs list -t snapshot $snap -H`;
+$list=`zfs list -H -t snapshot $snap`;
 
 open my $fh, "<", \$list;
 #my @table = split("", $firstline=<$fh>);
@@ -251,7 +251,7 @@ sub zfs_get
 my ($zfs, $property) = @_;
 if (~$property) {my $property="all";}
 my %hash=();
-my $get=`zfs get $property $zfs -H`;
+my $get=`zfs get -H $property $zfs`;
 #return `zfs get $property $zfs -H`;
 open my $fh, "<", \$get;
 #expecting NAME PROPERTY VALUE SOURCE
@@ -293,8 +293,6 @@ if ($dir) { $dir = '-d '.$dir; }
 my %status = ();
 #my $parent = 'pool';
 my $cmd = `zpool import $dir $destoryed`;
-#my @array = split("\n", `zpool import $dir $destroyed`);
-#(undef, $cmdout) = split(/  pool: /, $cmd);
 $count = 0;
 @pools = split(/  pool: /, $cmd);
 shift (@pools);
@@ -397,8 +395,10 @@ sub find_parent
 {
 my ($filesystem) = @_;
 my %parent = ();
-($parent{'pool'}) = split('/', $filesystem);
-($parent{'filesystem'}) = split('@', $filesystem);
+($parent{'pool'}) = split(/[@\/]/g, $filesystem);
+#($parent{'filesystem'}) = split('@', $filesystem);
+$null = reverse $filesystem =~ /[@\/]/g;
+$parent{'filesystem'} = substr $filesystem, 0, $-[0];
 return %parent;
 }
 
@@ -409,19 +409,19 @@ my %zpool = list_zpools($pool);
 if ($action eq undef) { $action = "status.cgi?pool="; }
 #print $config{list_zpool};
 @props = split(/,/, $config{list_zpool});
-#print ui_columns_start([ "Pool Name", "Size", "Alloc", "Free", "Frag", "Cap", "Dedup", "Health"]);
 print ui_columns_start([ "pool name", @props ]);
 foreach $key (sort(keys %zpool))
 {
      #print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{frag}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
      @vals = ();
      foreach $prop (@props) { push (@vals, $zpool{$key}{$prop}); }
-     print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", @vals ]);
+     print ui_columns_row(["<a href='$action$key'>$key</a>", @vals ]);
 }
 print ui_columns_end();
 }
 
 sub ui_zpool_status
+#deprecated
 {
 my ($pool, $action) = @_;
 if ($action eq undef) { $action = "status.cgi?pool="; }
@@ -444,7 +444,7 @@ my %properties = pool_properties_list();
 print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys %{$hash{$pool}}))
 {
-	if (($properties{$key}) || ($props{$key}))
+	if (($properties{$key}) || ($props{$key}) || ($text{'prop_'.$key}))
 	{
 		print ui_table_row('<a href="property.cgi?pool='.$pool.'&property='.$key.'">'.$key.'</a>', $hash{$pool}{$key}{value});
 	} else {
@@ -478,12 +478,12 @@ my ($zfs)=@_;
 require './property-list-en.pl';
 my %hash = zfs_get($zfs, "all");
 if (!$hash{$zfs}{'com.sun:auto-snapshot'}) { $hash{$zfs}{'com.sun:auto-snapshot'}{'value'} = '-'; }
-my %props =  property_desc();
+my %props = property_desc();
 my %properties = properties_list();
 print ui_table_start("Properties", "width=100%", undef);
 foreach $key (sort(keys %{$hash{$zfs}}))
 {		
-	if (($properties{$key}) || ($props{$key}))
+	if (($properties{$key}) || ($props{$key}) || ($text{'prop_'.$key}))
 	{		
 		if ($key =~ 'origin') { print ui_table_row('<a href="property.cgi?zfs='.$zfs.'&property='.$key.'">'.$key.'</a>', "<a href='status.cgi?snap=$hash{$zfs}{$key}{value}'>$hash{$zfs}{$key}{value}</a>"); }
 		elsif ($key =~ 'clones') { 
