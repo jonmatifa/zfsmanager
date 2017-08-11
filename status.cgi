@@ -26,7 +26,7 @@ my %status = zpool_status($in{'pool'});
 #print "Config:";
 print ui_columns_start([ "Virtual Device", "State", "Read", "Write", "Cksum" ]);
 #@devs = ( values %status{}{devs} );
-foreach $key (sort keys %status)
+foreach $key (sort {$a <=> $b} (keys %status))
 {
 	if (($status{$key}{parent} =~ /pool/) && ($key != 0)) {
 		print ui_columns_row(["<a href='config-vdev.cgi?pool=".$status{0}{pool}.'&dev='.$key."'>".$status{$key}{name}."</a>", $status{$key}{state}, $status{$key}{read}, $status{$key}{write}, $status{$key}{cksum}]);
