@@ -3,7 +3,7 @@ ZFS Manager
 
 ZFS administration tool for Webmin
 
-This is in *very* early development, not for production. That being said, try this out in a virtual machine or anywhere else where data is non-critical. My hope is that this will ultimately provide Webmin with similar ZFS functionality to FreeNAS and NAS4Free.
+This is in early development, not for production. That being said, try this out in a virtual machine or anywhere else where data is non-critical. My hope is that this will ultimately provide Webmin with similar ZFS functionality to FreeNAS and NAS4Free.
 
 This project lives at https://github.com/jonmatifa/zfsmanager provide all feedback and bug reports there. I am brand new to Perl and Webmin's API. so first I apologize for the shabby state the code is in, second any further contributions are greatly welcomed. I am learning a fair amount about ZFS along the way as well.
 
@@ -23,4 +23,4 @@ Right now its just me developing this. I'm not a programmer by trade, but I'm ha
 
 **Thank you**
 
-Thank you for stopping by and I hope you enjoy this plugin (did I mention its early alpha?)
+Thank you for stopping by and I hope you enjoy this plugin!
