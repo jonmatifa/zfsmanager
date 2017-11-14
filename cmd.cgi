@@ -230,7 +230,9 @@ elsif ($in{'cmd'} =~ "snpdestroy")  {
 		ui_cmd($in{'snapshot'}, $cmd);
 	}
 	print ui_form_end();
-	@footer = ("index.cgi?mode=snapshot", $text{'snapshot_return'});
+	#@footer = ("index.cgi?mode=snapshot", $text{'snapshot_return'});
+	%parent = find_parent($in{'snapshot'});
+	@footer = ("status.cgi?zfs=".$parent{'filesystem'}, $parent{'filesystem'});
 }
 elsif ($in{'cmd'} =~ "pooldestroy")  {
 my $cmd = ($config{'pool_destroy'} =~ /1/) ? "zpool destroy $in{'pool'}" : undef;

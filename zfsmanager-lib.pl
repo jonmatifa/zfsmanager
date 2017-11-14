@@ -1,6 +1,7 @@
 BEGIN { push(@INC, ".."); };
 use WebminCore;
 use POSIX qw(strftime);
+#use HTML::Entities;
 init_config();
 foreign_require("mount", "mount-lib.pl");
 my %access = &get_module_acl();
@@ -466,6 +467,7 @@ foreach $key (sort(keys %zfs))
 {
 	#print ui_columns_row([ "<a href='$action$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 	@vals = ();
+	if ($zfs{$key}{'mountpoint'}) { $zfs{$key}{'mountpoint'} = "<a href='../filemin/index.cgi?path=".urlize($zfs{$key}{mountpoint})."'>$zfs{$key}{mountpoint}</a>"; }
 	foreach $prop (@props) { push (@vals, $zfs{$key}{$prop}); }
     	print ui_columns_row(["<a href='$action$key'>$key</a>", @vals ]);
 }

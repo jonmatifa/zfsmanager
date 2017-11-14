@@ -337,16 +337,6 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	   data is cached. If this property is set to  "metadata",  then  only
 	   metadata is cached. The default value is "all".',
 	   
-	   'quota' => 'Limits  the	amount of space a dataset and its descendents can con-
-	   sume. This property enforces a hard limit on the  amount  of  space
-	   used.  This	includes  all space consumed by descendents, including
-	   file systems and snapshots. Setting a quota on a  descendent  of  a
-	   dataset  that  already has a quota does not override the ancestor\'\s
-	   quota, but rather imposes an additional limit.
-
-	   Quotas cannot be set on volumes, as the "volsize" property acts  as
-	   an implicit quota.',
-	   
 	   'recordsize' => 'Specifies a suggested block size for files in the file system. This
 	   property is designed solely for use with  database  workloads  that
 	   access  files  in fixed-size records. ZFS automatically tunes block
