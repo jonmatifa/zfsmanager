@@ -124,20 +124,23 @@ return %hash;
 sub list_snapshots
 {
 my ($snap) = @_;
-#zfs list -t snapshot
-#my @table=();
 my %hash=();
 #expecting NAME USED AVAIL REFER MOUNTPOINT
-$list=`zfs list -H -t snapshot $snap`;
+#$list=`zfs list -H -t snapshot $snap`;
+$list=`zfs list -H -o name,$config{'list_snap'} -t snapshot $snap`;
 
 open my $fh, "<", \$list;
-#my @table = split("", $firstline=<$fh>);
 while (my $line =<$fh>)
 {
     chomp ($line);
-    my($name, $used, $avail, $refer, $mount) = split(" ", $line);
-    #$hash{$name} = [ $used, $avail, $refer, $mount ];
-	$hash{$name} = { used => $used, avail => $avail, refer => $refer, mount => $mount };
+    #my($name, $used, $avail, $refer, $mount) = split(" ", $line);
+    #$hash{$name} = { used => $used, avail => $avail, refer => $refer, mount => $mount };
+    my @props = split(" ", $line);
+    $ct = 1;
+    foreach $prop (split(",", $config{'list_snap'})) {
+            $hash{$props[0]}{$prop} = $props[$ct];
+            $ct++;
+    }
 }
 return %hash;
 }
@@ -505,29 +508,28 @@ sub ui_list_snapshots
 {
 my ($zfs, $admin) = @_;
 %snapshot = list_snapshots($zfs);
-%conf = get_zfsmanager_config();
+#%conf = get_zfsmanager_config();
+@props = split(/,/, $config{list_snap});
 if ($admin =~ /1/) { 
-	#print ui_form_start('cmd.cgi', 'get', 'cmd'); 
 	print ui_form_start('cmd.cgi', 'post');
-	#print ui_hidden('multisnap', 1);
 	print ui_hidden('cmd', 'multisnap');
 	}
 #if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
-print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
+#print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
+print ui_columns_start([ "snapshot", @props ]);
 my $num = 0;
 foreach $key (sort(keys %snapshot))
 {
-	#print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+	@vals = ();
+	foreach $prop (@props) { push (@vals, $snapshot{$key}{$prop}); }
 	if ($admin =~ /1/) {
-		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		#print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), @vals ]);
 		$num ++;
 	} else {
-		print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		#print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", @vals ]);
 	}
-	#if ($zfs =~ undef) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
-	#else {
-	#	if ($key =~ ($zfs."@")) { print ui_columns_row([ui_checkbox("snap", $key, "<a href='snapshot.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]); }
-	#}
 }
 print ui_columns_end();
 if ($admin =~ /1/) { print select_all_link('select', '', "Select All"), " | ", select_invert_link('select', '', "Invert Selection") }
