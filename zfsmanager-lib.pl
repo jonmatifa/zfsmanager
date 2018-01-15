@@ -1,7 +1,6 @@
 BEGIN { push(@INC, ".."); };
 use WebminCore;
 use POSIX qw(strftime);
-#use HTML::Entities;
 init_config();
 foreign_require("mount", "mount-lib.pl");
 my %access = &get_module_acl();
@@ -13,13 +12,7 @@ my %list = ('atime' => 'boolean', 'devices' => 'boolean', 'exec' => 'boolean', '
 			'aclinherit' => 'discard, noallow, restricted, passthrough, passthrough-x', 'aclmode' => 'discard, groupmaks, passthrough', 'casesensitivity' => 'sensitive, insensitive, mixed', 'checksum' => 'on, off, fletcher2, fletcher4, sha256', 'compression' => 'on, off, lzjb, lz4, gzip, gzip-1, gzip-2, gzip-3, gzip-4, gzip-5, gzip-6, gzip-7, gzip-8, gzip-9, zle', 'copies' => '1, 2, 3', 'dedup' => 'on, off, verify, sha256', 'logbias' => 'latency, throughput', 'normalization' => 'none, formC, formD, formKC, formKD', 'primarycache' => 'all, none, metadata', 'secondarycache' => 'all, none, metadata', 'snapdir' => 'hidden, visible', 'snapdev' => 'hidden, visible', 'sync' => 'standard, always, disabled', 'xattr' => 'on, off, sa', 'com.sun:auto-snapshot' => 'true, false', 'acltype' => 'noacl, posixacl', 'redundant_metadata' => 'all, most', 'recordsize' => '512, 1K, 2K, 4K, 8K, 16K, 32K, 64K, 128K, 256K, 512K, 1M', 'canmount' => 'on, off, noauto',
 			'quota' => 'text', 'refquota' => 'text', 'reservation' => 'text', 'refreservation' => 'text', 'volsize' => 'text', 'filesystem_limit' => 'text', 'snapshot_limit' => 'text', 
 			'mountpoint' => 'special', 'sharesmb' => 'special', 'sharenfs' => 'special', 'mounted' => 'special', 'context' => 'special', 'defcontext' => 'special', 'fscontext' => 'special', 'rootcontext' => 'special');
-#if ($type != undef)
-#{
-#	return @list{$type};
-#} else 
-#{
 return %list;
-#}
 }
 
 sub pool_properties_list
@@ -38,17 +31,13 @@ return %list;
 
 sub get_zfsmanager_config
 {
-#my ($setting)=@_;
-#my $lref = &read_file_lines($config{'zfsmanager_conf'});
 my $lref = &read_file_lines($module_config_file);
 my %rv;
 my $lnum = 0;
 foreach my $line (@$lref) {
     my ($n, $v) = split(/=/, $line, 2);
     if ($n) {
-	  #$rv{$n} = { 'value' => $v, 'line' => $lnum };
 	  $rv{$n} = $v;
-      #push(@rv, { 'name' => $n, 'value' => $v, 'line' => $lnum });
       }
     $lnum++;
     }
@@ -71,19 +60,13 @@ sub list_zpools
 {
 my ($pool) = @_;
 #zpool list
-#my @table=();
 my %hash=();
-#expecting NAME SIZE ALLOC FREE FRAG CAP DEDUP HEALTH ALTROOT
-#$list=`zpool list -o name,size,alloc,free,frag,cap,dedup,health,altroot -H $pool`;
 $list=`zpool list -H -o name,$config{'list_zpool'} $pool`;
 
 open my $fh, "<", \$list;
-#my @table = split("", $firstline=<$fh>);
 while (my $line =<$fh>)
 {
     chomp ($line);
-    #my($name, $size, $alloc, $free, $frag, $cap, $dedup, $health, $altroot) = split(" ", $line);
-	#$hash{$name} = { size => $size, alloc => $alloc, free => $free, frag => $frag, cap => $cap, dedup => $dedup, health => $health, altroot => $altroot };
 	my @props = split(" ", $line);
         $ct = 1;
         foreach $prop (split(",", $config{'list_zpool'})) {
@@ -98,19 +81,14 @@ return %hash;
 sub list_zfs
 {
 #zfs list
-#my @table=();
 my ($zfs) = @_;
 my %hash=();
-#expecting NAME USED AVAIL REFER MOUNTPOINT
-#$list=`zfs list -o name,used,avail,refer,mountpoint -H $zfs`;
 $list=`zfs list -H -o name,$config{'list_zfs'} $zfs`;
 
 open my $fh, "<", \$list;
 while (my $line =<$fh>)
 {
 	chomp ($line);
-	#my($name, $used, $avail, $refer, $mountpoint) = split(" ", $line);
-	#$hash{$name} = { used => $used, avail => $avail, refer => $refer, mountpoint => $mountpoint };
 	my @props = split(" ", $line);
 	$ct = 1;
 	foreach $prop (split(",", $config{'list_zfs'})) { 
@@ -125,16 +103,12 @@ sub list_snapshots
 {
 my ($snap) = @_;
 my %hash=();
-#expecting NAME USED AVAIL REFER MOUNTPOINT
-#$list=`zfs list -H -t snapshot $snap`;
 $list=`zfs list -H -o name,$config{'list_snap'} -t snapshot $snap`;
 
 open my $fh, "<", \$list;
 while (my $line =<$fh>)
 {
     chomp ($line);
-    #my($name, $used, $avail, $refer, $mount) = split(" ", $line);
-    #$hash{$name} = { used => $used, avail => $avail, refer => $refer, mount => $mount };
     my @props = split(" ", $line);
     $ct = 1;
     foreach $prop (split(",", $config{'list_snap'})) {
@@ -175,7 +149,6 @@ if ($alerts =~ /all pools are healthy/)
 	my $out = "<b>";
 	foreach $key (sort(keys %status))
 	{
-		#if (true) { $out .= "pool \'".$key."\' is ".$status{$key}{state}." with ".$status{$key}{errors}."<br />";}
 		%zstat = zpool_status($key);
 		$out .= "pool \'".$key."\' is ".$zstat{0}{state}." with ".$zstat{0}{errors}."<br />";
 		if ($zstat{0}{scan}) { $out .= "scan: ".$zstat{0}{scan}."<br />"; }
@@ -256,16 +229,12 @@ my ($zfs, $property) = @_;
 if (~$property) {my $property="all";}
 my %hash=();
 my $get=`zfs get -H $property $zfs`;
-#return `zfs get $property $zfs -H`;
 open my $fh, "<", \$get;
-#expecting NAME PROPERTY VALUE SOURCE
 while (my $line =<$fh>)
 {
     chomp ($line);
     my($name, $property, $value, $source) = split(/\t/, $line);
 	$hash{$name}{$property} = { value => $value, source => $source };
-	#$hash->{$name->{$property->{'value'}}} = $value;
-	#$hash->{$name->{$property->{'source'}}} = $source;
 }
 return %hash;
 }
@@ -279,8 +248,6 @@ my %hash=();
 my $get=`zpool get -H $property $pool`;
 
 open my $fh, "<", \$get;
-#expecting NAME PROPERTY VALUE SOURCE
-#my $junk = <$fh>;
 while (my $line =<$fh>)
 {
     chomp ($line);
@@ -295,7 +262,6 @@ sub zpool_imports
 my ($dir, $destroyed) = @_;
 if ($dir) { $dir = '-d '.$dir; }
 my %status = ();
-#my $parent = 'pool';
 my $cmd = `zpool import $dir $destoryed`;
 $count = 0;
 @pools = split(/  pool: /, $cmd);
@@ -316,7 +282,6 @@ foreach $cmdout (@pools) {
 		($status{$count}{state}, $cmdout) = split("action: ", $cmdout); 
 		($status{$count}{action}, $cmdout) = split("config:\n", $cmdout);
 	}
-	#($status{$count}{config}) = split("config: \n", $cmdout); 
 	$status{$count}{config} = $cmdout;
 $count++;
 }
@@ -333,7 +298,6 @@ return @array;
 
 sub list_disk_ids
 {
-#use Cwd 'abs_path';
 my $byid = '/dev/disk/by-id'; #for linux
 my $byuuid = '/dev/disk/by-uuid';
 opendir (DIR, $byid);
@@ -357,7 +321,6 @@ my ($zfs, $options)  = @_;
 my $opts = ();
 my %createopts = create_opts();
 $createopts{'volblocksize'} = '8k';
-#$createopts{'sparse'} = '0';
 if (${$options}{'sparse'}) { $opts .= "-s "; }
 delete ${$options}{'sparse'};
 if (${$options}{'zvol'}) { 
@@ -369,7 +332,6 @@ foreach $key (sort(keys %${options}))
 	$opts = (($createopts{$key}) && (${$options}{$key} =~ 'default')) ? $opts : $opts.' -o '.$key.'='.${$options}{$key};
 }
 my $cmd="zfs create $opts $zfs";
-#my @result = ($cmd, `$cmd 2>&1`);
 return $cmd;
 }
 
@@ -378,8 +340,6 @@ sub cmd_create_zpool
 {
 my ($pool, $dev, $options, $poolopts, $force) = @_;
 my $opts = ();
-#my %createopts = create_opts();
-#if ( $options{'version'} ) { $opts .= "-o version=".$options{'version'}; }
 foreach $key (sort(keys %{$poolopts}))
 {
 	$opts = (${$poolopts}{$key} =~ 'default') ? $opts : $opts.' -o '.$key.'='.${$poolopts}{$key};
@@ -388,10 +348,7 @@ foreach $key (sort(keys %{$options}))
 {
 	$opts = (${$options}{$key} =~ 'default') ? $opts : $opts.' -O '.$key.'='.${$options}{$key};
 }
-#if ($opts) { $opts = '-O '.$opts; }
-#$mount = ($mount) ? '-m '.$mount : ();
 my $cmd="zpool create $force $opts $pool $dev";
-#my @result = ($cmd, `$cmd 2>&1`);
 return $cmd;
 }
 
@@ -400,7 +357,6 @@ sub find_parent
 my ($filesystem) = @_;
 my %parent = ();
 ($parent{'pool'}) = split(/[@\/]/g, $filesystem);
-#($parent{'filesystem'}) = split('@', $filesystem);
 $null = reverse $filesystem =~ /[@\/]/g;
 $parent{'filesystem'} = substr $filesystem, 0, $-[0];
 return %parent;
@@ -411,12 +367,10 @@ sub ui_zpool_list
 my ($pool, $action)=@_;
 my %zpool = list_zpools($pool);
 if ($action eq undef) { $action = "status.cgi?pool="; }
-#print $config{list_zpool};
 @props = split(/,/, $config{list_zpool});
 print ui_columns_start([ "pool name", @props ]);
 foreach $key (sort(keys %zpool))
 {
-     #print ui_columns_row(["<a href='status.cgi?pool=$key'>$key</a>", $zpool{$key}{size}, $zpool{$key}{alloc}, $zpool{$key}{free}, $zpool{$key}{frag}, $zpool{$key}{cap}, $zpool{$key}{dedup}, $zpool{$key}{health} ]);
      @vals = ();
      foreach $prop (@props) { push (@vals, $zpool{$key}{$prop}); }
      print ui_columns_row(["<a href='$action$key'>$key</a>", @vals ]);
@@ -453,7 +407,6 @@ foreach $key (sort(keys %{$hash{$pool}}))
 		print ui_table_row('<a href="property.cgi?pool='.$pool.'&property='.$key.'">'.$key.'</a>', $hash{$pool}{$key}{value});
 	} else {
 	print ui_table_row($key, $hash{$pool}{$key}{value});
-	#print ui_table_row($key, $hash{$pool}{$key}{value});
 	}
 }
 print ui_table_end();
@@ -468,7 +421,6 @@ if ($action eq undef) { $action = "status.cgi?zfs="; }
 print ui_columns_start([ "file system", @props ]);
 foreach $key (sort(keys %zfs)) 
 {
-	#print ui_columns_row([ "<a href='$action$key'>$key</a>", $zfs{$key}{used}, $zfs{$key}{avail}, $zfs{$key}{refer}, $zfs{$key}{mount} ]);
 	@vals = ();
 	if ($zfs{$key}{'mountpoint'}) { $zfs{$key}{'mountpoint'} = "<a href='../filemin/index.cgi?path=".urlize($zfs{$key}{mountpoint})."'>$zfs{$key}{mountpoint}</a>"; }
 	foreach $prop (@props) { push (@vals, $zfs{$key}{$prop}); }
@@ -508,14 +460,11 @@ sub ui_list_snapshots
 {
 my ($zfs, $admin) = @_;
 %snapshot = list_snapshots($zfs);
-#%conf = get_zfsmanager_config();
 @props = split(/,/, $config{list_snap});
 if ($admin =~ /1/) { 
 	print ui_form_start('cmd.cgi', 'post');
 	print ui_hidden('cmd', 'multisnap');
 	}
-#if ($admin =~ /1/) { print select_all_link('snap', '', "Select All"), " | ", select_invert_link('snap', '', "Invert Selection") }
-#print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
 print ui_columns_start([ "snapshot", @props ]);
 my $num = 0;
 foreach $key (sort(keys %snapshot))
@@ -523,11 +472,9 @@ foreach $key (sort(keys %snapshot))
 	@vals = ();
 	foreach $prop (@props) { push (@vals, $snapshot{$key}{$prop}); }
 	if ($admin =~ /1/) {
-		#print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), @vals ]);
 		$num ++;
 	} else {
-		#print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 		print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", @vals ]);
 	}
 }
@@ -592,22 +539,17 @@ if (!$in{'confirm'}) {
         }
         $rv .= "<h3>Would you lke to continue?</h3>\n";
         $rv .= ui_submit("yes", "confirm", 0)."<br />";
-        #$rv .= ui_submit("yes", "confirm", 0, "style='background-color: transparent;border: none;color: blue;cursor: pointer;'")." |$
         $rv .= ui_form_end();
-        #$rv .= "confirm=".$confirm."</br>";
 } else {
         @result = (`$cmd 2>&1`);
         if (!$result[0])
         {
-                #$rv .= $result[1]."<br />\n";
                 $rv .= "Success! <br />\n";
         } else  {
-        #$result[1] =~ s/\R/ /g;
         $rv .= "<b>error: </b>".$result[0]."<br />\n";
         foreach $key (@result[1..@result]) {
                 $rv .= $key."<br />\n";
         }
-        #print Dumper(@result);
         }
 }
 

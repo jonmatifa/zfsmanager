@@ -27,9 +27,4 @@ $access->{'uzfs_destroy'} = $in->{'uzfs_destroy'};
 $access->{'usnap_destroy'} = $in->{'usnap_destroy'};
 $access->{'upool_properties'} = $in->{'upool_properties'};
 $access->{'uzfs_properties'} = $in->{'uzfs_properties'};
-#$_[0]->{'upool_destroy'} = $in{'upool_destroy'};
-#$_[0]->{'uzfs_destroy'} = $in{'uzfs_destroy'};
-#$_[0]->{'usnap_destroy'} = $in{'usnap_destroy'};
-#$_[0]->{'upool_properties'} = $in{'upool_properties'};
-#$_[0]->{'uzfs_properties'} = $in{'uzfs_properties'};
 }

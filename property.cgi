@@ -5,13 +5,10 @@ require './property-list-en.pl';
 ReadParse();
 use Data::Dumper;
 ui_print_header(undef, $text{'property_title'}, "", undef, 1, 1);
-#ui_print_header(undef, $text{'property_title'}." ".$in{'property'}." on ".$in{'zfs'}, "", undef, 1, 1);
-#%conf = get_zfsmanager_config();
 %props =  property_desc();
 %pool_proplist = pool_properties_list();
 %proplist = properties_list();
 
-#print "<h3>$text{'property_title'}: $in{'property'}</h3>";
 print ui_table_start("$text{'property_title'}: $in{'property'}", "width=100%", "10", ['align=left'] );
 if ($in{'zfs'}) { 
 	%get = zfs_get($in{'zfs'}, $in{'property'}); 
@@ -96,19 +93,11 @@ if ($in{'property'} =~ 'mountpoint') {
 if ($in{'zfs'}) {
 	print ui_hidden('cmd', 'setzfs');
 	my @select = [ split(", ", $proplist{$in{'property'}}), 'inherit' ];
-	#if ($in{'property'} =~ 'compression') {
-	#	print "property is compression <br />";
-	#	($pool) = split('/', $in{'zfs'});
-	#	%poolget = zpool_get($pool, 'feature@lz4_compress'); 
-	#	#if ($get{$pool} =~ 'enabled') { $proplist{'compression'} .= ', lz4' }
-	#	if ($poolget{$pool}{'feature@lz4_compress'}{value} =~ 'enabled' || $poolget{$pool}{'feature@lz4_compress'}{value} =~ 'active') { unshift(@select[0], "lz4");	}
-	#}
 	if ($proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off', 'inherit' ]; }
 	print "Change to: ";
 	#The following line was specifically added when com.sun:auto-snapshot does not have a value
 	if ($get{$in{'zfs'}}{$in{'property'}}{value} eq "-") { $get{$in{'zfs'}}{$in{'property'}}{value} = 'inherit'; }
 	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
-	#print Dumper(@select);
 }
 elsif ($in{'pool'}) { 
 	print ui_hidden('cmd', 'setpool') ;
@@ -116,8 +105,6 @@ elsif ($in{'pool'}) {
 	if ($pool_proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off' ]; }
 	print ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
 }
-#print "<br />";
-#print "<br />";
 print ui_submit('submit');
 print "<br />";
 print "<br />";
@@ -125,7 +112,6 @@ print "<br />";
 print ui_form_end();
 }
 
-#print ui_table_end();
 if ($in{'zfs'} && (index($in{'zfs'}, '@') != -1)) { ui_print_footer("status.cgi?snap=$in{'zfs'}", $in{'zfs'}); }
 if ($in{'zfs'} && (index($in{'zfs'}, '@') =~ -1)) { ui_print_footer("status.cgi?zfs=$in{'zfs'}", $in{'zfs'}); }
 if ($in{'pool'}) { ui_print_footer("status.cgi?pool=$in{'pool'}", $in{'pool'}); }
