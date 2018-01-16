@@ -59,7 +59,6 @@ elsif ((($zfs_props{$property}) && ($config{'zfs_properties'} =~ /1/)) || (($poo
 sub list_zpools
 {
 my ($pool) = @_;
-#zpool list
 my %hash=();
 $list=`zpool list -H -o name,$config{'list_zpool'} $pool`;
 
@@ -103,18 +102,20 @@ sub list_snapshots
 {
 my ($snap) = @_;
 my %hash=();
-$list=`zfs list -H -o name,$config{'list_snap'} -t snapshot $snap`;
-
+$list=`zfs list -t snapshot -H -o name,$config{'list_snap'} -s creation $snap`;
+$idx = 0;
 open my $fh, "<", \$list;
 while (my $line =<$fh>)
 {
     chomp ($line);
-    my @props = split(" ", $line);
-    $ct = 1;
-    foreach $prop (split(",", $config{'list_snap'})) {
-            $hash{$props[0]}{$prop} = $props[$ct];
+    my @props = split("\x09", $line);
+    $ct = 0;
+    foreach $prop (split(",", "name,".$config{'list_snap'})) {
+            #$hash{$props[0]}{$prop} = $props[$ct];
+	    $hash{sprintf("%5d", $idx)}{$prop} = $props[$ct];
             $ct++;
     }
+    $idx++;
 }
 return %hash;
 }
@@ -472,7 +473,7 @@ foreach $key (sort(keys %snapshot))
 	@vals = ();
 	foreach $prop (@props) { push (@vals, $snapshot{$key}{$prop}); }
 	if ($admin =~ /1/) {
-		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$key'>$key</a>"), @vals ]);
+		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$snapshot{$key}{'name'}'>$snapshot{$key}{'name'}</a>"), @vals ]);
 		$num ++;
 	} else {
 		print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", @vals ]);

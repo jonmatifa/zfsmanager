@@ -104,7 +104,7 @@ if ($in{'snap'})
 	print ui_columns_start([ "Snapshot", "Used", "Refer" ]);
 	foreach $key (sort(keys %snapshot)) 
 	{
-		print ui_columns_row(["<a href='status.cgi?snap=$key'>$key</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		print ui_columns_row(["<a href='status.cgi?snap=$snapshot{$key}{name}'>$snapshot{$key}{name}</a>", $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
 	}
 	print ui_columns_end();
 	ui_zfs_properties($in{'snap'});

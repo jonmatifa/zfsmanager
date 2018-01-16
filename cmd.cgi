@@ -89,7 +89,7 @@ elsif ($in{'cmd'} =~ "clone")  {
 	@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
 }
 elsif ($in{'cmd'} =~ "rename")  {
-	if (index($in{'zfs'}, '@') != -1) { 
+	if (index($in{'zfs'}, '\x64') != -1) { 
 		$cmd = ($config{'snap_properties'} =~ /1/) ? "zfs rename ".$in{'force'}.$in{'recurse'}.$in{'zfs'}." ".$in{'parent'}.'@'.$in{'name'} : undef;
 		@footer = ('status.cgi?snap='.$in{'zfs'}, $in{'zfs'});
 	} elsif (index($in{'zfs'}, '/') != -1) { 

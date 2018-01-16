@@ -176,6 +176,7 @@ if ($in{'create'} =~ "zpool")
         	print ui_table_row(undef, '<b>Snapshot:</b> '.$in{'rename'});
         	print ui_table_row(undef, "<b>New Name: </b>".$parent."@".ui_textbox('name'));
 		print ui_table_row(undef, ui_checkbox("recurse", "-r ", "Recursively rename the snapshots of all descendent datasets."));
+		@footer = ("status.cgi?snap=".$in{'rename'}, $in{'rename'});
 	} elsif (index($in{'rename'}, '/') != -1) {
                 #is filesystem
 		$parent = $parent{'pool'};
