@@ -101,7 +101,7 @@ return %hash;
 sub list_snapshots
 {
 my ($snap) = @_;
-my %hash=();
+#my %hash=null;
 $list=`zfs list -t snapshot -H -o name,$config{'list_snap'} -s creation $snap`;
 $idx = 0;
 open my $fh, "<", \$list;
@@ -111,8 +111,7 @@ while (my $line =<$fh>)
     my @props = split("\x09", $line);
     $ct = 0;
     foreach $prop (split(",", "name,".$config{'list_snap'})) {
-            #$hash{$props[0]}{$prop} = $props[$ct];
-	    $hash{sprintf("%5d", $idx)}{$prop} = $props[$ct];
+	    $hash{sprintf("%05d", $idx)}{$prop} = $props[$ct];
             $ct++;
     }
     $idx++;
@@ -473,10 +472,10 @@ foreach $key (sort(keys %snapshot))
 	@vals = ();
 	foreach $prop (@props) { push (@vals, $snapshot{$key}{$prop}); }
 	if ($admin =~ /1/) {
-		print ui_columns_row([ui_checkbox("select", $key.";", "<a href='status.cgi?snap=$snapshot{$key}{'name'}'>$snapshot{$key}{'name'}</a>"), @vals ]);
+		print ui_columns_row([ui_checkbox("select", $snapshot{$key}{name}.";", "<a href='status.cgi?snap=$snapshot{$key}{'name'}'>$snapshot{$key}{'name'}</a>"), @vals ]);
 		$num ++;
 	} else {
-		print ui_columns_row([ "<a href='status.cgi?snap=$key'>$key</a>", @vals ]);
+		print ui_columns_row([ "<a href='status.cgi?snap=$snapshot{$key}{name}'>$snapshot{$key}{name}</a>", @vals ]);
 	}
 }
 print ui_columns_end();

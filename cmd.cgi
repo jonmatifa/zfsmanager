@@ -226,7 +226,7 @@ my $cmd = ($config{'pool_destroy'} =~ /1/) ? "zpool destroy $in{'pool'}" : undef
 	@footer = ("index.cgi?mode=pools", $text{'index_return'});
 }
 elsif ($in{'cmd'} =~ "multisnap")  {
-	my %snapshot = list_snapshots();
+	%snapshot = ();
 	@select = split(/;/, $in{'select'});
 	print "<h2>Destroy</h2>";
 	print "Attempting to destroy multiple snapshots... <br />";
@@ -238,7 +238,9 @@ elsif ($in{'cmd'} =~ "multisnap")  {
 	foreach $key (@select)
 	{
 		$key =~ s/.*[^[:print:]]+//;
-		print ui_columns_row([ $key, $snapshot{$key}{used}, $snapshot{$key}{refer} ]);
+		my %snapshot = list_snapshots($key);
+		print ui_columns_row([ $key, $snapshot{'00000'}{used}, $snapshot{'00000'}{refer} ]);
+		#print Dumper(\%snapshot);
 		$results{$key} = ($config{'snap_destroy'}) ? "zfs destroy $key" : undef; 
 	}
 	print ui_columns_end();
@@ -272,7 +274,7 @@ elsif ($in{'cmd'} =~ "multisnap")  {
 		}
 	}
 	print ui_form_end();
-	@footer = ('index.cgi?mode=snapshot', $text{'snapshot_return'});
+	@footer = ('index.cgi', $text{'index_return'});
 }
 
 
