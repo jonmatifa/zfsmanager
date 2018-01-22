@@ -7,7 +7,7 @@ ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
 
 if ($text{$in{'cmd'}."_desc"}) { 
 	print ui_table_start($text{$in{'cmd'}."_cmd"}, "width=100%", "10", ['align=left'] );
-	print ui_table_row("Command Description:", $text{$in{'cmd'}."_desc"});
+	print ui_table_row($text{'cmd_dscpt'}, $text{$in{'cmd'}."_desc"});
 	print ui_table_end();
 };
 
@@ -33,15 +33,15 @@ elsif ($in{'cmd'} =~ "snapshot")  {
 }
 elsif ($in{'cmd'} =~ "send") {
 	if (!$in{'dest'}) {
-                print "Send snapshot: $in{'snap'} to gzip file <br />";
+                print $text{'cmd_send'}." ".$in{'snap'}." ".$text{'cmd_gzip'}."  <br />";
                 print "<br />";
                 print ui_form_start('cmd.cgi', 'post');
                 print ui_hidden('cmd', $in{'cmd'});
 		print ui_hidden('snap', $in{'snap'});
 		my $newfile = $in{'snap'} =~ s![/@]!_!gr;
-		print "<b>Destination: </b>".ui_filebox('dest', $config{'last_send'}, 35, undef, undef, undef, 1)."<br />";
-		print "<b>Filename: </b>".ui_textbox('file', $newfile.'.gz', 50)."<br />";
-		print ui_submit("Continue", undef, undef);
+		print "<b>$text{'destination'} </b>".ui_filebox('dest', $config{'last_send'}, 35, undef, undef, undef, 1)."<br />";
+		print "<b>$text{'filename'} </b>".ui_textbox('file', $newfile.'.gz', 50)."<br />";
+		print ui_submit($text{'continue'}, undef, undef);
                 print ui_form_end();
 	} else { 
 		$in{'confirm'} = "yes";
@@ -49,7 +49,6 @@ elsif ($in{'cmd'} =~ "send") {
 		ui_cmd($in{'snap'}, $cmd);
 		$config{'last_send'} = $in{'dest'};
 		save_module_config();
-		#print "<br />";
 		print `ls -al $in{'dest'}'."/".$in{'file'}`;
 	}
 }
@@ -156,21 +155,21 @@ elsif ($in{'cmd'} =~ "zfsdestroy")  {
 	my $cmd = ($config{'zfs_destroy'} =~ /1/) ? "zfs destroy $in{'force'} $in{'zfs'}" : undef;
 	if (!$in{'confirm'})
 	{
-		print "Attempting to destroy $in{'zfs'}... <br />";
+		print $text{'cmd_destroy'}." $in{'zfs'}... <br />";
 		print "<br />";
 		print ui_form_start('cmd.cgi', 'post');
 		print ui_hidden('cmd', $in{'cmd'});
 		print ui_hidden('zfs', $in{'zfs'});
-		print "<b>This action will affect the following: </b><br />";
+		print "<b>$text{'cmd_affect'} </b><br />";
 		ui_zfs_list('-r '.$in{'zfs'});
 		ui_list_snapshots('-r '.$in{'zfs'});
 		if (($config{'zfs_destroy'} =~ /1/) && ($config{'snap_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
-		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
-		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print "<h3>$text{'cmd_warning'}</h3>";
+		print ui_checkbox('confirm', 'yes', $text{'cmd_understand'}, undef );
 		print ui_hidden('checked', 'no');
-		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- $text{'cmd_checkbox'}</font>"; }
 		print "<br /><br />";
-		print ui_submit("Continue", undef, undef);
+		print ui_submit($text{'continue'}, undef, undef);
 		print ui_form_end();
 	} else {
 		ui_cmd($in{'zfs'}, $cmd);
@@ -181,19 +180,19 @@ elsif ($in{'cmd'} =~ "snpdestroy")  {
 	my $cmd = ($config{'snap_destroy'} =~ /1/) ? "zfs destroy $in{'force'} $in{'snapshot'}" : undef;
 	if (!$in{'confirm'})
 	{
-		print "Attempting to destroy $in{'snapshot'}...<br />";
+		print $text{'cmd_destroy'}." $in{'snapshot'}...<br />";
 		print ui_form_start('cmd.cgi', 'post');
 		print ui_hidden('cmd', 'snpdestroy');
 		print ui_hidden('snapshot', $in{'snapshot'});
-		print "<b>This action will affect the following: </b><br />";
+		print "<b>$text{'cmd_affect'} </b><br />";
 		ui_list_snapshots('-r '.$in{'snapshot'});
 		if (($config{'zfs_destroy'} =~ /1/) && ($config{'snap_destroy'} =~ /1/)) { print ui_checkbox('force', '-r', 'Click to destroy all child dependencies (recursive)', undef ), "<br />"; }
-		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
-		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print "<h3>$text{'cmd_warning'}</h3>";
+		print ui_checkbox('confirm', 'yes', $text{'cmd_understand'}, undef );
 		print ui_hidden('checked', 'no');
-		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- $text{'cmd_checkbox'}</font>"; }
 		print "<br /><br />";
-		print ui_submit("Continue", undef, undef),;
+		print ui_submit($text{'continue'}, undef, undef),;
 		print ui_form_end();
 
 	} else {
@@ -207,19 +206,19 @@ elsif ($in{'cmd'} =~ "pooldestroy")  {
 my $cmd = ($config{'pool_destroy'} =~ /1/) ? "zpool destroy $in{'pool'}" : undef;
 	if (!$in{'confirm'})
 	{
-		print "Attempting to destroy $in{'pool'}... <br />";
+		print $text{'cmd_destroy'}." $in{'pool'}... <br />";
 		print ui_form_start('cmd.cgi', 'post');
 		print ui_hidden('cmd', 'pooldestroy');
 		print ui_hidden('pool', $in{'pool'});
-		print "<b>This action will affect the following: </b><br />";
+		print "<b>$text{'cmd_affect'} </b><br />";
 		ui_zfs_list('-r '.$in{'pool'});
 		ui_list_snapshots('-r '.$in{'pool'});
-		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
-		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print "<h3>$text{'cmd_warning'}</h3>";
+		print ui_checkbox('confirm', 'yes', $text{'cmd_understand'}, undef );
 		print ui_hidden('checked', 'no');
-		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- $text{'cmd_checkbox'}</font>"; }
 		print "<br /><br />";
-		print ui_submit("Continue", undef, undef);
+		print ui_submit($text{'continue'}, undef, undef);
 	} else {
 		ui_cmd($in{'pool'}, $cmd);
 	}
@@ -228,8 +227,8 @@ my $cmd = ($config{'pool_destroy'} =~ /1/) ? "zpool destroy $in{'pool'}" : undef
 elsif ($in{'cmd'} =~ "multisnap")  {
 	%snapshot = ();
 	@select = split(/;/, $in{'select'});
-	print "<h2>Destroy</h2>";
-	print "Attempting to destroy multiple snapshots... <br />";
+	print "<h2>$text{'destroy'}</h2>";
+	print $text{'cmd_multisnap'}." <br />";
 	print ui_form_start('cmd.cgi', 'post');
 	print ui_hidden('cmd', 'multisnap');
 	print ui_hidden('select', $in{'select'});
@@ -246,30 +245,30 @@ elsif ($in{'cmd'} =~ "multisnap")  {
 	print ui_columns_end();
 	if (!$in{'confirm'})
 	{
-		print "<h2>Commands to be issued:</h2>";
+		print "<h2>$text{'cmd_issue'}</h2>";
 		foreach $key (keys %results)
 		{
 			print $results{$key}, "<br />";
 		}	
-		print "<h3>Warning, this action will result in data loss, do you really want to continue?</h3>";
-		print ui_checkbox('confirm', 'yes', 'I understand', undef );
+		print "<h3>$text{'cmd_warning'}</h3>";
+		print ui_checkbox('confirm', 'yes', $text{'cmd_understand'}, undef );
 		print ui_hidden('checked', 'no');
-		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- checkbox must be selected</font>"; }
+		if ($in{'checked'} =~ /no/) { print " <font color='red'> -- $text{'cmd_checkbox'}</font>"; }
 		print "<br /><br />";
-		print ui_submit("Continue", undef, undef), " | <a href='index.cgi?mode=snapshot'>Cancel</a>";
+		print ui_submit($text{'continue'}, undef, undef), " | <a href='index.cgi?mode=snapshot'>Cancel</a>";
 	} else {
-		print "<h2>Results from commands:</h2>";
+		print "<h2>$text{'cmd_results'}</h2>";
 		foreach $key (keys %results)
 		{
 		my @result = (`$results{$key} 2>&1`);
 			if (($result[1] eq undef))
 			{
 				print $results{$key}, "<br />";
-				print "Success! <br />";
+				print "$text{'cmd_success'} <br />";
 			} else
 			{
 				print $results{$key}, "<br />";
-				print "error: ", $result[0], "<br />";
+				print "$text{'cmd_error'} ", $result[0], "<br />";
 			}
 		}
 	}

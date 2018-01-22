@@ -5,6 +5,32 @@ index_return=pool list
 snapshot_return=snapshot list
 zfs_return=file system list
 
+#general use
+destination=Destination:
+filename=Filename:
+continue=Continue
+create=Create
+destroy=Destroy
+
+#tasks
+tasks=Tasks
+differences=Differences:
+differences_desc=Show differences in
+rename=Rename:
+rename_desc=Rename
+clone=Clone:
+clone_desc: Clone
+destroy=Destroy:
+destroy_pool=Destroy pool
+destroy_filesystem=Destroy filesystem
+destroy_snap=Destroy snapshot
+snapshot=Snapshot:
+snapshot_desc=Create new snapshot based on filesystem:
+send=Send:
+send_desc=Send
+rollback=Rollback:
+rollback_desc=Rollback
+
 status_title=Zpool Status
 
 vdev_title=Manage Virtual Device
@@ -15,11 +41,15 @@ diff_title=Snapshot Differences
 about_title=About ZFS Manager
 
 cmd_title=Issuing Command
+cmd_dscpt=Command Description:
+cmd_issue=Commands to be issued:
+cmd_results=Results from commands:
 cmd_with=with command...
 cmd_setzfs=Attempting to set zfs property
 cmd_setpool=Attempting to set pool property
 cmd_snapshot=Attempting to create snapshot
-cmd_send=Attempting to send snapshot
+cmd_send=Send snapshot
+cmd_gzip=to gzip file
 cmd_createzfs=Attempting to create filesystem
 cmd_clone=Attempting to clone
 cmd_rename=Attempting to rename
@@ -31,10 +61,14 @@ cmd_upgrade=Attempting to upgrade pool
 cmd_export=Attempting to export pool
 cmd_import=Attempting to import pool
 cmd_zfsact=Attempting to 
-cmd_zfsdestroy=Attempting to destroy filesystem
-cmd_snpdestroy=Attempting to destroy snapshot
-cmd_pooldestroy=Attempting to destroy pool
+cmd_destroy=Attempting to destroy
+cmd_affect=This action will affect the following:
+cmd_warning=Warning, this action will result in data loss, do you really want to continue?
+cmd_understand=I understand
+cmd_checkbox=checkbox must be selected
 cmd_multisnap=Attempting to destroy multiple snapshots...
+cmd_success=Success!
+cmd_error=error:
 
 snapshot_title=Snapshot 
 snapshot_create=Create Snapshot

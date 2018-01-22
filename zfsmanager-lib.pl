@@ -101,7 +101,6 @@ return %hash;
 sub list_snapshots
 {
 my ($snap) = @_;
-#my %hash=null;
 $list=`zfs list -t snapshot -H -o name,$config{'list_snap'} -s creation $snap`;
 $idx = 0;
 open my $fh, "<", \$list;
