@@ -275,7 +275,22 @@ elsif ($in{'cmd'} =~ "multisnap")  {
 	print ui_form_end();
 	@footer = ('index.cgi', $text{'index_return'});
 }
-
+elsif ($in{'cmd'} =~ "replace") {
+	#$in{'confirm'} = "yes";
+	if ($in{'new'}) {
+		my $cmd =  ($config{'pool_properties'} =~ /1/) ? "zpool replace $in{'pool'} $in{'vdev'} $in{'new'}": undef;
+		print ui_hidden("new", $in{'new'});
+		ui_cmd("replace $in{'vdev'} on $in{'pool'} with $in{'new'}", $cmd);
+	} else {
+		print "Replace $in{'vdev'} on $in{'pool'}: <br />";
+		print ui_form_start('cmd.cgi', 'post');
+		print ui_hidden("cmd", 'replace');
+		print ui_hidden("vdev", $in{'vdev'});
+		print ui_hidden("pool", $in{'pool'});
+		print "New device: ".ui_filebox("new", "/dev/disk/by-id/")." ".ui_submit('Select');
+		print ui_form_end();
+	}
+}
 
 print ui_table_end();
 if (@footer) { ui_print_footer(@footer); }

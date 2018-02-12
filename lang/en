@@ -36,6 +36,7 @@ status_title=Zpool Status
 vdev_title=Manage Virtual Device
 property_title=Manage Property
 select_title=Select a device for new vdev
+replace_title=Replace a device
 diff_title=Snapshot Differences
 
 about_title=About ZFS Manager

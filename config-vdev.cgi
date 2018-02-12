@@ -39,7 +39,7 @@ print "Children: ";
 	else { #elsif ($status{$in{'dev'}}{state} =~ "OFFLINE") {
 		print ui_table_row("Online: ", "<a href='cmd.cgi?cmd=vdev&action=online&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Bring device online</a><br />");
 	}
-	print ui_table_row("Replace: ", "<a href='#'>Replace device</a><br />");
+	print ui_table_row("Replace: ", "<a href='cmd.cgi?cmd=replace&vdev=$status{$in{'dev'}}{name}&pool=$in{'pool'}'>Replace device</a><br />");
 	print ui_table_row("Remove: ", "<a href='cmd.cgi?cmd=vdev&action=remove&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Remove device</a><br />");
 	print ui_table_row("Detach: ", "<a href='cmd.cgi?cmd=vdev&action=detach&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Detach device</a><br />");
 	print ui_table_row("Clear: ", "<a href='cmd.cgi?cmd=vdev&action=clear&pool=$in{'pool'}&vdev=$status{$in{'dev'}}{name}'>Clear errors</a><br />");

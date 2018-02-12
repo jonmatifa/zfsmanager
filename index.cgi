@@ -25,8 +25,10 @@ print &ui_tabs_end_tab("mode", "pools");
 #start zfs tab
 print &ui_tabs_start_tab("mode", "zfs");
 
+print "<div>"; #div tags are needed for new theme apparently
 ui_zfs_list();
 if ($config{'zfs_properties'} =~ /1/) { print "<a href='create.cgi?create=zfs'>Create file system</a>"; }
+print "</div>";
 print &ui_tabs_end_tab("mode", "zfs");
 
 #start snapshots tab
