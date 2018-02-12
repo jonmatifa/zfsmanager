@@ -128,6 +128,7 @@ if ($in{'snap'})
 	}
 	if ($config{'snap_destroy'} =~ /1/) { print ui_table_row('Destroy:',"<a href='cmd.cgi?cmd=snpdestroy&snapshot=$in{snap}'>Destroy snapshot</a>", ); }
 	print ui_table_end();
-	if ($config{'list_snap'} =~ /1/) { ui_print_footer('index.cgi?mode=snapshot', $text{'snapshot_return'}); } else { ui_print_footer('index.cgi?mode=zfs', $text{'zfs_return'}); }
+	%parent = find_parent($in{'snap'});
+	ui_print_footer('status.cgi?zfs='.$parent{'filesystem'}, $parent{'filesystem'});
 }
 

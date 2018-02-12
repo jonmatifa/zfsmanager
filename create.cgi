@@ -171,6 +171,8 @@ if ($in{'create'} =~ "zpool")
         print ui_form_start("cmd.cgi", "post");
 	%parent = find_parent($in{'rename'});
 	if (index($in{'rename'}, '@') != -1) {
+		#is snapshot
+		print ui_hidden('confirm', 'yes');
 		$parent = $parent{'filesystem'};
 		print ui_table_start('Rename snapshot', 'width=100%', '6');
         	print ui_table_row(undef, '<b>Snapshot:</b> '.$in{'rename'});
