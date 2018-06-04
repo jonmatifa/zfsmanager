@@ -18,41 +18,6 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	   than generating the necessary ACL entries to represent the new mode
 	   of the file or directory.',
            
-		'context' => 'This  flag  sets the SELinux context for all files in the filesytem under the mountpoint for that filesystem.
-           See selinux(8) for more information.',
-		   
-	'clones' => 'A clone is a writable volume or file system whose initial contents are the same as another dataset. As with snapshots, creating a clone is nearly instantaneous, and initially consumes no additional space.
-Clones can only be created from a snapshot. When a snapshot is cloned, it creates an implicit dependency between the parent and child. Even though the clone is created somewhere else in the dataset hierarchy, the original snapshot cannot be destroyed as long as a clone exists. The origin property exposes this dependency, and the destroy command lists any such dependencies, if they exist.
-
-The clone parent-child dependency relationship can be reversed by using the promote subcommand. This causes the "origin" file system to become a clone of the specified file system, which makes it possible to destroy the file system that the clone was created from.',
-	   
-	   'compressratio' => 'The compression ratio achieved for this  dataset,  expressed  as  a
-	   multiplier.	Compression  can be turned on by running "zfs set com-
-	   pression=on dataset". The default value is "off".',
-	   
-		'copies' => 'Controls the number of copies of  data  stored  for	this  dataset.
-	   These  copies  are  in  addition  to any redundancy provided by the
-	   pool, for example, mirroring or raid-z. The copies  are  stored  on
-	   different  disks, if possible. The space used by multiple copies is
-	   charged to the associated file and  dataset,  changing  the	"used"
-	   property and counting against quotas and reservations.
-
-	   Changing  this property only affects newly-written data. Therefore,
-	   set this property at file system creation time  by  using  the  "-o
-	   copies=" option.',
-	   
-	   'creation' => 'The time this dataset was created.',
-	   
-	   'dedup' => 'Configures deduplication for a dataset. The default value is off.
-	 The default deduplication checksum is sha256 (this may change in the
-	 future).  When dedup is enabled, the checksum defined here overrides
-	 the checksum property. Setting the value to verify has the same
-	 effect as the setting sha256,verify.
-
-	 If set to verify, ZFS will do a byte-to-byte comparsion in case of
-	 two blocks having the same signature to make sure the block contents
-	 are identical.',
-	 
 	 'dedupditto' => 'Threshold for the number of block ditto copies. If the reference
 	 count for a deduplicated block increases above this number, a new
 	 ditto copy of this block is automatically stored. Default setting is
@@ -336,57 +301,7 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	   If this property is set to "none", then neither user data nor meta-
 	   data is cached. If this property is set to  "metadata",  then  only
 	   metadata is cached. The default value is "all".',
-	   
-	   'recordsize' => 'Specifies a suggested block size for files in the file system. This
-	   property is designed solely for use with  database  workloads  that
-	   access  files  in fixed-size records. ZFS automatically tunes block
-	   sizes according to internal algorithms optimized for typical access
-	   patterns.
 
-	   For databases that create very large files but access them in small
-	   random chunks, these algorithms may	be  suboptimal.  Specifying  a
-	   "recordsize"  greater than or equal to the record size of the data-
-	   base can result in significant performance gains. Use of this prop-
-	   erty  for general purpose file systems is strongly discouraged, and
-	   may adversely affect performance.
-
-	   The size specified must be a power of two greater than or equal  to
-	   512 and less than or equal to 128 Kbytes.
-
-	   Changing  the  file system\'\s recordsize only affects files created
-	   afterward; existing files are unaffected.
-
-	   This property can also be referred to by its shortened column name,
-	   "recsize".',
-	   
-	   'readonly' => 'Controls whether this dataset can be modified. The default value is
-	   "off".
-
-	   This property can also be referred to by its shortened column name,
-	   "rdonly".',
-	   
-	   'relatime' => 'Controls  the  manner  in  which  the  access time is updated when atime=on is set.  Turning this property on
-           causes the access time to be updated relative to the modify or change time.  Access time is only  updated  if
-           the  previous  access  time was earlier than the current modify or change time or if the existing access time
-           hasn’t been updated within the past 24 hours.  The default value is off.',
-	   
-	   'redundant_metadata' => 'Controls  what  types of metadata are stored redundantly.  ZFS stores an extra copy of metadata, so that if a
-           single block is corrupted, the amount of user data lost is limited.  This extra copy is in  addition  to  any
-           redundancy  provided  at  the  pool  level (e.g. by mirroring or RAID-Z), and is in addition to an extra copy
-           specified by the copies property (up to a total of 3 copies).  For example if the pool is mirrored, copies=2,
-           and  redundant_metadata=most,  then ZFS stores 6 copies of most metadata, and 4 copies of data and some meta-
-           data.<br />
-			<br />
-           When set to all, ZFS stores an extra copy of all metadata.  If a single on-disk block is corrupt, at worst  a
-           single block of user data (which is recordsize bytes long) can be lost.<br />
-			<br />
-           When set to most, ZFS stores an extra copy of most types of metadata.  This can improve performance of random
-           writes, because less metadata must be written.  In practice, at worst about 100 blocks (of  recordsize  bytes
-           each)  of  user  data can be lost if a single on-disk block is corrupt.  The exact behavior of which metadata
-           blocks are stored redundantly may change in future releases.<br />
-			<br />
-           The default value is all.',
-	   
 	   'referenced' => 'The amount of data that is accessible by this dataset, which may or
 	 may not be shared with other datasets in the pool. When a snapshot or
 	 clone is created, it initially references the same amount of space as
@@ -395,9 +310,6 @@ The clone parent-child dependency relationship can be reversed by using the prom
 	<br />
 	 This property can also be referred to by its shortened column name,
 	 refer.',
-	 
-	 'refcompressratio' => 'The compression ratio achieved	for the	referenced space of this
-	 dataset, expressed as a multiplier.  See also the compressratio property.',
 	 
 	 'refquota' => 'Limits the amount of space a dataset can consume. This property enforces a hard limit  on  the
            amount  of  space  used. This hard limit does not include space used by descendents, including

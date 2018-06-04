@@ -150,7 +150,7 @@ if ($alerts =~ /all pools are healthy/)
 	{
 		%zstat = zpool_status($key);
 		$out .= "pool \'".$key."\' is ".$zstat{0}{state}." with ".$zstat{0}{errors}."<br />";
-		if ($zstat{0}{scan}) { $out .= "scan: ".$zstat{0}{scan}."<br />"; }
+		if ($zstat{0}{status}) { $out .= "status: ".$zstat{0}{status}."<br />"; }
 		$out .= "<br />";
 	}
 	$out .= "</b>";
