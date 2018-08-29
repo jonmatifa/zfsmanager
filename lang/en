@@ -55,13 +55,13 @@ cmd_createzfs=Attempting to create filesystem
 cmd_clone=Attempting to clone
 cmd_rename=Attempting to rename
 cmd_createzpool=Attempting to create pool
-cmd_vdev=Attempting to 
+cmd_vdev=Attempting to
 cmd_promote=Attempting to promote
 cmd_scrub=Attempting to scrub pool
 cmd_upgrade=Attempting to upgrade pool
 cmd_export=Attempting to export pool
 cmd_import=Attempting to import pool
-cmd_zfsact=Attempting to 
+cmd_zfsact=Attempting to
 cmd_destroy=Attempting to destroy
 cmd_affect=This action will affect the following:
 cmd_warning=Warning, this action will result in data loss, do you really want to continue?
@@ -71,7 +71,7 @@ cmd_multisnap=Attempting to destroy multiple snapshots...
 cmd_success=Success!
 cmd_error=error:
 
-snapshot_title=Snapshot 
+snapshot_title=Snapshot
 snapshot_create=Create Snapshot
 snapshot_new=Select filesystem for snapshot
 
@@ -95,7 +95,7 @@ prop_canmount=If this property is set to "off", the file system cannot be mounte
 prop_casesensitivity=Indicates whether the file name matching algorithm used by the file system should be case-sensitive, case-insensitive, or allow a combination of both styles of matching. The default value for the casesensitivity property is sensitive. Traditionally, UNIX and POSIX file systems have case-sensitive file names.<br /><br />The mixed value for the casesensitivity property indicates that the file system can support requests for both case-sensitive and case-insensitive matching behavior. Currently, case-insensitive matching behavior on a file system that supports mixed behavior is limited to the Solaris CIFS server product. For more information about the mixed value behavior, see the Solaris ZFS Administration Guide.
 prop_checksum=Controls the checksum used to verify data integrity. The default value is "on", which automatically selects an appropriate algorithm (currently, fletcher2, but this may change in future releases). The value "off" disables integrity checking on user data. Disabling checksums is NOT a recommended practice.
 prop_clones=A clone is a writable volume or file system whose initial contents are the same as another dataset. As with snapshots, creating a clone is nearly instantaneous, and initially consumes no additional space. Clones can only be created from a snapshot. When a snapshot is cloned, it creates an implicit dependency between the parent and child. Even though the clone is created somewhere else in the dataset hierarchy, the original snapshot cannot be destroyed as long as a clone exists. The origin property exposes this dependency, and the destroy command lists any such dependencies, if they exist.<br /><br /> The clone parent-child dependency relationship can be reversed by using the promote subcommand. This causes the "origin" file system to become a clone of the specified file system, which makes it possible to destroy the file system that the clone was created from.
-prop_com.sun:auto-snapshot=zfs-auto-snapshot automatically creates, rotates, and destroys snapshots for all your ZFS datasets, and is compatible with both zfsonlinux and zfs-fuse. 
+prop_com.sun:auto-snapshot=zfs-auto-snapshot automatically creates, rotates, and destroys snapshots for all your ZFS datasets, and is compatible with both zfsonlinux and zfs-fuse.
 prop_compression=Controls the compression algorithm used for this dataset. The "lzjb" compression algorithm is optimized for performance while providing decent data compression. Setting compression to "on" uses the "lzjb" compression algorithm. The "gzip" compression algorithm uses the same compression as the gzip(1) command. You can specify the "gzip" level by using the value "gzip-N" where N is an integer from 1 (fastest) to 9 (best compression ratio). Currently, "gzip" is equivalent to "gzip-6" (which is also the default for gzip(1)). This property can also be referred to by its shortened column name "compress".
 prop_compressratio=The compression ratio achieved for this dataset, expressed as a multiplier. Compression can be turned on by running "zfs set compression=on dataset". The default value is "off".
 prop_context=This flag sets the SELinux context for all files in the filesytem under the mountpoint for that filesystem. See selinux(8) for more information.

@@ -7,7 +7,7 @@ ReadParse();
 ui_print_header(undef, $text{'about_title'}, "", undef, 1, 1);
 
 print ui_table_start("ZFS Manager info", "width=100%", undef);
-print "ZFS manager is in early development but relatively stable. Please understand the risks and have backups for important data. Updates, feedback, bug reports and more information can be found through the github link below.<br />";
+print "ZFS manager is in early development but relatively stable. Please understand the risks and have backups for important data. Updates, feedback, bug reports and more information can be found through the GitHub link below.<br />";
 print ui_table_row("GitHub:", "<a href='https://github.com/jonmatifa/zfsmanager' target='_blank'>https://github.com/jonmatifa/zfsmanager</a>");
 print ui_table_row("Blog:", "<a href='https://zfsmanager.wordpress.com/' target='_blank'>https://zfsmanager.wordpress.com/</a>");
 print ui_table_end();

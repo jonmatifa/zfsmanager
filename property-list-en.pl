@@ -17,42 +17,42 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	   "passthrough"  indicates  that no changes are made to the ACL other
 	   than generating the necessary ACL entries to represent the new mode
 	   of the file or directory.',
-           
+
 	 'dedupditto' => 'Threshold for the number of block ditto copies. If the reference
 	 count for a deduplicated block increases above this number, a new
 	 ditto copy of this block is automatically stored. Default setting is
 	 0.',
-	 
+
 	 'dedupratio' => 'The deduplication ratio specified for a pool, expressed as a
 		 multiplier.  For example, a dedupratio value of 1.76 indi-
 		 cates that 1.76 units of data were stored but only 1 unit of
 		 disk space was actually consumed. See zfs(8) for a descrip-
 		 tion of the deduplication feature.',
-		 
+
 	'defer_destroy' => 'This property is on if the snapshot has been marked for deferred destroy by using the zfs destroy -d command. Otherwise, the property is off.',
-	
+
 	'defcontext' => 'This flag sets the SELinux context for unlabeled files.  See selinux(8) for more information.',
-		 
+
 	'delegation' => 'Controls whether a non-privileged user is granted access based on the
 	 dataset permissions defined on the dataset. See zfs(8) for more
 	 information on ZFS delegated administration.',
-	   
+
 	   'devices' => 'Controls  whether  device  nodes can be opened on this file system.
 	   The default value is "on".',
-	   
+
 	   'exec' => 'Controls whether processes can be executed from  within  this  file
 	   system. The default value is "on".',
-	   
+
 	   'expandsize' => 'Amount of uninitialized space within the pool or device that can be used to increase the  total  capacity  of  the
                            pool.   Uninitialized  space  consists of any space on an EFI labeled vdev which has not been brought online (i.e.
                            zpool online -e).  This space occurs when a LUN is dynamically expanded.',
-	   
+
 	   'failmode' => 'Controls the system behavior in the event of catastrophic pool fail-
 	 ure. This condition is typically a result of a loss of connectivity
 	 to the underlying storage device(s) or a failure of all devices
 	 within the pool. The behavior of such an event is determined as fol-
 	 lows:',
-	 
+
 	 'feature@async_destroy' => 'GUID                   com.delphix:async_destroy
            READ-ONLY COMPATIBLE   yes
            DEPENDENCIES           none
@@ -67,7 +67,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            to be reclaimed by the background process is available through the freeing property.
 
            This feature is only active while freeing is non-zero.',
-		   
+
 	 'feature@empty_bpobj' => 'GUID                   com.delphix:empty_bpobj
            READ-ONLY COMPATIBLE   yes
            DEPENDENCIES           none
@@ -79,22 +79,22 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            shot.  However, in common use cases, most of these bpobj\'s are empty.  This feature allows us to create each bpobj on-demand, thus
            eliminating the empty bpobjs.
 
-           This feature is active while there are any filesystems, volumes, or snapshots which were created after enabling this feature.', 
-		   
+           This feature is active while there are any filesystems, volumes, or snapshots which were created after enabling this feature.',
+
 	 'feature@lz4_compress' => 'GUID                   org.illumos:lz4_compress
            READ-ONLY COMPATIBLE   no
            DEPENDENCIES           none
 
            lz4 is a high-performance real-time compression algorithm that features significantly faster compression and decompression as well
-           as a higher compression ratio than the older lzjb compression.  Typically, lz4 compression is approximately  50%  faster  on  compressible  
-		   data and 200% faster on incompressible data than lzjb. It is also approximately 80% faster on decompression, while giving 
+           as a higher compression ratio than the older lzjb compression.  Typically, lz4 compression is approximately  50%  faster  on  compressible
+		   data and 200% faster on incompressible data than lzjb. It is also approximately 80% faster on decompression, while giving
 		   approximately 10% better compression ratio.
 
            When the lz4_compress feature is set to enabled, the administrator can turn on lz4 compression on any dataset on  the  pool  using
            the  zfs(8)  command.  Please  note  that doing so will immediately activate the lz4_compress feature on the underlying pool (even
            before any data is written). Since this feature is not read-only compatible, this operation will render the pool  unimportable  on
-           systems  without  support  for the lz4_compress feature. At the moment, this operation cannot be reversed. Booting off of lz4-compressed root pools is supported.', 
-           
+           systems  without  support  for the lz4_compress feature. At the moment, this operation cannot be reversed. Booting off of lz4-compressed root pools is supported.',
+
 	  'feature@spacemap_histogram' => 'GUID                   com.delphix:spacemap_histogram
            READ-ONLY COMPATIBLE   yes
            DEPENDENCIES           none
@@ -103,7 +103,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            this  feature  is  enabled,  ZFS will set this feature to active when a new space map object is created or an
            existing space map is upgraded to the new format. Once the feature is active, it will remain  in  that  state
            until the pool is destroyed.',
-           
+
 		'feature@extensible_dataset' => 'GUID                   com.delphix:extensible_dataset
            READ-ONLY COMPATIBLE   no
            DEPENDENCIES           none
@@ -113,7 +113,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 
            This feature will be active when the first dependent feature uses it, and will be  returned  to  the  enabled
            state when all datasets that use this feature are destroyed.',
-           
+
 		'feature@bookmarks' => 'GUID                   com.delphix:bookmarks
            READ-ONLY COMPATIBLE   yes
            DEPENDENCIES           extensible_dataset
@@ -122,7 +122,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 
            This  feature  is  active  while any bookmarks exist in the pool.  All bookmarks in the pool can be listed by
            running zfs list -t bookmark -r poolname.',
-           
+
 		'feature@enabled_txg' => 'GUID                   com.delphix:enabled_txg
            READ-ONLY COMPATIBLE   yes
            DEPENDENCIES           none
@@ -131,7 +131,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            has no user-visible impact, but other features may depend on this feature.
 
            This feature becomes active as soon as it is enabled and will never return to being enabled.',
-           
+
 		'feature@hole_birth' => 'GUID                   com.delphix:hole_birth
            READ-ONLY COMPATIBLE   no
            DEPENDENCIES           enabled_txg
@@ -154,7 +154,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            sending information about holes that already exist on the receiving side.
 
            This feature becomes active as soon as it is enabled and will never return to being enabled.',
-           
+
 		'feature@embedded_data' => 'GUID                   com.delphix:embedded_data
            READ-ONLY COMPATIBLE   no
            DEPENDENCIES           none
@@ -168,7 +168,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            i/o is needed to read and write the data block.
 
            This feature becomes active as soon as it is enabled and will never return to being enabled.',
-	 
+
 	 'feature@large_blocks' => 'GUID                   org.open-zfs:large_block
            READ-ONLY COMPATIBLE   no
            DEPENDENCIES           extensible_dataset
@@ -177,7 +177,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 
            This feature becomes active once a recordsize property has been set larger than 128KB, and will return to being enabled once all
            filesystems that have ever had their recordsize larger than 128KB are destroyed.',
-           
+
      'feature@filesystem_limits' => 'GUID                   com.joyent:filesystem_limits
            READ-ONLY COMPATIBLE   yes
            DEPENDENCIES           extensible_dataset
@@ -186,13 +186,13 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            can be created at the point in the tree on which the limits are set.
 
            This feature is active once either of the limit properties has been set on a dataset. Once activated the feature is never  deac‐
-           tivated.',      
-	 
+           tivated.',
+
 	 'filesystem_count' => 'The  total  number of filesystems and volumes that exist under this
            location in the dataset tree.  This value is only available when  a
            filesystem_limit has been set somewhere in the tree under which the
            dataset resides.',
-	 
+
 	 'filesystem_limit' => 'Limits  the  number of filesystems and volumes that can exist under
            this point in the dataset tree.  The limit is not enforced  if  the
            user  is allowed to change the limit. Setting a filesystem_limit on
@@ -200,47 +200,47 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            does  not  override  the  ancestor\'s  filesystem_limit,  but rather
            imposes an additional limit. This feature must  be  enabled  to  be
            used (see zpool-features(5)).',
-	 
+
 	 'fragmentation' => 'The amount of fragmentation in the pool.',
-	 
+
 	 'free' => 'Number of blocks within the pool that are not allocated.',
-	 
-	 'freeing' => 'After a file system or snapshot is destroyed, the space it was using is returned to the pool asynchronously. freeing is the 
+
+	 'freeing' => 'After a file system or snapshot is destroyed, the space it was using is returned to the pool asynchronously. freeing is the
 	 amount of space remaining to be reclaimed. Over time freeing will decrease while free increases.',
-	 
+
 	 'fscontext' => 'This flag sets the SELinux context for the filesytem being mounted.  See selinux(8) for more information.',
-	 
+
 	 'guid' => 'A unique identifier for the pool.',
-	 
+
 	 'health' => 'The current health of the pool. Health can be "ONLINE",
 		 "DEGRADED", "FAULTED", "OFFLINE", "REMOVED", or "UNAVAIL".',
-		 
+
 	'listsnapshots' => 'Controls whether information about snapshots associated with this
 	 pool is output when "zfs list" is run without the -t option. The
 	 default value is off.',
-	   
+
 	   'logbias' => 'Provide a hint to ZFS about handling of synchronous requests in this
 	 dataset.  If logbias is set to latency (the default), ZFS will use
 	 pool log devices (if configured) to handle the requests at low
 	 latency. If logbias is set to throughput, ZFS will not use configured
 	 pool log devices.  ZFS will instead optimize synchronous operations
 	 for global pool throughput and efficient use of resources.',
-	 
-	 'logicalreferenced' => 'The amount of space that is "logically" accessible by this dataset.  See the referenced property.  The  logical 
+
+	 'logicalreferenced' => 'The amount of space that is "logically" accessible by this dataset.  See the referenced property.  The  logical
 	        space ignores the effect of the compression and copies properties, giving a quantity closer to the amount
            of data that applications see.  However, it does include space consumed by metadata.<br />
 			<br />
            This property can also be referred to by its shortened column name, lrefer.',
-           
-		'logicalused' => 'The amount of space that is "logically" consumed by this dataset and all its descendents.  See the used property.   
+
+		'logicalused' => 'The amount of space that is "logically" consumed by this dataset and all its descendents.  See the used property.
 		    The  logical  space  ignores  the  effect of the compression and copies properties, giving a quantity
            closer to the amount of data that applications see.  However, it does include space consumed by metadata.<br />
 			<br />
            This property can also be referred to by its shortened column name, lused.',
-	   
+
 	   'mounted' => 'For file systems, indicates whether the file system is currently
 	 mounted. This property can be either yes or no.',
-	 
+
 	 'mlslabel' => 'The mlslabel property is a sensitivity label that determines if a dataset  can be mounted in a
            zone  on  a system with Trusted Extensions enabled. If the labeled dataset matches the labeled
            zone, the dataset can be mounted  and accessed from the labeled zone.<br />
@@ -261,7 +261,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            mounted.<br />
 			<br />
            Zones are a Solaris feature and are not relevant on Linux.',
-		   
+
 		'mountpoint' => 'Controls the mount point used for this file system. See the "Mount
 		Points" section for more information on how this property is used.<br />
 		<br />
@@ -272,7 +272,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 		was previously legacy or none, or if they were mounted before the
 		property was changed. In addition, any shared file systems are
 		unshared and shared in the new location.',
-		
+
 		'normalization' => 'Indicates whether the file system should perform a unicode normal-
 	   ization of file names whenever two file names are compared, and
 	   which normalization algorithm should be used. File names are always
@@ -282,20 +282,20 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	   erty is automatically set to on.  The default value of the
 	   normalization property is none.  This property cannot be changed
 	   after the file system is created.',
-	   
+
 	   'nbmand' => 'Controls  whether  the  file system should be mounted with "nbmand"
 	   (Non Blocking mandatory locks). This  is  used  for	CIFS  clients.
 	   Changes  to	this property only take effect when the file system is
 	   umounted and remounted.  See  mount(1M)  for  more  information  on
 	   "nbmand" mounts.',
-	   
+
 	   'origin' => 'For cloned file systems or volumes, the snapshot from which the clone
 	 was created. See also the clones property.',
-	 
+
 	 'overlay' => 'Allow  mounting  on  a  busy  directory  or a directory which already contains files/directories. This is the
            default mount behavior for Linux filesystems.  However, for consistency with ZFS on other  platforms  overlay
            mounts are disabled by default.  Set overlay=on to enable overlay mounts.',
-	   
+
 	   'primarycache' => 'Controls  what  is cached in the primary cache (ARC). If this prop-
 	   erty is set to "all", then both user data and metadata  is  cached.
 	   If this property is set to "none", then neither user data nor meta-
@@ -310,11 +310,11 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	<br />
 	 This property can also be referred to by its shortened column name,
 	 refer.',
-	 
+
 	 'refquota' => 'Limits the amount of space a dataset can consume. This property enforces a hard limit  on  the
            amount  of  space  used. This hard limit does not include space used by descendents, including
            file systems and snapshots.',
-		   
+
 		'refreservation' => 'The minimum amount of space guaranteed to a dataset, not including
 	 its descendents. When the amount of space used is below this value,
 	 the dataset is treated as if it were taking up the amount of space
@@ -328,7 +328,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	<br />
 	 This property can also be referred to by its shortened column name,
 	 refreserv.',
-	 
+
 	 'reservation' => 'The minimum amount of space guaranteed to a dataset and its descen-
 	 dents. When the amount of space used is below this value, the dataset
 	 is treated as if it were taking up the amount of space specified by
@@ -338,15 +338,15 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	<br />
 	 This property can also be referred to by its shortened column name,
 	 reserv.',
-	 
+
 	 'rootcontext' => 'This flag sets the SELinux context for the root inode of the filesystem.  See selinux(8)  for  more  information.',
-	   
+
 	   'secondarycache' => 'Controls what is cached in the secondary  cache  (L2ARC).  If  this
 	   property  is  set  to  "all",  then	both user data and metadata is
 	   cached. If this property is set to "none", then neither  user  data
 	   nor metadata is cached. If this property is set to "metadata", then
 	   only metadata is cached. The default value is "all".',
-	   
+
 	   'shareiscsi' => 'Like  the "sharenfs" property, "shareiscsi" indicates whether a ZFS
 	   volume is exported as an iSCSI target. The  acceptable  values  for
 	   this  property  are "on", "off", and "type=disk". The default value
@@ -356,7 +356,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	   You might want to set "shareiscsi=on" for a file system so that all
 	   ZFS volumes within the file system are shared by  default.  Setting
 	   this property on a file system has no direct effect, however.',
-	   
+
 	   'sharenfs' => 'Controls whether the file system is shared via NFS, and what options
 	 are used. A file system with a sharenfs property of off is managed
 	 the traditional way via exports(5).  Otherwise, the file system is
@@ -368,7 +368,7 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	<br />
 	 When the sharenfs property is changed for a dataset, the mountd(8)
 	 daemon is reloaded.',
-	 
+
 	 'sharesmb' => 'Controls whether the file system is shared by using Samba USERSHARES, and what options are  to
            be  used.  Otherwise,  the file system is automatically shared and unshared with the zfs share
            and zfs unshare commands. If the property is set to on, the net(8) command is invoked to  cre‐
@@ -408,19 +408,19 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
              with the \'net\' command will be undone if the share is every unshared (such as at a reboot
              etc). In the future, ZoL will be able to set specific options directly using
              sharesmb=&#60;option&#62;.',
-			 
+
 	'size' => 'Total size of the storage pool.',
 
 		'snapdir' => 'Controls  whether  the ".zfs" directory is hidden or visible in the
 	   root of the file system as discussed in  the  "Snapshots"  section.
 	   The default value is "hidden".',
-	   
+
 	   'snapdev' => 'Controls whether the snapshots devices of zvol\'s are hidden or visible. The default value is hidden.',
-	   
+
 	   'snapshot_count' => 'The total number of snapshots that exist under this location in the
            dataset tree.  This value is only available when  a  snapshot_limit
            has been set somewhere in the tree under which the dataset resides.',
-	   
+
 	   'snapshot_limit' => '  Limits the number of snapshots that can be created on a dataset and
            its descendents. Setting a snapshot_limit  on  a  descendent  of  a
            dataset  that  already  has  a snapshot_limit does not override the
@@ -430,10 +430,10 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
            the global zone are counted against each delegated dataset within a
            zone. This feature must be  enabled  to  be  used  (see  zpool-fea‐
            tures(5)).',
-	   
+
 	   'setuid' => 'Controls whether the set-UID bit is respected for the file  system.
 	   The default value is "on".',
-	   
+
 	   'sync' => 'Controls the behavior of synchronous requests (e.g.  fsync(2),
 	 O_DSYNC). This property accepts the following values:
 
@@ -453,9 +453,9 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 		       nous transaction demands of applications such as data-
 		       bases or NFS.  Administrators should only use this
 		       option when the risks are understood.',
-	
+
 		'type' => 'The type of dataset: filesystem, volume, or snapshot.',
-		
+
 		'used' => 'The amount of space consumed by this dataset and all its descendents.
 	 This is the value that is checked against this dataset\'s quota and
 	 reservation. The space used does not include this dataset\'s reserva-
@@ -478,42 +478,42 @@ my %hash = ( 'aclmode' => 'Controls how an ACL is modified during chmod(2). A fi
 	 within a few seconds. Committing a change to a disk using fsync(2) or
 	 O_SYNC does not necessarily guarantee that the space usage informa-
 	 tion is updated immediately.',
-		
+
 		'usedbychildren' => 'The amount of space used by children of this dataset, which would be
 	 freed if all the dataset\'s children were destroyed.',
-	 
+
 		'usedbydataset' => 'The amount of space used by this dataset itself, which would be freed
 	 if the dataset were destroyed (after first removing any
 	 refreservation and destroying any necessary snapshots or descen-
 	 dents).',
-	 
+
 		'usedbysnapshots' => 'The amount of space consumed by snapshots of this dataset. In partic-
 	 ular, it is the amount of space that would be freed if all of this
 	 dataset\'s snapshots were destroyed. Note that this is not simply the
 	 sum of the snapshots\' used properties because space can be shared by
 	 multiple snapshots.',
-	 
+
 		'usedbyrefreservation' => 'The amount of space used by a refreservation set on this dataset,
 	 which would be freed if the refreservation was removed.',
-	 
+
 	 'userrefs' => 'This property is set to the number of user holds on this snapshot. User holds are set by using the zfs hold command.
 groupused@group
 The amount of space consumed by the specified group in this dataset. Space is charged to the group of each file, as displayed by ls -l. See the userused@user property for more information.
 Unprivileged users can only access their own groups\' space usage. The root user, or a user who has been granted the groupused privilege with zfs allow, can access all groups\' usage.',
-	   
+
 	   'utf8only' => 'Indicates whether the file system should reject file names that
 	   include characters that are not present in the UTF-8 character code
 	   set. If this property is explicitly set to off, the normalization
 	   property must either not be explicitly set or be set to none.  The
 	   default value for the utf8only property is off.  This property can-
 	   not be changed after the file system is created.',
-	   
+
 	   'version' => 'The current on-disk version of the pool. This can be increased, but
 	 never decreased. The preferred method of updating pools is with the
 	 "zpool upgrade" command, though this property can be used when a spe-
 	 cific version is needed for backwards compatibility.  Once feature
 	 flags is enabled on a pool this property will no longer have a value.',
-	 
+
 	 'volblocksize' => 'For volumes, specifies	the block size of the volume. The blocksize
 	 cannot	be changed once	the volume has been written, so	it should be
 	 set at	volume creation	time. The default blocksize for	volumes	is 8
@@ -521,43 +521,43 @@ Unprivileged users can only access their own groups\' space usage. The root user
 
 	 This property can also	be referred to by its shortened	column name,
 	 volblock.',
-	 
+
 	 'volsize' => 'For volumes, specifies	the logical size of the	volume.	By default,
-	 creating a volume establishes a reservation of	equal size. For	storage 
+	 creating a volume establishes a reservation of	equal size. For	storage
 	 pools with	a version number of 9 or higher, a refreservation is
 	 set instead. Any changes to volsize are reflected in an equivalent
 	 change	to the reservation (or refreservation).	 The volsize can only
 	 be set	to a multiple of volblocksize, and cannot be zero.
 
 	 The reservation is kept equal to the volume\'s logical size to prevent
-	 unexpected behavior for consumers. Without the	reservation, the volume 
+	 unexpected behavior for consumers. Without the	reservation, the volume
 	 could run out of space, resulting in undefined behavior or	data
 	 corruption, depending on how the volume is used. These	effects	can
-	 also occur when the volume size is changed while it is	in use (particularly 
+	 also occur when the volume size is changed while it is	in use (particularly
 	 when	shrinking the size). Extreme care should be used when
 	 adjusting the volume size.
 
-	 Though	not recommended, a "sparse volume" (also known as "thin	provisioning") 
+	 Though	not recommended, a "sparse volume" (also known as "thin	provisioning")
 	 can be created by specifying	the -s option to the "zfs
 	 create	-V" command, or	by changing the	reservation after the volume
 	 has been created. A "sparse volume" is	a volume where the reservation
-	 is less then the volume size.	Consequently, writes to	a sparse volume 
+	 is less then the volume size.	Consequently, writes to	a sparse volume
 	 can fail with ENOSPC when the pool	is low on space. For a sparse
 	 volume, changes to volsize are	not reflected in the reservation.',
-	   
+
 	   'vscan' => 'Controls whether regular files should be scanned for viruses when a
 	   file  is  opened and closed. In addition to enabling this property,
 	   the virus scan service must also be enabled for virus  scanning  to
 	   occur. The default value is "off".',
-	   
+
 	   'written' => 'The amount of referenced space	written	to this	dataset	since the previous snapshot.',
-	   
+
 	   'xattr' => 'Controls whether extended attributes are enabled for this file system. The default value is on.',
-	   
+
 	   'zoned' => 'Controls whether the dataset is managed from a non-global zone. See
 	   the	"Zones"  section  for  more  information. The default value is
 	   "off".<br /><br />
-	   
+
 	   <h4>Zones</h4>
 	   A  ZFS file system can be added to a non-global zone by using zonecfg\'\s
        "add fs" subcommand. A ZFS file system that is added  to  a  non-global
@@ -591,4 +591,3 @@ Unprivileged users can only access their own groups\' space usage. The root user
        the property.');
 return %hash;
 }
-
