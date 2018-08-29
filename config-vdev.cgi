@@ -13,7 +13,7 @@ print ui_columns_row([$status{$in{'dev'}}{name}, $status{$in{'dev'}}{state}, $st
 print ui_columns_end();
 
 $parent = $status{$in{'dev'}}{parent};
-if ($status{$in{'dev'}}{parent} =~ 'pool') 
+if ($status{$in{'dev'}}{parent} =~ 'pool')
 {
 } else {
 	print ui_columns_start([ "Parent", "State", "Read", "Write", "Cksum" ]);
@@ -26,7 +26,7 @@ if (($status{$in{'dev'}}{name} =~ "cache") || ($status{$in{'dev'}}{name} =~ "log
 print "Children: ";
 	foreach $key (sort(keys %status))
 	{
-		if ($status{$key}{parent} =~ $in{'dev'}) 
+		if ($status{$key}{parent} =~ $in{'dev'})
 		{
 			print "<a href='config-vdev.cgi?pool=$in{pool}&dev=$key'>".$status{$key}{name}."</a>  ";
 		}

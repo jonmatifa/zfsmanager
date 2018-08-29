@@ -5,17 +5,17 @@ ReadParse();
 use Data::Dumper;
 ui_print_header(undef, $text{'cmd_title'}, "", undef, 1, 1);
 
-if ($text{$in{'cmd'}."_desc"}) { 
+if ($text{$in{'cmd'}."_desc"}) {
 	print ui_table_start($text{$in{'cmd'}."_cmd"}, "width=100%", "10", ['align=left'] );
 	print ui_table_row($text{'cmd_dscpt'}, $text{$in{'cmd'}."_desc"});
 	print ui_table_end();
 };
 
 print ui_table_start($text{'cmd_title'}, "width=100%", "10", ['align=left'] );
-	
+
 if ($in{'cmd'} =~ "setzfs") {
 	$in{'confirm'} = "yes";
-	if (($in{'set'} =~ "inherit") && ($config{'zfs_properties'} =~ /1/)) { $cmd = "zfs inherit $in{'property'} $in{'zfs'}"; 
+	if (($in{'set'} =~ "inherit") && ($config{'zfs_properties'} =~ /1/)) { $cmd = "zfs inherit $in{'property'} $in{'zfs'}";
 	} elsif ($config{'zfs_properties'} =~ /1/) { $cmd =  "zfs set $in{'property'}=$in{'set'} $in{'zfs'}"; }
 	ui_cmd("$in{'property'} to $in{'set'} on $in{'zfs'}", $cmd);
 }
@@ -43,7 +43,7 @@ elsif ($in{'cmd'} =~ "send") {
 		print "<b>$text{'filename'} </b>".ui_textbox('file', $newfile.'.gz', 50)."<br />";
 		print ui_submit($text{'continue'}, undef, undef);
                 print ui_form_end();
-	} else { 
+	} else {
 		$in{'confirm'} = "yes";
 		my $cmd = ($config{'snap_properties'} =~ /1/) ? "zfs send ".$in{'snap'}." | gzip > ".$in{'dest'}."/".$in{'file'} : undef;
 		ui_cmd($in{'snap'}, $cmd);
@@ -59,11 +59,11 @@ elsif ($in{'cmd'} =~ "createzfs")  {
 		$options{$key} = ($in{$key}) ? $in{$key} : undef;
 	}
 	if ($in{'mountpoint'}) { $options{'mountpoint'} = $in{'mountpoint'}; }
-	if ($in{'zvol'} == '1') { 
+	if ($in{'zvol'} == '1') {
 		$options{'zvol'} = $in{'size'};
 		$options{'sparse'} = $in{'sparse'};
 		$options{'volblocksize'} = $in{'volblocksize'};
-	} 
+	}
 	my $cmd = (($in{'parent'}) && ($config{'zfs_properties'} =~ /1/)) ? cmd_create_zfs($in{'parent'}."/".$in{'zfs'}, \%options) : undef;
 	$in{'confirm'} = "yes";
 	ui_cmd("$in{'parent'}/$in{'zfs'}", $cmd);
@@ -88,11 +88,11 @@ elsif ($in{'cmd'} =~ "clone")  {
 	@footer = ("status.cgi?snap=".$in{'clone'}, $in{'clone'})
 }
 elsif ($in{'cmd'} =~ "rename")  {
-	if (index($in{'zfs'}, '@') != -1) { 
+	if (index($in{'zfs'}, '@') != -1) {
 		$cmd = ($config{'snap_properties'} =~ /1/) ? "zfs rename ".$in{'force'}.$in{'recurse'}.$in{'zfs'}." ".$in{'parent'}.'@'.$in{'name'} : undef;
 		@footer = ('status.cgi?snap='.$in{'parent'}.'@'.$in{'name'}, $in{'parent'}.'@'.$in{'name'});
-	} elsif (index($in{'zfs'}, '/') != -1) { 
-		$cmd = ($config{'zfs_properties'} =~ /1/) ? "zfs rename ".$in{'force'}.$in{'prnt'}.$in{'zfs'}." ".$in{'parent'}.'/'.$in{'name'} : undef; 
+	} elsif (index($in{'zfs'}, '/') != -1) {
+		$cmd = ($config{'zfs_properties'} =~ /1/) ? "zfs rename ".$in{'force'}.$in{'prnt'}.$in{'zfs'}." ".$in{'parent'}.'/'.$in{'name'} : undef;
 	}
         ui_cmd($in{'zfs'}." to ".$in{'name'}, $cmd);
 }
@@ -240,7 +240,7 @@ elsif ($in{'cmd'} =~ "multisnap")  {
 		my %snapshot = list_snapshots($key);
 		print ui_columns_row([ $key, $snapshot{'00000'}{used}, $snapshot{'00000'}{refer} ]);
 		#print Dumper(\%snapshot);
-		$results{$key} = ($config{'snap_destroy'}) ? "zfs destroy $key" : undef; 
+		$results{$key} = ($config{'snap_destroy'}) ? "zfs destroy $key" : undef;
 	}
 	print ui_columns_end();
 	if (!$in{'confirm'})
@@ -249,7 +249,7 @@ elsif ($in{'cmd'} =~ "multisnap")  {
 		foreach $key (keys %results)
 		{
 			print $results{$key}, "<br />";
-		}	
+		}
 		print "<h3>$text{'cmd_warning'}</h3>";
 		print ui_checkbox('confirm', 'yes', $text{'cmd_understand'}, undef );
 		print ui_hidden('checked', 'no');

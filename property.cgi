@@ -10,19 +10,19 @@ ui_print_header(undef, $text{'property_title'}, "", undef, 1, 1);
 %proplist = properties_list();
 
 print ui_table_start("$text{'property_title'}: $in{'property'}", "width=100%", "10", ['align=left'] );
-if ($in{'zfs'}) { 
-	%get = zfs_get($in{'zfs'}, $in{'property'}); 
+if ($in{'zfs'}) {
+	%get = zfs_get($in{'zfs'}, $in{'property'});
 	print "File system:  <b>".$in{'zfs'}."</b><br /> ";
 	print "Property: <b>", $in{'property'}, "</b> is currently: <b>", $get{$in{'zfs'}}{$in{'property'}}{value}, "</b><br />";
 	print "Source: <b>", $get{$in{'zfs'}}{$in{'property'}}{source}."</b>";
 	print "<br />";
 	print "<br />";
-} elsif ($in{'pool'}) { 
-	%get = zpool_get($in{'pool'},  $in{'property'}); 
+} elsif ($in{'pool'}) {
+	%get = zpool_get($in{'pool'},  $in{'property'});
 	print "Pool:  <b>".$in{'pool'}."</b><br /> ";
 	print "Property: <b>", $in{'property'}, "</b> is currently: <b>", $get{$in{'pool'}}{$in{'property'}}{value}, "</b><br />";
 	print "Source: <b>", $get{$in{'pool'}}{$in{'property'}}{source}."</b><br />";
-	print "<br />";	
+	print "<br />";
 }
 
 if ($props{$in{'property'}})
@@ -82,8 +82,8 @@ if ($in{'property'} =~ 'mountpoint') {
 } elsif ($in{'property'} =~ /feature@/) {
 	print ui_hidden('cmd', 'setpool');
 	if ($get{$in{'pool'}}{$in{'property'}}{value} =~ 'disabled') {
-	my @select = ['enabled', 'disabled']; 
-	print "Change to: ", ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
+	my @select = ['enabled', 'disabled'];
+	print "Change to: ", ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1);
 	print "<br />";
 	print ui_submit('submit');
 	print "<br />";
@@ -97,13 +97,13 @@ if ($in{'zfs'}) {
 	print "Change to: ";
 	#The following line was specifically added when com.sun:auto-snapshot does not have a value
 	if ($get{$in{'zfs'}}{$in{'property'}}{value} eq "-") { $get{$in{'zfs'}}{$in{'property'}}{value} = 'inherit'; }
-	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
+	print ui_select('set', $get{$in{'zfs'}}{$in{'property'}}{value}, @select, 1, 0, 1);
 }
-elsif ($in{'pool'}) { 
+elsif ($in{'pool'}) {
 	print ui_hidden('cmd', 'setpool') ;
 	my @select = [ split(", ", $pool_proplist{$in{'property'}}) ];
 	if ($pool_proplist{$in{'property'}} eq 'boolean') { @select = [ 'on', 'off' ]; }
-	print ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1); 
+	print ui_select('set', $get{$in{'pool'}}{$in{'property'}}{value}, @select, 1, 0, 1);
 }
 print ui_submit('submit');
 print "<br />";
