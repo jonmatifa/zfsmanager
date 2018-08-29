@@ -6,11 +6,11 @@ sub acl_security_form
 {
 my ($access)=@_;
 
-print ui_table_row("Desctructive pool features",
+print ui_table_row("Destructive pool features",
   ui_yesno_radio("upool_destroy", $access->{'upool_destroy'}));
-print ui_table_row("Desctructive file system features",
+print ui_table_row("Destructive file system features",
   ui_yesno_radio("uzfs_destroy", $access->{'uzfs_destroy'}));
-print ui_table_row("Desctructive snapshot features",
+print ui_table_row("Destructive snapshot features",
   ui_yesno_radio("usnap_destroy", $access->{'usnap_destroy'}));
 print ui_table_row("Pool property administration",
   ui_yesno_radio("upool_properties", $access->{'upool_properties'}));

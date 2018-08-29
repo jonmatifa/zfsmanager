@@ -37,7 +37,7 @@ print ui_table_start("Status", "width=100%", "10");
 print ui_table_row("Scan:", $status{0}{scan});
 print ui_table_row("Read:", $status{0}{read});
 print ui_table_row("Write:", $status{0}{write});
-print ui_table_row("Checkum:", $status{0}{cksum});
+print ui_table_row("Checksum:", $status{0}{cksum});
 print ui_table_row("Errors:", $status{0}{errors});
 print ui_table_end();
 
