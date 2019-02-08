@@ -168,24 +168,24 @@ if ($in{'create'} =~ "zpool")
 	$in{'snap'} = $in{'clone'};
 } elsif ($in{'rename'}) {
 	ui_print_header(undef, "Rename", "", undef, 1, 1);
-        print ui_form_start("cmd.cgi", "post");
+    print ui_form_start("cmd.cgi", "post");
 	%parent = find_parent($in{'rename'});
 	if (index($in{'rename'}, '@') != -1) {
 		#is snapshot
 		print ui_hidden('confirm', 'yes');
 		$parent = $parent{'filesystem'};
 		print ui_table_start('Rename snapshot', 'width=100%', '6');
-        	print ui_table_row(undef, '<b>Snapshot:</b> '.$in{'rename'});
-        	print ui_table_row(undef, "<b>New Name: </b>".$parent."@".ui_textbox('name'));
+       	print ui_table_row(undef, '<b>Snapshot:</b> '.$in{'rename'});
+      	print ui_table_row(undef, "<b>New Name: </b>".$parent."@".ui_textbox('name', $parent{'snapshot'}, 35));
 		print ui_table_row(undef, ui_checkbox("recurse", "-r ", "Recursively rename the snapshots of all descendent datasets."));
 		@footer = ("status.cgi?snap=".$in{'rename'}, $in{'rename'});
 	} elsif (index($in{'rename'}, '/') != -1) {
-                #is filesystem
+        #is filesystem
 		$parent = $parent{'pool'};
 		ui_zfs_list("-r ".$in{'rename'});
 		print ui_table_start('Rename filesystem', 'width=100%', '6');
                 print ui_table_row(undef, '<b>Filesystem:</b> '.$in{'rename'});
-                print ui_table_row(undef, "<b>New Name: </b>".$parent."/".ui_textbox('name'));
+                print ui_table_row(undef, "<b>New Name: </b>".$parent."/".ui_textbox('name', undef, 35));
 		print ui_table_row(undef, ui_checkbox("prnt", "-p ", "Create all the nonexistent parent datasets."));
 	}
 	print ui_table_row(undef, ui_checkbox("force", "-f ", "Force unmount any filesystems that need to be unmounted in the process."));

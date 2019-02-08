@@ -358,6 +358,7 @@ my %parent = ();
 ($parent{'pool'}) = split(/[@\/]/g, $filesystem);
 $null = reverse $filesystem =~ /[@\/]/g;
 $parent{'filesystem'} = substr $filesystem, 0, $-[0];
+if (index($filesystem, '@') != -1) { (undef, $parent{'snapshot'}) = split(/@/, $filesystem); }
 return %parent;
 }
 
