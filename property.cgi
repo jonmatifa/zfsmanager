@@ -42,12 +42,17 @@ if ($text{'prop_'.$in{'property'}})
 }
 print ui_table_end();
 
+#this is where we see if we can/and how to edit zfs properties
 if (can_edit($in{'zfs'}, $in{'property'}) =~ 1) {
 print ui_form_start('cmd.cgi', 'post');
 print ui_hidden('property', $in{'property'});
 print ui_hidden('zfs', $in{'zfs'});
 print ui_hidden('pool', $in{'pool'});
-if ($in{'property'} =~ 'mountpoint') {
+if ($in{'property'} =~ 'keystatus' and $get{$in{'zfs'}}{$in{'property'}}{value} =~ 'unavailable') {
+        print ui_hidden('cmd', 'load-key');
+        print "<a href='cmd.cgi?zfs=$in{'zfs'}&cmd=zfsact&action=load-key'>Load key</a>";
+        #print ui_submit('submit'), "<br />";
+} elsif ($in{'property'} =~ 'mountpoint') {
 	print ui_hidden('cmd', 'setzfs');
 	print ui_filebox('set', $get{$in{'zfs'}}{$in{'property'}}{value}, 0, undef, undef, 1);
 	print ui_submit('submit'), "<br />";
