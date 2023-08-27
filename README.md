@@ -24,3 +24,9 @@ Right now its just me developing this. I'm not a programmer by trade, but I'm ha
 **Thank you**
 
 Thank you for stopping by and I hope you enjoy this plugin!
+
+**Trouble shooting**
+
+If you dont see the ZFS Manger Plugin in Webmin after installing make sure it is enabled for the user in question by going into Webmin - Webmin Users - Select username - Available Webmin Modules - Check ZFS Manager and then click Save (https://github.com/jonmatifa/zfsmanager/issues/11)
+
+
