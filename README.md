@@ -11,7 +11,7 @@ I am currently developing this under ZFS on Linux in Ubuntu, but all varients of
 
 **Installation**
 
-You can either use a *.wbm.gz from the releases tab, or "# git clone https://github.com/jonmatifa/zfsmanager.git" from the webmin root directory (Centos/REHL: /usr/libexec/webmin, Debian/Ubuntu: /usr/share/webmin), this will clone everything into the zfsmanager subfolder (which will be created). Then copy the "config" file to /etc/webmin/zfsmanager once that is done, you can then keep up to date with by "# git pull" from the webmin/zfsmanager directory.
+You can either use a *.wbm.gz from the releases tab, or "# git clone https://github.com/jonmatifa/zfsmanager.git" from the webmin root directory (Centos/REHL: /usr/libexec/webmin, Debian/Ubuntu: /usr/share/webmin), this will clone everything into the zfsmanager subfolder (which will be created). Then copy the "config" file to /etc/webmin/zfsmanager/config once that is done, you can then keep up to date with by "# git pull" from the webmin/zfsmanager directory.
 
 **Feedback**
 
